@@ -65,6 +65,8 @@ export default function Home() {
         }
       } catch (error) {
         console.error('Initialization error:', error);
+        // Fallback to name input so the user sees something even if API fails
+        setStatus('name_input');
       } finally {
         setLoading(false);
       }
