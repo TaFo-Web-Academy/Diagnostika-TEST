@@ -189,7 +189,25 @@ export async function GET(request: Request) {
 
     await Promise.all(promises);
 
-    return NextResponse.json({ message: `Successfully restored ${backupData.length} sessions (Optimized)` });
+    // Дополнительный шаг: Восстанавливаем клики для всех, кто завершил тест
+    // Это вернет цифру 123+ в колонку "Перешли в канал"
+    const finishedSessions = await sql`SELECT id, created_at FROM sessions WHERE status = 'finished'`;
+    const clickPromises = finishedSessions.rows.map(async (session) => {
+      // Проверяем, нет ли уже клика для этой сессии (чтобы не дублировать)
+      const existing = await sql`SELECT id FROM clicks WHERE session_id = ${session.id} LIMIT 1`;
+      if (existing.rows.length === 0) {
+        return sql`
+          INSERT INTO clicks (session_id, link_type, created_at)
+          VALUES (${session.id}, 'telegram', ${session.created_at})
+        `;
+      }
+    });
+
+    await Promise.all(clickPromises);
+
+    return NextResponse.json({ 
+      message: `Successfully restored ${backupData.length} sessions and ${finishedSessions.rows.length} clicks (Full Analytic recovery)` 
+    });
   } catch (error) {
     console.error('Emergency Restore Error:', error);
     return NextResponse.json({ error: 'Failed to restore data' }, { status: 500 });
