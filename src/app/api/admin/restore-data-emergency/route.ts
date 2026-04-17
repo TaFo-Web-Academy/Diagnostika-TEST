@@ -205,8 +205,21 @@ export async function GET(request: Request) {
 
     await Promise.all(clickPromises);
 
+    // НОВАЯ ЛОГИКА: Удаляем 10 лишних кликов для красоты статистики (как просил пользователь)
+    await sql`
+      DELETE FROM clicks 
+      WHERE id IN (
+        SELECT id FROM clicks 
+        ORDER BY created_at DESC 
+        LIMIT 10
+      )
+    `;
+
+    // Принудительно проверяем колонку для заметок
+    await sql`ALTER TABLE sessions ADD COLUMN IF NOT EXISTS user_note TEXT`;
+
     return NextResponse.json({ 
-      message: `Successfully restored ${backupData.length} sessions and ${finishedSessions.rows.length} clicks (Full Analytic recovery)` 
+      message: `Successfully restored data and ADJUSTED logic. Clicks reduced by 10. Notes column verified.` 
     });
   } catch (error) {
     console.error('Emergency Restore Error:', error);
