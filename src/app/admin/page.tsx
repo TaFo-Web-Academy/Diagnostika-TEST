@@ -33,6 +33,10 @@ export default function AdminPage() {
 
   useEffect(() => {
     loadData();
+    const interval = setInterval(() => {
+      loadData();
+    }, 10000);
+    return () => clearInterval(interval);
   }, [loadData]);
 
   // Handle Search

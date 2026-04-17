@@ -190,7 +190,7 @@ export default function Home() {
       <main>
         {status === 'name_input' && (
           <div>
-            <div className="question-text">Номи худронависед</div>
+            <div className="question-text">Номи худро нависед</div>
             <div className="options-container">
               <input 
                 type="text" 
