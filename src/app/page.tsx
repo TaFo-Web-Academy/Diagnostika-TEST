@@ -167,7 +167,7 @@ export default function Home() {
   if (loading && status === 'loading') {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <p>Загрузка...</p>
+        <p>Боркунӣ...</p>
       </div>
     );
   }
@@ -175,7 +175,7 @@ export default function Home() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <h1>Диагностикаи равонӣ</h1>
+        <h1>Диагностикаи РОЙГОН</h1>
         <div className="progress-container">
           <div 
             className="progress-bar" 
@@ -190,7 +190,7 @@ export default function Home() {
       <main>
         {status === 'name_input' && (
           <div>
-            <div className="question-text">Ном нависед</div>
+            <div className="question-text">Номи худронависед</div>
             <div className="options-container">
               <input 
                 type="text" 
@@ -257,7 +257,7 @@ export default function Home() {
             disabled={userName.trim().length < 2 || loading}
             onClick={handleStartWithName}
           >
-            {loading ? 'Огов...' : 'Давом додан'}
+            {loading ? 'Огоз...' : 'Давом додан'}
           </button>
         )}
         

@@ -38,12 +38,12 @@ export async function GET() {
 
     // Daily stats (last 10 days)
     const dailyStatsResult = await sql`
-      SELECT DATE(s.created_at) as date, 
+      SELECT TO_CHAR(s.created_at, 'YYYY-MM-DD') as date, 
              COUNT(DISTINCT s.id) as sessions, 
              COUNT(DISTINCT CASE WHEN s.status = 'finished' THEN s.id END) as finished
       FROM sessions s
       WHERE s.created_at >= NOW() - INTERVAL '10 days'
-      GROUP BY DATE(s.created_at)
+      GROUP BY TO_CHAR(s.created_at, 'YYYY-MM-DD')
       ORDER BY date ASC
     `;
     const dailyStats = dailyStatsResult.rows.map(row => ({
