@@ -252,14 +252,26 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {userNotes.length > 0 && (
-        <div className="recent-card" style={{ marginBottom: '32px', borderLeft: '4px solid var(--accent)' }}>
-          <div className="recent-header">
-            <h2>📩 Сообщения о «боли» пользователей</h2>
-            <span className="badge active">{userNotes.length} новых</span>
-          </div>
-          <div className="notes-list" style={{ padding: '0 24px 24px' }}>
-            {userNotes.map((note, i) => (
+      <div className="recent-card" style={{ marginBottom: '32px', borderLeft: '4px solid var(--accent)' }}>
+        <div className="recent-header">
+          <h2>📩 Сообщения о «боли» пользователей</h2>
+          {userNotes.length > 0 && <span className="badge active">{userNotes.length} новых</span>}
+        </div>
+        <div className="notes-list" style={{ padding: '0 24px 24px' }}>
+          {userNotes.length === 0 ? (
+            <div style={{ 
+              padding: '40px', 
+              textAlign: 'center', 
+              background: 'rgba(255,255,255,0.02)', 
+              borderRadius: '12px',
+              color: 'var(--text-secondary)',
+              border: '1px dashed rgba(255,255,255,0.1)'
+            }}>
+              <div style={{ fontSize: '2rem', marginBottom: '10px' }}>✉️</div>
+              Здесь появятся глубокие ответы пользователей о тех вещах, которые их беспокоят.
+            </div>
+          ) : (
+            userNotes.map((note, i) => (
               <div key={i} className="note-card" style={{ 
                 background: 'rgba(255,255,255,0.03)', 
                 padding: '16px', 
@@ -282,10 +294,10 @@ export default function AdminPage() {
                   </div>
                 )}
               </div>
-            ))}
-          </div>
+            ))
+          )}
         </div>
-      )}
+      </div>
 
       <div className="recent-card">
         <div className="recent-header">
