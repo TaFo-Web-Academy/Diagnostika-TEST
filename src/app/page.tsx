@@ -24,6 +24,9 @@ export default function Home() {
   const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
   const [status, setStatus] = useState<'loading' | 'active' | 'finished' | 'name_input'>('loading');
   const [resultType, setResultType] = useState<number | null>(null);
+  const [userNote, setUserNote] = useState<string>('');
+  const [isSavingNote, setIsSavingNote] = useState(false);
+  const [noteSaved, setNoteSaved] = useState(false);
 
   // Initialize
   useEffect(() => {
@@ -124,6 +127,24 @@ export default function Home() {
       console.error('Error submitting answer:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const saveNote = async () => {
+    if (!userNote.trim() || isSavingNote) return;
+    
+    setIsSavingNote(true);
+    try {
+      await fetch('/api/session/note', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId, note: userNote })
+      });
+      setNoteSaved(true);
+    } catch (e) {
+      console.error('Error saving note');
+    } finally {
+      setIsSavingNote(false);
     }
   };
 
@@ -234,6 +255,53 @@ export default function Home() {
                     <strong>{res.stepTitle}</strong><br /><br />
                     {res.step}
                   </div>
+
+                  <div className="note-section" style={{ marginTop: '30px', marginBottom: '20px', textAlign: 'left' }}>
+                    <p style={{ fontSize: '1.1rem', marginBottom: '15px', color: '#fff', fontWeight: '500' }}>
+                      Бисертар чи шуморо озор медиҳад ва агар аз ин дард озод шавед худро чихел хис мекунед?
+                    </p>
+                    <textarea 
+                      className="note-input"
+                      placeholder="Дар ин ҷо нависед..."
+                      value={userNote}
+                      onChange={(e) => setUserNote(e.target.value)}
+                      disabled={noteSaved}
+                      style={{
+                        width: '100%',
+                        minHeight: '120px',
+                        padding: '15px',
+                        borderRadius: '12px',
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        color: '#fff',
+                        fontSize: '1rem',
+                        marginBottom: '10px',
+                        resize: 'vertical'
+                      }}
+                    />
+                    {!noteSaved ? (
+                      <button 
+                        className="save-note-btn"
+                        onClick={saveNote}
+                        disabled={isSavingNote || !userNote.trim()}
+                        style={{
+                          background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+                          color: '#fff',
+                          border: 'none',
+                          padding: '10px 20px',
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          fontWeight: 'bold',
+                          transition: 'opacity 0.2s'
+                        }}
+                      >
+                        {isSavingNote ? 'САБТ КАРДА ШУДААСТ...' : 'САБТ КАРДАН'}
+                      </button>
+                    ) : (
+                      <p style={{ color: '#10b981', fontWeight: 'bold' }}>✅ Маълумот сабт шуд! Ташаккур.</p>
+                    )}
+                  </div>
+
                   <a 
                     href={TELEGRAM_LINK} 
                     className="telegram-link" 

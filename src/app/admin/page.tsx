@@ -16,6 +16,7 @@ export default function AdminPage() {
   const [hasMore, setHasMore] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [userNotes, setUserNotes] = useState<any[]>([]);
 
   const loadData = useCallback(async () => {
     try {
@@ -30,6 +31,10 @@ export default function AdminPage() {
       setRecentSessions(recentData);
       if (recentData.length < 100) setHasMore(false);
       else setHasMore(true);
+
+      const notesRes = await fetch('/api/admin/notes');
+      const notesData = await notesRes.json();
+      setUserNotes(notesData);
     } catch (error) {
       console.error('Error loading admin data:', error);
     } finally {
@@ -246,6 +251,41 @@ export default function AdminPage() {
           </div>
         </div>
       </div>
+
+      {userNotes.length > 0 && (
+        <div className="recent-card" style={{ marginBottom: '32px', borderLeft: '4px solid var(--accent)' }}>
+          <div className="recent-header">
+            <h2>📩 Сообщения о «боли» пользователей</h2>
+            <span className="badge active">{userNotes.length} новых</span>
+          </div>
+          <div className="notes-list" style={{ padding: '0 24px 24px' }}>
+            {userNotes.map((note, i) => (
+              <div key={i} className="note-card" style={{ 
+                background: 'rgba(255,255,255,0.03)', 
+                padding: '16px', 
+                borderRadius: '12px', 
+                marginBottom: '12px',
+                border: '1px solid rgba(255,255,255,0.05)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <strong style={{ color: 'var(--accent)' }}>{note.user_name || 'Аноним'}</strong>
+                  <small style={{ color: 'var(--text-secondary)' }}>
+                    {new Date(note.created_at).toLocaleString('ru-RU')}
+                  </small>
+                </div>
+                <p style={{ margin: 0, fontStyle: 'italic', lineHeight: '1.5' }}>"{note.user_note}"</p>
+                {note.result_type && (
+                  <div style={{ marginTop: '8px' }}>
+                    <span className={`badge type${note.result_type}`} style={{ fontSize: '0.7rem' }}>
+                      Результат: {resultNames[note.result_type]}
+                    </span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="recent-card">
         <div className="recent-header">

@@ -10,10 +10,18 @@ export async function initializeDatabase() {
       answers JSONB DEFAULT '[]',
       status VARCHAR(20) DEFAULT 'active',
       result_type INTEGER,
+      user_note TEXT,
       created_at TIMESTAMP DEFAULT NOW(),
       updated_at TIMESTAMP DEFAULT NOW()
     )
   `;
+
+  // Автоматическая миграция: добавляем колонку user_note если её ещё нет
+  try {
+    await sql`ALTER TABLE sessions ADD COLUMN IF NOT EXISTS user_note TEXT`;
+  } catch (e) {
+    console.log('Column user_note might already exist or failed to add');
+  }
 
   await sql`
     CREATE TABLE IF NOT EXISTS results (
