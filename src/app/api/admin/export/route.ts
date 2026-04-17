@@ -8,7 +8,7 @@ export async function GET(request: Request) {
     const format = searchParams.get('format') || 'json';
     
     const result = await sql`
-      SELECT id, user_name, current_q, status, result_type, created_at, updated_at
+      SELECT id, user_name, current_q, status, result_type, user_note, created_at, updated_at
       FROM sessions 
       ORDER BY created_at DESC
     `;
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     const sessions = result.rows;
     
     if (format === 'csv') {
-      const headers = ['ID', 'Имя', 'Вопрос', 'Статус', 'Результат', 'Дата'];
+      const headers = ['ID', 'Имя', 'Вопрос', 'Статус', 'Результат', 'Сообщение (Боль)', 'Дата'];
       const resultNames: Record<number, string> = { 
         1: 'Тарси радшавӣ', 
         2: 'Ҷудоӣ аз худ', 
@@ -32,6 +32,7 @@ export async function GET(request: Request) {
           s.current_q,
           s.status,
           resultNames[s.result_type] || '',
+          s.user_note || '',
           s.created_at || ''
         ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(',');
         csv += row + '\n';
