@@ -12,6 +12,8 @@ export default function AdminPage() {
   const [stats, setStats] = useState<any>(null);
   const [recentSessions, setRecentSessions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
 
@@ -21,15 +23,40 @@ export default function AdminPage() {
       const statsData = await statsRes.json();
       setStats(statsData);
 
-      const recentRes = await fetch('/api/admin/recent');
+      // We only auto-refresh the first 100 to keep it fast
+      const recentRes = await fetch('/api/admin/recent?limit=100');
       const recentData = await recentRes.json();
+      
       setRecentSessions(recentData);
+      if (recentData.length < 100) setHasMore(false);
+      else setHasMore(true);
     } catch (error) {
       console.error('Error loading admin data:', error);
     } finally {
       setLoading(false);
     }
   }, []);
+
+  const handleLoadMore = async () => {
+    if (loadingMore || !hasMore || recentSessions.length >= 5000) return;
+    
+    setLoadingMore(true);
+    try {
+      const offset = recentSessions.length;
+      const res = await fetch(`/api/admin/recent?limit=100&offset=${offset}`);
+      const newData = await res.json();
+      
+      if (newData.length < 100) {
+        setHasMore(false);
+      }
+      
+      setRecentSessions(prev => [...prev, ...newData]);
+    } catch (error) {
+      console.error('Error loading more sessions:', error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   useEffect(() => {
     loadData();
@@ -266,6 +293,25 @@ export default function AdminPage() {
             )}
           </tbody>
         </table>
+        
+        {hasMore && recentSessions.length < 5000 && (
+          <div style={{ padding: '24px', textAlign: 'center' }}>
+            <button 
+              className="export-btn" 
+              onClick={handleLoadMore} 
+              disabled={loadingMore}
+              style={{ width: '200px', background: 'var(--surface-light)' }}
+            >
+              {loadingMore ? 'Загрузка...' : 'Загрузить ещё'}
+            </button>
+          </div>
+        )}
+        
+        {!hasMore && recentSessions.length > 0 && (
+          <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+            Все данные загружены
+          </div>
+        )}
       </div>
     </div>
   );
