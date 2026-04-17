@@ -17,6 +17,8 @@ export default function AdminPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [userNotes, setUserNotes] = useState<any[]>([]);
+  const [loadingMoreNotes, setLoadingMoreNotes] = useState(false);
+  const [hasMoreNotes, setHasMoreNotes] = useState(true);
 
   const loadData = useCallback(async () => {
     try {
@@ -32,9 +34,11 @@ export default function AdminPage() {
       if (recentData.length < 100) setHasMore(false);
       else setHasMore(true);
 
-      const notesRes = await fetch('/api/admin/notes');
+      const notesRes = await fetch('/api/admin/notes?limit=10');
       const notesData = await notesRes.json();
       setUserNotes(notesData);
+      if (notesData.length < 10) setHasMoreNotes(false);
+      else setHasMoreNotes(true);
     } catch (error) {
       console.error('Error loading admin data:', error);
     } finally {
@@ -60,6 +64,27 @@ export default function AdminPage() {
       console.error('Error loading more sessions:', error);
     } finally {
       setLoadingMore(false);
+    }
+  };
+
+  const handleLoadMoreNotes = async () => {
+    if (loadingMoreNotes || !hasMoreNotes || userNotes.length >= 1000) return;
+    
+    setLoadingMoreNotes(true);
+    try {
+      const offset = userNotes.length;
+      const res = await fetch(`/api/admin/notes?limit=10&offset=${offset}`);
+      const newData = await res.json();
+      
+      if (newData.length < 10) {
+        setHasMoreNotes(false);
+      }
+      
+      setUserNotes(prev => [...prev, ...newData]);
+    } catch (error) {
+      console.error('Error loading more notes:', error);
+    } finally {
+      setLoadingMoreNotes(false);
     }
   };
 
@@ -297,6 +322,23 @@ export default function AdminPage() {
             ))
           )}
         </div>
+        {hasMoreNotes && userNotes.length < 1000 && (
+          <div style={{ padding: '0 24px 24px', textAlign: 'center' }}>
+            <button 
+              className="export-btn" 
+              onClick={handleLoadMoreNotes} 
+              disabled={loadingMoreNotes}
+              style={{ width: '100%', background: 'rgba(255,255,255,0.05)', fontSize: '0.85rem' }}
+            >
+              {loadingMoreNotes ? 'Загрузка...' : 'Загрузить ещё сообщения'}
+            </button>
+          </div>
+        )}
+        {!hasMoreNotes && userNotes.length > 0 && (
+          <div style={{ padding: '0 24px 24px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.8rem' }}>
+            Больше сообщений нет
+          </div>
+        )}
       </div>
 
       <div className="recent-card">
