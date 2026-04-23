@@ -127,6 +127,15 @@ export default function AdminPage() {
 }
 
 function UserDetail({ user, profile, onBack }: any) {
+  const labelMap: Record<string, string> = {
+    'q1': 'Савол 1',
+    'q2': 'Савол 2',
+    'q3': 'Савол 3',
+    'q4': 'Савол 4',
+    'q5': 'Савол 5',
+    'note': 'Қайди шахсӣ'
+  };
+
   return (
     <div>
       <button onClick={onBack} style={{ 
@@ -154,10 +163,10 @@ function UserDetail({ user, profile, onBack }: any) {
                   <div key={ans.id} className="history-item" style={{ flexDirection: 'column', alignItems: 'flex-start', padding: '16px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', marginBottom: '8px' }}>
                       <span style={{ fontSize: '0.9rem', color: 'var(--primary)', fontWeight: 'bold' }}>
-                        Савол: {ans.question_key}
+                        {labelMap[ans.question_key] || ans.question_key}
                       </span>
                       <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                        {new Date(ans.created_at).toLocaleString()}
+                        {new Date(ans.created_at).toLocaleString('tg-TJ')}
                       </span>
                     </div>
                     <p style={{ margin: 0, color: 'var(--text)', fontSize: '1.1rem' }}>
@@ -175,3 +184,4 @@ function UserDetail({ user, profile, onBack }: any) {
     </div>
   );
 }
+

@@ -3,75 +3,72 @@ import { sql } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
-// GET: Экспорт данных (CSV или JSON)
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const format = searchParams.get('format') || 'json';
     
-    // Получаем полные данные: пользователи + их прогресс + завершённые задания
+    // Получаем список пользователей с их последними ответами
     const result = await sql`
+      WITH RecentAnswers AS (
+        SELECT 
+          user_id,
+          question_key,
+          answer_text,
+          ROW_NUMBER() OVER (PARTITION BY user_id, question_key ORDER BY created_at DESC) as rn
+        FROM user_answers
+      )
       SELECT 
-        u.id as user_id,
+        u.id,
         u.name,
-        u.phone,
-        u.email,
-        u.subscription_status,
-        u.created_at as user_created,
-        up.current_streak,
-        up.longest_streak,
-        up.total_points,
-        up.total_days_completed,
-        up.level,
-        COUNT(DISTINCT a.id) as total_assignments,
-        COUNT(DISTINCT CASE WHEN a.status = 'completed' THEN a.id END) as completed_assignments
+        up.current_streak as streak,
+        MAX(CASE WHEN ra.question_key = 'q1' AND ra.rn = 1 THEN ra.answer_text END) as q1,
+        MAX(CASE WHEN ra.question_key = 'q2' AND ra.rn = 1 THEN ra.answer_text END) as q2,
+        MAX(CASE WHEN ra.question_key = 'q3' AND ra.rn = 1 THEN ra.answer_text END) as q3,
+        MAX(CASE WHEN ra.question_key = 'q4' AND ra.rn = 1 THEN ra.answer_text END) as q4,
+        MAX(CASE WHEN ra.question_key = 'q5' AND ra.rn = 1 THEN ra.answer_text END) as q5,
+        MAX(CASE WHEN ra.question_key = 'note' AND ra.rn = 1 THEN ra.answer_text END) as note
       FROM users u
       LEFT JOIN user_progress up ON u.id = up.user_id
-      LEFT JOIN assignments a ON u.id = a.user_id
-      GROUP BY u.id, up.id
-      ORDER BY u.created_at DESC
+      LEFT JOIN RecentAnswers ra ON u.id = ra.user_id
+      GROUP BY u.id, u.name, up.current_streak
+      ORDER BY u.id DESC
     `;
 
-    const users = result.rows;
+    const data = result.rows;
 
     if (format === 'csv') {
       const headers = [
-        'ID', 'Название', 'Номер телефона', 'Email', 
-        'Статус подписки', 'Дата регистрации',
-        'Текущий стрик', 'Макс. стрик', 'Всего баллов',
-        'Завершено дней', 'Уровень', 'Всего заданий', 'Завершено заданий'
+        'ID', 'Номи корбар', 'Стрик', 
+        'Савол 1', 'Савол 2', 'Савол 3', 'Савол 4', 'Савол 5', 'Қайди шахсӣ'
       ];
       
-      let csv = headers.join(',') + '\n';
+      let csv = '\uFEFF' + headers.join(',') + '\n'; // Add BOM for Excel UTF-8 support
       
-      users.forEach((u: any) => {
+      data.forEach((u: any) => {
         const row = [
-          u.user_id,
+          u.id,
           u.name || '',
-          u.phone || '',
-          u.email || '',
-          u.subscription_status || 'free',
-          u.user_created || '',
-          u.current_streak || 0,
-          u.longest_streak || 0,
-          u.total_points || 0,
-          u.total_days_completed || 0,
-          u.level || 1,
-          u.total_assignments || 0,
-          u.completed_assignments || 0
+          u.streak || 0,
+          u.q1 || '-',
+          u.q2 || '-',
+          u.q3 || '-',
+          u.q4 || '-',
+          u.q5 || '-',
+          u.note || '-'
         ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(',');
         csv += row + '\n';
       });
       
       return new NextResponse(csv, {
         headers: {
-          'Content-Type': 'text/csv',
-          'Content-Disposition': 'attachment; filename=course_users_export.csv'
+          'Content-Type': 'text/csv; charset=utf-8',
+          'Content-Disposition': 'attachment; filename=users_answers.csv'
         }
       });
     }
     
-    return NextResponse.json(users);
+    return NextResponse.json(data);
   } catch (error) {
     console.error('Export error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
