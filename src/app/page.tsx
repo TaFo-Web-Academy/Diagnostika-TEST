@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 
 const API_BASE = '';
 
@@ -10,15 +9,11 @@ export default function Home() {
   const [userId, setUserId] = useState<number | null>(null);
   const [userName, setUserName] = useState<string>('');
   
-  // Assignment state
   const [assignment, setAssignment] = useState<any>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const router = useRouter();
-
-  // Initialize user
   useEffect(() => {
     const init = async () => {
       try {
@@ -31,7 +26,6 @@ export default function Home() {
           return;
         }
 
-        // Check query params
         const params = new URLSearchParams(window.location.search);
         const newUserId = params.get('user_id');
         const newUserName = params.get('name');
@@ -52,7 +46,6 @@ export default function Home() {
     init();
   }, []);
 
-  // Load assignment
   useEffect(() => {
     if (!userId) return;
     loadAssignment();
@@ -68,6 +61,9 @@ export default function Home() {
           acc[ans.question_key] = ans.answer_text;
           return acc;
         }, {}));
+        if (data.assignment.status === 'completed') {
+          setSaved(true);
+        }
       }
     } catch (error) {
       console.error('Load assignment error:', error);
@@ -95,11 +91,9 @@ export default function Home() {
         localStorage.setItem('userId', data.user.id.toString());
         setUserId(data.user.id);
         setUserName(data.user.name);
-      } else {
-        alert('Хатогии сабт: ' + (data.error || 'Хатогии номаълум'));
       }
     } catch (error: any) {
-      alert('Хатогии пайвастшавӣ: ' + error.message);
+      alert('Хатогӣ!');
     } finally {
       setIsSaving(false);
     }
@@ -110,7 +104,7 @@ export default function Home() {
   };
 
   const handleSaveAnswers = async () => {
-    if (!userId || !assignment) return;
+    if (!userId || !assignment || saved) return;
     
     setIsSaving(true);
     try {
@@ -129,17 +123,18 @@ export default function Home() {
       }
       
       setSaved(true);
-      loadAssignment(); 
+      // Wait a bit to show the "Success" state on the button
+      setTimeout(() => {
+        loadAssignment();
+      }, 1000);
     } catch (error) {
-      console.error('Save answers error:', error);
+      console.error('Save error:', error);
     } finally {
       setIsSaving(false);
     }
   };
 
-  if (loading) {
-    return <div className="loading">Боркунӣ...</div>;
-  }
+  if (loading) return <div className="loading">Боркунӣ...</div>;
 
   return (
     <div className="app-container">
@@ -169,20 +164,19 @@ export default function Home() {
               {isSaving ? 'Оғоз...' : 'Оғоз кардан'}
             </button>
           </div>
-        ) : assignment?.status === 'completed' ? (
-          <div className="waiting-card">
-            <div className="waiting-icon">🌟</div>
-            <h2 className="waiting-title">Офарин, {userName}!</h2>
-            <p className="waiting-text">
-              Машқи имрӯз бо муваффақият иҷро шуд. То фардо мунтазир бошед, машқи нав дастрас мешавад.
-            </p>
-            <div className="status-badge completed">✅ Иҷро шуд</div>
-          </div>
         ) : assignment ? (
           <div className="assignment-content">
+            {saved && (
+              <div className="waiting-card" style={{ padding: '20px', marginBottom: '0' }}>
+                <p style={{ color: 'var(--success)', fontWeight: 'bold' }}>
+                  🌟 То фардо мунтазир бошед, машқи нав дастрас мешавад!
+                </p>
+              </div>
+            )}
+
             <div className="assignment-header">
               <h2 className="assignment-title">{assignment.title}</h2>
-              <span className="status-badge">⏳ Дар ҳол</span>
+              {saved && <span className="status-badge completed">Сабт шуд ✅</span>}
             </div>
 
             <div 
@@ -207,6 +201,7 @@ export default function Home() {
                     value={answers[q.key] || ''}
                     onChange={(e) => handleAnswerChange(q.key, e.target.value)}
                     placeholder="1-10"
+                    disabled={saved}
                   />
                 </div>
               ))}
@@ -218,15 +213,17 @@ export default function Home() {
                   placeholder="Чӣ дард метавонед нависед..."
                   value={answers.note || ''}
                   onChange={(e) => handleAnswerChange('note', e.target.value)}
+                  disabled={saved}
                 />
               </div>
 
               <button 
                 className="save-btn"
                 onClick={handleSaveAnswers}
-                disabled={isSaving}
+                disabled={isSaving || saved}
+                style={saved ? { background: 'var(--success)', cursor: 'default' } : {}}
               >
-                {isSaving ? 'Сабт...' : 'Сабт кардан'}
+                {isSaving ? 'Сабт...' : saved ? 'Сабт карда шуд ✅' : 'Сабт кардан'}
               </button>
             </div>
           </div>
