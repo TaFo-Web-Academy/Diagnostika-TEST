@@ -101,29 +101,49 @@ export default function Home() {
   };
 
   const handleRegister = async () => {
-    if (userName.trim().length < 2) return;
+    const trimmedName = userName.trim();
+    if (trimmedName.length < 2) {
+      alert('Ном бояд ҳадди ақал 2 ҳарф бошад');
+      return;
+    }
     
     setIsSaving(true);
     try {
+      console.log('Registering user:', trimmedName);
       const res = await fetch(`${API_BASE}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: userName.trim() })
+        body: JSON.stringify({ name: trimmedName })
       });
+      
       const data = await res.json();
+      console.log('Registration response:', data);
+
+      if (!res.ok || data.error) {
+        console.error('Registration failed:', data);
+        alert('Хатогии сабт: ' + (data.error || 'Хатогии номаълум'));
+        return;
+      }
+
+      if (!data.user || !data.user.id) {
+        console.error('Invalid user data received:', data);
+        alert('Хатогӣ: Сервер маълумоти нодуруст фиристод');
+        return;
+      }
       
       localStorage.setItem('userName', data.user.name);
-      localStorage.setItem('userId', data.user.id);
+      localStorage.setItem('userId', data.user.id.toString());
       setUserId(data.user.id);
       setUserName(data.user.name);
       setActiveTab('assignment');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Register error:', error);
-      alert('Xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.');
+      alert('Хатогӣ дар пайвастшавӣ: ' + error.message);
     } finally {
       setIsSaving(false);
     }
   };
+
 
   const handleAnswerChange = (key: string, value: string) => {
     setAnswers(prev => ({ ...prev, [key]: value }));

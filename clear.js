@@ -3,7 +3,8 @@ const { sql } = require('@vercel/postgres');
 async function clearDb() {
   try {
     console.log('Clearing database...');
-    await sql`TRUNCATE sessions, results, clicks CASCADE`;
+    // Truncate all tables including new ones
+    await sql`TRUNCATE users, assignment_templates, assignments, user_answers, user_progress, sessions, results, clicks CASCADE`;
     console.log('Database cleared perfectly.');
     process.exit(0);
   } catch (error) {
@@ -13,3 +14,4 @@ async function clearDb() {
 }
 
 clearDb();
+
