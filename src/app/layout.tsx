@@ -1,8 +1,8 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Диагностикаи равонӣ',
-  description: 'Тести психологӣ ба забони тоҷикӣ',
+  title: 'Қадами Амали Имрӯз',
+  description: 'Амалиёти рӯҳии рӯзагона — шикасту беморотӣ',
   icons: {
     icon: '/favicon.ico',
   },

@@ -3,74 +3,69 @@ import { sql } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
-// GET: Статистика для админ-панели
+// GET: Статистика для админ-панели (новая модель)
 export async function GET() {
   try {
-    // Total sessions
-    const totalResult = await sql`SELECT COUNT(*) as count FROM sessions`;
-    const totalSessions = Number(totalResult.rows[0]?.count || 0);
+    // Total users
+    const totalResult = await sql`SELECT COUNT(*) as count FROM users`;
+    const totalUsers = Number(totalResult.rows[0]?.count || 0);
 
-    // Finished sessions
-    const finishedResult = await sql`
-      SELECT COUNT(*) as count FROM sessions WHERE status = 'finished'
+    // Premium users
+    const premiumResult = await sql`
+      SELECT COUNT(*) as count FROM users WHERE subscription_status = 'premium'
     `;
-    const finishedSessions = Number(finishedResult.rows[0]?.count || 0);
+    const premiumUsers = Number(premiumResult.rows[0]?.count || 0);
 
-    // Not finished (active)
-    const activeResult = await sql`
-      SELECT COUNT(*) as count FROM sessions WHERE status = 'active'
+    // Completed assignments
+    const completedResult = await sql`
+      SELECT COUNT(*) as count FROM assignments WHERE status = 'completed'
     `;
-    const notFinishedSessions = Number(activeResult.rows[0]?.count || 0);
+    const completedAssignments = Number(completedResult.rows[0]?.count || 0);
 
-    // Results breakdown
-    const resultsBreakdownResult = await sql`
-      SELECT result_type, COUNT(*) as count 
-      FROM sessions 
-      WHERE status = 'finished' AND result_type IS NOT NULL
-      GROUP BY result_type
+    // Total points
+    const pointsResult = await sql`
+      SELECT COALESCE(SUM(total_points), 0) as sum FROM user_progress
     `;
-    const resultsBreakdown = resultsBreakdownResult.rows.map(row => ({
-      result_type: row.result_type,
-      count: Number(row.count)
-    }));
+    const totalPoints = Number(pointsResult.rows[0]?.sum || 0);
 
-    // Clicks count
-    const clicksResult = await sql`SELECT COUNT(*) as count FROM clicks`;
-    const clicksCount = Number(clicksResult.rows[0]?.count || 0);
+    // Average streak
+    const avgStreakResult = await sql`
+      SELECT COALESCE(AVG(current_streak), 0) as avg FROM user_progress
+    `;
+    const avgStreak = Number(avgStreakResult.rows[0]?.avg || 0);
 
-    // Daily stats (last 10 days)
-    const dailyStatsResult = await sql`
-      SELECT TO_CHAR(s.created_at, 'YYYY-MM-DD') as date, 
-             COUNT(DISTINCT s.id) as sessions, 
-             COUNT(DISTINCT CASE WHEN s.status = 'finished' THEN s.id END) as finished
-      FROM sessions s
-      WHERE s.created_at >= NOW() - INTERVAL '10 days'
-      GROUP BY TO_CHAR(s.created_at, 'YYYY-MM-DD')
+    // Daily activity (last 10 days)
+    const dailyResult = await sql`
+      SELECT DATE(created_at) as date, COUNT(DISTINCT user_id) as active_users
+      FROM assignments
+      WHERE created_at >= NOW() - INTERVAL '10 days'
+      GROUP BY DATE(created_at)
       ORDER BY date ASC
     `;
-    const dailyStats = dailyStatsResult.rows.map(row => ({
+    const dailyActivity = dailyResult.rows.map(row => ({
       date: row.date,
-      sessions: Number(row.sessions),
-      finished: Number(row.finished)
+      active: Number(row.active_users)
     }));
 
-    // Both finished and clicked
-    const bothResult = await sql`
-      SELECT COUNT(DISTINCT s.id) as count 
-      FROM sessions s 
-      INNER JOIN clicks c ON s.id = c.session_id 
-      WHERE s.status = 'finished'
+    // Most completed assignments
+    const topAssignmentsResult = await sql`
+      SELECT at.title, COUNT(*) as count
+      FROM assignments a
+      JOIN assignment_templates at ON a.template_id = at.id
+      WHERE a.status = 'completed'
+      GROUP BY at.title
+      ORDER BY count DESC
+      LIMIT 5
     `;
-    const bothFinishedAndClicked = Number(bothResult.rows[0]?.count || 0);
 
     return NextResponse.json({
-      totalSessions,
-      finishedSessions,
-      notFinishedSessions,
-      resultsBreakdown,
-      clicksCount,
-      dailyStats,
-      bothFinishedAndClicked
+      totalUsers,
+      premiumUsers,
+      completedAssignments,
+      totalPoints,
+      avgStreak: Math.round(avgStreak * 10) / 10,
+      dailyActivity,
+      topAssignments: topAssignmentsResult.rows
     });
   } catch (error) {
     console.error('Admin stats error:', error);

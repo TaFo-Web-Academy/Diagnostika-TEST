@@ -1,75 +1,59 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-const TELEGRAM_LINK = 'https://t.me/jannat_abdullaeva_kanal';
-
-interface Option {
-  text: string;
-  value: number;
-}
-
-interface Question {
-  id: number;
-  text: string;
-  options: Option[];
-}
+const API_BASE = '';
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
-  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<number | null>(null);
   const [userName, setUserName] = useState<string>('');
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, number>>({});
-  const [status, setStatus] = useState<'loading' | 'active' | 'finished' | 'name_input'>('loading');
-  const [resultType, setResultType] = useState<number | null>(null);
-  const [userNote, setUserNote] = useState<string>('');
-  const [isSavingNote, setIsSavingNote] = useState(false);
-  const [noteSaved, setNoteSaved] = useState(false);
+  const [activeTab, setActiveTab] = useState<'assignment' | 'profile'>('assignment');
+  
+  // Assignment state
+  const [assignment, setAssignment] = useState<any>(null);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
-  // Initialize
+  // Profile state
+  const [profile, setProfile] = useState<any>(null);
+  const [progress, setProgress] = useState<any>(null);
+
+  const router = useRouter();
+
+  // Initialize user
   useEffect(() => {
     const init = async () => {
       try {
-        // Fetch questions
-        const qRes = await fetch('/api/questions');
-        const qData = await qRes.json();
-        setQuestions(qData);
+        const savedName = localStorage.getItem('userName');
+        const savedId = localStorage.getItem('userId');
+        
+        if (savedName && savedId) {
+          setUserName(savedName);
+          setUserId(parseInt(savedId));
+          setActiveTab('assignment');
+          return;
+        }
 
-        // Check local session
-        const savedId = localStorage.getItem('test_sessionId');
-        const savedName = localStorage.getItem('test_userName') || '';
-        setUserName(savedName);
-
-        const sRes = await fetch('/api/session/start', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sessionId: savedId || undefined,
-            userName: savedName || undefined
-          })
-        });
-
-        const sData = await sRes.json();
-        setSessionId(sData.sessionId);
-        localStorage.setItem('test_sessionId', sData.sessionId);
-
-        if (sData.status === 'finished') {
-          setResultType(sData.resultType);
-          setStatus('finished');
-        } else if (!sData.userName && sData.status !== 'finished') {
-          setStatus('name_input');
+        // Check if we have user in query params (after registration)
+        const params = new URLSearchParams(window.location.search);
+        const newUserId = params.get('user_id');
+        const newUserName = params.get('name');
+        
+        if (newUserId && newUserName) {
+          localStorage.setItem('userName', newUserName);
+          localStorage.setItem('userId', newUserId);
+          setUserName(newUserName);
+          setUserId(parseInt(newUserId));
+          setActiveTab('assignment');
         } else {
-          setCurrentIndex(sData.currentQuestion);
-          // Convert array of answers back to map if needed, 
-          // but API returns currentQuestion which is enough for positioning
-          setStatus('active');
+          // Show name input
+          setUserName(savedName || '');
         }
       } catch (error) {
-        console.error('Initialization error:', error);
-        // Fallback to name input so the user sees something even if API fails
-        setStatus('name_input');
+        console.error('Init error:', error);
       } finally {
         setLoading(false);
       }
@@ -78,114 +62,108 @@ export default function Home() {
     init();
   }, []);
 
-  const handleStartWithName = async () => {
+  // Load assignment
+  useEffect(() => {
+    if (!userId) return;
+    loadAssignment();
+  }, [userId]);
+
+  // Load profile when tab changes
+  useEffect(() => {
+    if (activeTab === 'profile' && userId) {
+      loadProfile();
+    }
+  }, [activeTab, userId]);
+
+  const loadAssignment = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/assignments?user_id=${userId}`);
+      const data = await res.json();
+      setAssignment(data.assignment);
+      setAnswers(data.answers.reduce((acc: any, ans: any) => {
+        acc[ans.question_key] = ans.answer_text;
+        return acc;
+      }, {}));
+    } catch (error) {
+      console.error('Load assignment error:', error);
+    }
+  };
+
+  const loadProfile = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/profile?user_id=${userId}`);
+      const data = await res.json();
+      setProfile(data.user);
+      setProgress(data.progress);
+    } catch (error) {
+      console.error('Load profile error:', error);
+    }
+  };
+
+  const handleRegister = async () => {
     if (userName.trim().length < 2) return;
     
-    setLoading(true);
+    setIsSaving(true);
     try {
-      localStorage.setItem('test_userName', userName);
-      await fetch('/api/session/start', {
+      const res = await fetch(`${API_BASE}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, userName: userName })
-      });
-      setStatus('active');
-    } catch (error) {
-      console.error('Error starting session with name:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleOptionSelect = (value: number) => {
-    setSelectedAnswers({
-      ...selectedAnswers,
-      [currentIndex]: value
-    });
-  };
-
-  const handleNext = async () => {
-    const answerIndex = selectedAnswers[currentIndex];
-    if (answerIndex === undefined) return;
-
-    setLoading(true);
-    try {
-      const res = await fetch('/api/answer', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, answerIndex })
+        body: JSON.stringify({ name: userName.trim() })
       });
       const data = await res.json();
-
-      if (data.status === 'finished') {
-        setResultType(data.resultType);
-        setStatus('finished');
-      } else {
-        setCurrentIndex(data.nextQuestion);
-      }
+      
+      localStorage.setItem('userName', data.user.name);
+      localStorage.setItem('userId', data.user.id);
+      setUserId(data.user.id);
+      setUserName(data.user.name);
+      setActiveTab('assignment');
     } catch (error) {
-      console.error('Error submitting answer:', error);
+      console.error('Register error:', error);
+      alert('Xatolik yuz berdi. Iltimos, qayta urinib ko\'ring.');
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
-  const saveNote = async () => {
-    if (!userNote.trim() || isSavingNote) return;
+  const handleAnswerChange = (key: string, value: string) => {
+    setAnswers(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleSaveAnswers = async () => {
+    if (!userId || !assignment) return;
     
-    setIsSavingNote(true);
+    setIsSaving(true);
     try {
-      await fetch('/api/session/note', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, note: userNote })
-      });
-      setNoteSaved(true);
-    } catch (e) {
-      console.error('Error saving note');
-    } finally {
-      setIsSavingNote(false);
-    }
-  };
-
-  const recordClick = async () => {
-    try {
-      await fetch('/api/click', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, linkType: 'telegram' })
-      });
-    } catch (e) {
-      console.log('Click recording error');
-    }
-  };
-
-  const getResultData = (type: number) => {
-    const name = userName || '';
-    const results: Record<number, any> = {
-      1: {
-        title: "ТАРСИ РАДШАВӢ",
-        description: name ? `${name}, ту зуд мешиканӣ, чун даруни ту аз хомӯшӣ ва дуршавӣ метарсад. Ту ҳаттан мардро не, балки ҳисси партофта шуданро аз нав зиндагӣ мекунӣ. Барои ҳамин як паём, як беэътиноӣ, як сардӣ туро аз дарун метасонанд.` : "Ту зуд мешиканӣ, чун даруни ту аз хомӯшӣ ва дуршавӣ метарсад. Ту ҳаттан мардро не, балки ҳисси партофта шуданро аз нав зиндагӣ мекунӣ. Барои ҳамин як паём, як беэътиноӣ, як сардӣ туро аз дарун метасонанд.",
-        stepTitle: "Қадами аввал:",
-        step: name ? `${name}, ту бояд пеш аз ҳама системаи асабатро ором кунӣ ва бифаҳмӣ, ки ҳар хомӯшӣ радшавии ту нест.` : "Ту бояд пеш аз ҳама системаи асабатро ором кунӣ ва бифаҳмӣ, ки ҳар хомӯшӣ радшавии ту нест."
-      },
-      2: {
-        title: "ҶУДОӢ АЗ ХУД",
-        description: name ? `${name}, ту худро дар муносибат гум кардаӣ. Эҳтимол бисёр вақт барои дигарон зиндагӣ мекунӣ, аммо худро намешунавӣ. Барои ҳамин дар дарун холигӣ, хастагӣ ва саргардонӣ ҳаст.` : "Ту худро дар муносибат гум кардаӣ. Эҳтимол бисёр вақт барои дигарон зиндагӣ мекунӣ, аммо худро намешунавӣ. Барои ҳамин дар дарун холигӣ, хастагӣ ва саргардонӣ ҳаст.",
-        stepTitle: "Қадами аввал:",
-        step: name ? `${name}, ту бояд ба худ баргардӣ — ба эҳсос, хоҳиш, ҳақиқат ва арзиши худ.` : "Ту бояд ба худ баргардӣ — ба эҳсос, хоҳиш, ҳақиқат ва арзиши худ."
-      },
-      3: {
-        title: "БЕҚАДРИИ АМИҚ",
-        description: name ? `${name}, дарди асосии ту — "ман кофӣ нестам" аст. Барои ҳамин ту зуд худро бо дигарон муқоиса мекунӣ, мехоҳӣ исбот шавӣ ва аз нодида гирифта шудан мешиканӣ.` : "Дарди асосии ту — \"ман кофӣ нестам\" аст. Барои ҳамин ту зуд худро бо дигарон муқоиса мекунӣ, мехоҳӣ исбот шавӣ ва аз нодида гирифта шудан мешиканӣ.",
-        stepTitle: "Қадами аввал:",
-        step: name ? `${name}, ту бояд решаи беқадриро бинӣ ва барномаи кӯҳнаи "ман камам"-ро бишканӣ.` : "Ту бояд решаи беқадриро бинӣ ва барномаи кӯҳнаи \"ман камам\"-ро бишканӣ."
+      // Сохраняем все ответы
+      for (const [key, value] of Object.entries(answers)) {
+        await fetch(`${API_BASE}/api/answers`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId,
+            assignmentId: assignment.id,
+            questionKey: key,
+            answerText: value
+          })
+        });
       }
-    };
-    return results[type] || results[1];
+      
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+      loadAssignment(); // Refresh assignment status
+      loadProfile();    // Update profile stats
+    } catch (error) {
+      console.error('Save answers error:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  if (loading && status === 'loading') {
+  const handleTabChange = (tab: 'assignment' | 'profile') => {
+    setActiveTab(tab);
+  };
+
+  if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <p>Боркунӣ...</p>
@@ -196,149 +174,184 @@ export default function Home() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <h1>Диагностикаи РОЙГОН</h1>
-        <div className="progress-container">
-          <div 
-            className="progress-bar" 
-            style={{ width: `${status === 'finished' ? 100 : (currentIndex / (questions.length || 7)) * 100}%` }}
-          />
-        </div>
-        <div className="question-counter">
-          {status === 'finished' ? '7/7' : `${currentIndex + 1}/${questions.length}`}
-        </div>
+        <h1>ҚАДАМИ АМАЛИ ИМРӮЗ</h1>
+        
+        {userId && (
+          <div className="tabs">
+            <button 
+              className={`tab-btn ${activeTab === 'assignment' ? 'active' : ''}`}
+              onClick={() => handleTabChange('assignment')}
+            >
+              ⏰ Машқи ҳаррӯза
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
+              onClick={() => handleTabChange('profile')}
+            >
+              👤 Профил
+            </button>
+          </div>
+        )}
       </header>
 
       <main>
-        {status === 'name_input' && (
-          <div>
-            <div className="question-text">Номи худро нависед</div>
-            <div className="options-container">
-              <input 
-                type="text" 
-                className="name-input" 
-                placeholder="Номи шумо" 
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                maxLength={50}
-                autoFocus
-              />
-            </div>
+        {!userId ? (
+          <div className="register-section">
+            <p className="register-prompt">Барои оғоз номи худро ворид кунед:</p>
+            <input 
+              type="text" 
+              className="name-input" 
+              placeholder="Номи шумо" 
+              value={userName}
+              onChange={(e) => setUserName(e.target.value)}
+              maxLength={50}
+              autoFocus
+              onKeyDown={(e) => e.key === 'Enter' && handleRegister()}
+            />
+            <button 
+              className="primary-btn"
+              onClick={handleRegister}
+              disabled={userName.trim().length < 2 || isSaving}
+            >
+              {isSaving ? '...' : 'Оғоз кардан'}
+            </button>
           </div>
-        )}
+        ) : activeTab === 'assignment' && assignment ? (
+          <div className="assignment-content">
+            <div className="assignment-header">
+              <h2 className="assignment-title">{assignment.title || 'Машқи имрӯз'}</h2>
+              <span className={`status-badge ${assignment.status}`}>
+                {assignment.status === 'completed' ? '✅ Иҷро шуд' : '⏳ Дар ҳол'}
+              </span>
+            </div>
 
-        {status === 'active' && questions[currentIndex] && (
-          <div>
-            <div className="question-text">{questions[currentIndex].text}</div>
-            <div className="options-container">
-              {questions[currentIndex].options.map((opt, i) => (
-                <button
-                  key={i}
-                  className={`option-btn ${selectedAnswers[currentIndex] === opt.value ? 'selected' : ''}`}
-                  onClick={() => handleOptionSelect(opt.value)}
+            <div 
+              className="assignment-body" 
+              dangerouslySetInnerHTML={{ __html: assignment.content }}
+            />
+
+            {assignment.status !== 'completed' && (
+              <div className="answers-form">
+                <h3>Ҷавобҳои шумо:</h3>
+                
+                <div className="answer-item">
+                  <label>1. Ман имрӯз дарди худро чӣ қадар равшан дидам? (1-10)</label>
+                  <input 
+                    type="number" min="1" max="10"
+                    value={answers.q1 || ''}
+                    onChange={(e) => handleAnswerChange('q1', e.target.value)}
+                    placeholder="1-10"
+                  />
+                </div>
+
+                <div className="answer-item">
+                  <label>2. Ман имрӯз бо худ чӣ қадар рост будам? (1-10)</label>
+                  <input 
+                    type="number" min="1" max="10"
+                    value={answers.q2 || ''}
+                    onChange={(e) => handleAnswerChange('q2', e.target.value)}
+                    placeholder="1-10"
+                  />
+                </div>
+
+                <div className="answer-item">
+                  <label>3. Ман фаҳмидам, ки сардии ӯ танҳо trigger аст? (1-10)</label>
+                  <input 
+                    type="number" min="1" max="10"
+                    value={answers.q3 || ''}
+                    onChange={(e) => handleAnswerChange('q3', e.target.value)}
+                    placeholder="1-10"
+                  />
+                </div>
+
+                <div className="answer-item">
+                  <label>4. Ман машқи имрӯзро чӣ қадар пурра иҷро кардам? (1-10)</label>
+                  <input 
+                    type="number" min="1" max="10"
+                    value={answers.q4 || ''}
+                    onChange={(e) => handleAnswerChange('q4', e.target.value)}
+                    placeholder="1-10"
+                  />
+                </div>
+
+                <div className="answer-item">
+                  <label>5. Ман хоҳиши контрол ё истерикаро чӣ қадар идора кардам? (1-10)</label>
+                  <input 
+                    type="number" min="1" max="10"
+                    value={answers.q5 || ''}
+                    onChange={(e) => handleAnswerChange('q5', e.target.value)}
+                    placeholder="1-10"
+                  />
+                </div>
+
+                <div className="answer-item">
+                  <label>Қайдҳои шахсӣ (ихтиёрӣ):</label>
+                  <textarea 
+                    className="note-area"
+                    placeholder="Чӣ дард метавонед нависед..."
+                    value={answers.note || ''}
+                    onChange={(e) => handleAnswerChange('note', e.target.value)}
+                    rows={3}
+                  />
+                </div>
+
+                <button 
+                  className="save-btn"
+                  onClick={handleSaveAnswers}
+                  disabled={isSaving || saved}
                 >
-                  {opt.text}
+                  {isSaving ? 'Сабт...' : saved ? '✅ Сабт шуд!' : 'Сабот кардан'}
                 </button>
-              ))}
+              </div>
+            )}
+
+            {assignment.status === 'completed' && (
+              <div className="completed-message">
+                <p>✅ Машқи имрӯз ба анҷом расид! Бародарӣ барои ф oj!</p>
+              </div>
+            )}
+          </div>
+        ) : activeTab === 'profile' && profile ? (
+          <div className="profile-content">
+            <div className="profile-header">
+              <h2>Салом, {profile.name}!</h2>
+              <div className="stats-row">
+                <div className="stat-box">
+                  <span className="stat-value">{progress?.current_streak || 0}</span>
+                  <span className="stat-label">Ҳафтаи зинда</span>
+                </div>
+                <div className="stat-box">
+                  <span className="stat-value">{progress?.total_days_completed || 0}</span>
+                  <span className="stat-label">Кунҷҳо</span>
+                </div>
+                <div className="stat-box">
+                  <span className="stat-value">{progress?.total_points || 0}</span>
+                  <span className="stat-label">Андоз</span>
+                </div>
+                <div className="stat-box">
+                  <span className="stat-value">Ур.{progress?.level || 1}</span>
+                  <span className="stat-label">Сатҳ</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="history-section">
+              <h3>Таърихи машқот</h3>
+              <div className="history-list">
+                {progress?.assignments?.map((a: any, idx: number) => (
+                  <div key={a.id} className={`history-item ${a.status}`}>
+                    <span className="date">{new Date(a.assigned_date).toLocaleDateString('tg-TJ')}</span>
+                    <span className="title">{a.title}</span>
+                    <span className={`status ${a.status}`}>
+                      {a.status === 'completed' ? `✅ ${a.score} балл` : '⏳'}
+                    </span>
+                  </div>
+                )) || <p>Ҳанӯз машқе анҷом дода нашудааст.</p>}
+              </div>
             </div>
           </div>
-        )}
-
-        {status === 'finished' && resultType !== null && (
-          <div className="result-card">
-            {(() => {
-              const res = getResultData(resultType);
-              return (
-                <>
-                  <h2 className="result-title">{res.title}</h2>
-                  <p className="result-description">{res.description}</p>
-                  <div className="result-step">
-                    <strong>{res.stepTitle}</strong><br /><br />
-                    {res.step}
-                  </div>
-
-                  <div className="note-section" style={{ marginTop: '30px', marginBottom: '20px', textAlign: 'left' }}>
-                    <p style={{ fontSize: '1.1rem', marginBottom: '15px', color: '#fff', fontWeight: '500' }}>
-                      Бисертар чи шуморо озор медиҳад ва агар аз ин дард озод шавед худро чихел хис мекунед?
-                    </p>
-                    <textarea 
-                      className="note-input"
-                      placeholder="Дар ин ҷо нависед..."
-                      value={userNote}
-                      onChange={(e) => setUserNote(e.target.value)}
-                      disabled={noteSaved}
-                      style={{
-                        width: '100%',
-                        minHeight: '120px',
-                        padding: '15px',
-                        borderRadius: '12px',
-                        background: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        color: '#fff',
-                        fontSize: '1rem',
-                        marginBottom: '10px',
-                        resize: 'vertical'
-                      }}
-                    />
-                    {!noteSaved ? (
-                      <button 
-                        className="save-note-btn"
-                        onClick={saveNote}
-                        disabled={isSavingNote || !userNote.trim()}
-                        style={{
-                          background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-                          color: '#fff',
-                          border: 'none',
-                          padding: '10px 20px',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          fontWeight: 'bold',
-                          transition: 'opacity 0.2s'
-                        }}
-                      >
-                        {isSavingNote ? 'САБТ КАРДА ШУДААСТ...' : 'САБТ КАРДАН'}
-                      </button>
-                    ) : (
-                      <p style={{ color: '#10b981', fontWeight: 'bold' }}>✅ Маълумот сабт шуд! Ташаккур.</p>
-                    )}
-                  </div>
-
-                  <a 
-                    href={TELEGRAM_LINK} 
-                    className="telegram-link" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    onClick={recordClick}
-                  >
-                    Дарсхои РОЙГОН
-                  </a>
-                </>
-              );
-            })()}
-          </div>
-        )}
+        ) : null}
       </main>
-
-      <footer className="app-footer">
-        {status === 'name_input' && (
-          <button 
-            className="primary-btn" 
-            disabled={userName.trim().length < 2 || loading}
-            onClick={handleStartWithName}
-          >
-            {loading ? 'Огоз...' : 'Давом додан'}
-          </button>
-        )}
-        
-        {status === 'active' && (
-          <button 
-            className="primary-btn" 
-            disabled={selectedAnswers[currentIndex] === undefined || loading}
-            onClick={handleNext}
-          >
-            {loading ? 'Инбор...' : 'Давом додан'}
-          </button>
-        )}
-      </footer>
     </div>
   );
 }

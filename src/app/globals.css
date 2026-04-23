@@ -252,9 +252,727 @@ main {
   box-shadow: 0 8px 30px rgba(124, 111, 247, 0.4);
 }
 
-.primary-btn:active:not(:disabled) {
-  transform: scale(0.98);
-}
+  .primary-btn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  /* ВКЛАДКИ */
+  .tabs {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .tab-btn {
+    flex: 1;
+    background: var(--surface-light);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 20px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .tab-btn.active {
+    background: linear-gradient(135deg, rgba(124, 111, 247, 0.15) 0%, rgba(244, 114, 182, 0.1) 100%);
+    border-color: var(--primary);
+    color: var(--primary);
+    box-shadow: 0 0 20px rgba(124, 111, 247, 0.2);
+  }
+
+  .tab-btn:hover:not(.active) {
+    border-color: var(--primary);
+    color: var(--text);
+    background: rgba(124, 111, 247, 0.08);
+  }
+
+  /* РЕГИСТРАЦИЯ */
+  .register-section {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    padding: 40px 20px;
+  }
+
+  .register-prompt {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    text-align: center;
+  }
+
+  .register-section .name-input {
+    width: 100%;
+    padding: 20px 22px;
+    font-size: 1.2rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: all 0.2s ease;
+    background: var(--surface-light);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    text-align: center;
+  }
+
+  .register-section .name-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(124, 111, 247, 0.15);
+  }
+
+  /* ЗАДАНИЕ */
+  .assignment-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .assignment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .assignment-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin: 0;
+  }
+
+  .status-badge {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: rgba(124, 111, 247, 0.15);
+    color: var(--primary);
+  }
+
+  .status-badge.completed {
+    background: rgba(52, 211, 153, 0.15);
+    color: var(--success);
+  }
+
+  .assignment-body {
+    background: var(--surface-light);
+    border-radius: var(--radius-sm);
+    padding: 24px;
+    line-height: 1.7;
+    font-size: 1.05rem;
+    border-left: 3px solid var(--accent);
+  }
+
+  .assignment-body h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: var(--primary);
+    font-size: 1.2rem;
+  }
+
+  .assignment-body ul, .assignment-body ol {
+    margin: 12px 0;
+    padding-left: 24px;
+  }
+
+  .assignment-body li {
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+  }
+
+  /* ФОРМА ОТВЕТОВ */
+  .answers-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: linear-gradient(180deg, rgba(124, 111, 247, 0.06) 0%, rgba(244, 114, 182, 0.04) 100%);
+    border-radius: var(--radius-sm);
+    padding: 24px;
+    border: 1px solid var(--border);
+  }
+
+  .answers-form h3 {
+    margin: 0;
+    color: var(--primary);
+    font-size: 1.2rem;
+  }
+
+  .answer-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .answer-item label {
+    font-size: 0.95rem;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .answer-item input {
+    width: 100%;
+    max-width: 150px;
+    padding: 12px 16px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface-light);
+    color: var(--text);
+    outline: none;
+    transition: all 0.2s ease;
+  }
+
+  .answer-item input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(124, 111, 247, 0.15);
+  }
+
+  .note-area {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 1rem;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface-light);
+    color: var(--text);
+    outline: none;
+    resize: vertical;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.2s ease;
+  }
+
+  .note-area:focus {
+    border-color: var(--primary);
+  }
+
+  .save-btn {
+    align-self: flex-start;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    color: #fff;
+    border: none;
+    padding: 14px 28px;
+    border-radius: 60px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 16px rgba(124, 111, 247, 0.3);
+  }
+
+  .save-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(124, 111, 247, 0.4);
+  }
+
+  .save-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .completed-message {
+    padding: 24px;
+    background: rgba(52, 211, 153, 0.1);
+    border: 2px solid var(--success);
+    border-radius: var(--radius-sm);
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--success);
+    font-weight: 600;
+  }
+
+  /* ПРОФИЛЬ */
+  .profile-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .profile-header {
+    background: linear-gradient(135deg, rgba(124, 111, 247, 0.12) 0%, rgba(244, 114, 182, 0.08) 100%);
+    border-radius: var(--radius-sm);
+    padding: 24px;
+    text-align: center;
+  }
+
+  .profile-header h2 {
+    margin: 0 0 20px 0;
+    color: var(--primary);
+    font-family: 'Syne', sans-serif;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .stat-box {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 16px 12px;
+    border: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .stat-value {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--accent);
+    font-family: 'Syne', sans-serif;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .history-section {
+    background: var(--surface-light);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+  }
+
+  .history-section h3 {
+    margin: 0 0 16px 0;
+    color: var(--primary);
+    font-size: 1.1rem;
+  }
+
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .history-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .history-item .date {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    min-width: 90px;
+    font-family: monospace;
+  }
+
+  .history-item .title {
+    flex: 1;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .history-item .status {
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+
+  .history-item .status.completed {
+    color: var(--success);
+  }
+
+  .history-item .status.pending {
+    color: var(--warning);
+  }
+
+  /* Адаптация */
+  @media (max-width: 480px) {
+    .app-container {
+      min-height: 100vh;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    body {
+      padding: 0;
+      background: var(--bg);
+    }
+
+    .app-header {
+      padding: 20px 16px 16px;
+    }
+
+    .app-header h1 {
+      font-size: 1.3rem;
+    }
+
+    .tabs {
+      margin-top: 12px;
+    }
+
+    .tab-btn {
+      font-size: 0.9rem;
+      padding: 12px 16px;
+    }
+
+    main {
+      padding: 20px 16px;
+    }
+
+    .assignment-body {
+      padding: 18px;
+      font-size: 0.95rem;
+    }
+
+    .answers-form {
+      padding: 20px;
+      gap: 16px;
+    }
+
+    .answer-item input {
+      max-width: 100%;
+    }
+
+    .stats-row {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+    }
+
+    .history-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+  }
+
+  /* ПРАКТИКА КОНТЕНТ */
+  .practice-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .step-card {
+    background: var(--surface-light);
+    border-radius: var(--radius-sm);
+    padding: 22px;
+    border-left: 3px solid var(--accent);
+    line-height: 1.7;
+  }
+
+  .step-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 12px;
+  }
+
+  .step-instruction {
+    font-size: 1rem;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  .sub-steps {
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px dashed var(--border);
+  }
+
+  .sub-steps p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+
+  .sub-steps ul {
+    list-style: disc inside;
+    padding-left: 8px;
+  }
+
+  .sub-steps li {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+
+  .affirmations {
+    margin-top: 14px;
+    padding: 16px;
+    background: rgba(124, 111, 247, 0.08);
+    border-radius: 12px;
+    border: 1px solid rgba(124, 111, 247, 0.2);
+  }
+
+  .affirmations p {
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--text);
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  .affirmations p:last-child {
+    margin-bottom: 0;
+  }
+
+  .affirmations p::before {
+    content: '"';
+    opacity: 0.6;
+  }
+
+  .affirmations p::after {
+    content: '"';
+    opacity: 0.6;
+  }
+
+  /* ОЦЕНКА */
+  .evaluation-section {
+    background: linear-gradient(180deg, rgba(124, 111, 247, 0.06) 0%, rgba(244, 114, 182, 0.04) 100%);
+    border-radius: var(--radius-sm);
+    padding: 24px;
+    border: 1px solid var(--border);
+  }
+
+  .eval-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 8px;
+    text-align: center;
+  }
+
+  .eval-subtitle {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .eval-questions {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .eval-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+
+  .eval-item label {
+    flex: 1;
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  .eval-item input {
+    width: 70px;
+    padding: 10px 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface-light);
+    color: var(--text);
+    outline: none;
+    transition: all 0.2s ease;
+  }
+
+  .eval-item input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(124, 111, 247, 0.15);
+  }
+
+  .score-display {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    min-width: 45px;
+    text-align: right;
+  }
+
+  .total-score {
+    margin-top: 20px;
+    padding: 18px 24px;
+    background: var(--surface);
+    border-radius: 14px;
+    border: 2px solid var(--primary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1rem;
+  }
+
+  .total-score strong {
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  .total-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  /* ЗАМЕТКА */
+  .note-section {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    text-align: left;
+  }
+
+  .note-prompt {
+    font-size: 1rem;
+    margin-bottom: 12px;
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .note-input {
+    width: 100%;
+    min-height: 120px;
+    padding: 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text);
+    font-size: 1rem;
+    margin-bottom: 12px;
+    resize: vertical;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+    transition: border-color 0.2s ease;
+  }
+
+  .note-input:focus {
+    border-color: var(--primary);
+  }
+
+  .save-note-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 60px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 16px rgba(124, 111, 247, 0.3);
+  }
+
+  .save-note-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(124, 111, 247, 0.4);
+  }
+
+  .save-note-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .note-saved {
+    color: var(--success);
+    font-weight: 600;
+  }
+
+  /* Адаптация для мобильных */
+  @media (max-width: 480px) {
+    .app-container {
+      min-height: 100vh;
+      border-radius: 0;
+      box-shadow: none;
+    }
+
+    body {
+      padding: 0;
+      background: var(--bg);
+    }
+
+    .app-header {
+      padding: 20px 16px 12px;
+    }
+
+    .app-header h1 {
+      font-size: 1.3rem;
+    }
+
+    main {
+      padding: 20px 16px;
+    }
+
+    .step-card {
+      padding: 18px;
+    }
+
+    .step-title {
+      font-size: 1.1rem;
+    }
+
+    .step-instruction {
+      font-size: 0.95rem;
+    }
+
+    .eval-item {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+
+    .eval-item input {
+      width: 100%;
+    }
+
+    .score-display {
+      text-align: left;
+      margin-top: -4px;
+    }
+
+    .total-score {
+      flex-direction: column;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .telegram-link {
+      width: 100%;
+      text-align: center;
+      padding: 14px 24px;
+    }
+
+    .app-footer {
+      padding: 14px 16px 24px;
+    }
+
+    .primary-btn {
+      padding: 16px;
+    }
+  }
 
 /* Стиль для ввода имени */
 .name-input {

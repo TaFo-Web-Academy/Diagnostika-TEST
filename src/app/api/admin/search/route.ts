@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { sql } from '@/lib/db';
 
-// GET: Поиск по ID или имени
+export const dynamic = 'force-dynamic';
+
+// GET: Поиск по пользователям
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -12,10 +14,13 @@ export async function GET(request: Request) {
     }
     
     const result = await sql`
-      SELECT * FROM sessions 
-      WHERE id LIKE ${'%' + query + '%'} OR user_name LIKE ${'%' + query + '%'}
+      SELECT id, name, phone, telegram_id, subscription_status, created_at
+      FROM users 
+      WHERE name ILIKE ${'%' + query + '%'} 
+         OR id::TEXT LIKE ${'%' + query + '%'}
+         OR phone LIKE ${'%' + query + '%'}
       ORDER BY created_at DESC 
-      LIMIT 20
+      LIMIT 15
     `;
     
     return NextResponse.json(result.rows || []);

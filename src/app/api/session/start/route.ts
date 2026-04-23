@@ -6,20 +6,19 @@ function generateSessionId() {
   return crypto.randomBytes(16).toString('hex');
 }
 
-// POST: Начать новую сессию или получить существующую
+// POST: Начать новую сессию или получить существующую (совместимость)
 export async function POST(request: Request) {
   try {
     const { sessionId, userName } = await request.json();
     
     if (sessionId) {
-      // Проверить существование сессии
+      // Проверить существование сессии (старая система)
       const result = await sql`
         SELECT * FROM sessions WHERE id = ${sessionId}
       `;
       
       if (result.rows.length > 0) {
         const row = result.rows[0];
-        // Обновить имя если новое
         if (userName && !row.user_name) {
           await sql`
             UPDATE sessions SET user_name = ${userName} WHERE id = ${sessionId}
@@ -51,7 +50,7 @@ export async function POST(request: Request) {
         });
       }
     } else {
-      // Нет sessionId — создаём новую
+      // Нет sessionId — создаём новую (совместимость)
       const newId = generateSessionId();
       await sql`
         INSERT INTO sessions (id, user_name, current_q, answers, status) 
