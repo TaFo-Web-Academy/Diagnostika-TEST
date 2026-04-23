@@ -8,7 +8,6 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const format = searchParams.get('format') || 'json';
     
-    // Получаем список пользователей с их последними ответами
     const result = await sql`
       WITH RecentAnswers AS (
         SELECT 
@@ -27,7 +26,8 @@ export async function GET(request: Request) {
         MAX(CASE WHEN ra.question_key = 'q3' AND ra.rn = 1 THEN ra.answer_text END) as q3,
         MAX(CASE WHEN ra.question_key = 'q4' AND ra.rn = 1 THEN ra.answer_text END) as q4,
         MAX(CASE WHEN ra.question_key = 'q5' AND ra.rn = 1 THEN ra.answer_text END) as q5,
-        MAX(CASE WHEN ra.question_key = 'note' AND ra.rn = 1 THEN ra.answer_text END) as note
+        MAX(CASE WHEN ra.question_key = 'note' AND ra.rn = 1 THEN ra.answer_text END) as note,
+        MAX(CASE WHEN ra.question_key = 'result' AND ra.rn = 1 THEN ra.answer_text END) as res
       FROM users u
       LEFT JOIN user_progress up ON u.id = up.user_id
       LEFT JOIN RecentAnswers ra ON u.id = ra.user_id
@@ -40,10 +40,10 @@ export async function GET(request: Request) {
     if (format === 'csv') {
       const headers = [
         'ID', 'Номи корбар', 'Стрик', 
-        'Савол 1', 'Савол 2', 'Савол 3', 'Савол 4', 'Савол 5', 'Қайди шахсӣ'
+        'Савол 1', 'Савол 2', 'Савол 3', 'Савол 4', 'Савол 5', 'Дарс чи омухтед', 'Натиҷа'
       ];
       
-      let csv = '\uFEFF' + headers.join(',') + '\n'; // Add BOM for Excel UTF-8 support
+      let csv = '\uFEFF' + headers.join(',') + '\n';
       
       data.forEach((u: any) => {
         const row = [
@@ -55,7 +55,8 @@ export async function GET(request: Request) {
           u.q3 || '-',
           u.q4 || '-',
           u.q5 || '-',
-          u.note || '-'
+          u.note || '-',
+          u.res || '-'
         ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(',');
         csv += row + '\n';
       });

@@ -138,7 +138,7 @@ export default function Home() {
   return (
     <div className="app-container">
       <header className="app-header">
-        <h1>ҚАДАМИ АМАЛИ ИМРӮЗ</h1>
+        <h1>КАДАМИ АМАЛИ ИМРӮЗ</h1>
       </header>
 
       <main>
@@ -165,14 +165,6 @@ export default function Home() {
           </div>
         ) : assignment ? (
           <div className="assignment-content">
-            {saved && (
-              <div className="waiting-card" style={{ padding: '20px', marginBottom: '0' }}>
-                <p style={{ color: 'var(--success)', fontWeight: 'bold' }}>
-                  🌟 То фардо мунтазир бошед, машқи нав дастрас мешавад!
-                </p>
-              </div>
-            )}
-
             <div className="assignment-header">
               <h2 className="assignment-title">{assignment.title}</h2>
               {saved && <span className="status-badge completed">Сабт шуд ✅</span>}
@@ -206,24 +198,51 @@ export default function Home() {
               ))}
 
               <div className="answer-item">
-                <label>Қайдҳои шахсӣ (ихтиёрӣ):</label>
+                <label>Имруз шумо аз дарс чи омухтед ?</label>
                 <textarea 
                   className="note-area"
-                  placeholder="Чӣ дард метавонед нависед..."
+                  placeholder="Нависед..."
                   value={answers.note || ''}
                   onChange={(e) => handleAnswerChange('note', e.target.value)}
                   disabled={saved}
                 />
               </div>
 
-              <button 
-                className="save-btn"
-                onClick={handleSaveAnswers}
-                disabled={isSaving || saved}
-                style={saved ? { background: 'var(--success)', cursor: 'default' } : {}}
-              >
-                {isSaving ? 'Сабт...' : saved ? 'Сабт карда шуд ✅' : 'Сабт кардан'}
-              </button>
+              <div className="answer-item" style={{ marginTop: '20px' }}>
+                <h3>НАТИЧАИ ШУМО :</h3>
+                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '10px', fontStyle: 'italic' }}>
+                  Намуна:<br/>
+                  Бояд худро ба 3 рафтор кор кунам, ки ман дӯст дорам:<br/>
+                  1. Худро эҳтиром кунам ва ба қадри худ шунидам.<br/>
+                  2. Шогирдӣ диҳам ба қадри заҳмати худамон.<br/>
+                  3. Мушкилиҳои худро ба ҷойи худ медҳанд.
+                </p>
+                <textarea 
+                  className="note-area"
+                  placeholder="Натичаи худро нависед..."
+                  value={answers.result || ''}
+                  onChange={(e) => handleAnswerChange('result', e.target.value)}
+                  disabled={saved}
+                  style={{ minHeight: '100px' }}
+                />
+              </div>
+
+              {!saved ? (
+                <button 
+                  className="save-btn"
+                  onClick={handleSaveAnswers}
+                  disabled={isSaving}
+                  style={{ marginTop: '20px' }}
+                >
+                  {isSaving ? 'Сабт...' : 'Сабт кардан'}
+                </button>
+              ) : (
+                <div className="waiting-card" style={{ padding: '20px', marginTop: '20px' }}>
+                  <p style={{ color: 'var(--success)', fontWeight: 'bold' }}>
+                    ✅ Сабт карда шуд! То фардо мунтазир бошед, машқи нав дастрас мешавад.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         ) : (

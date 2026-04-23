@@ -133,8 +133,10 @@ function UserDetail({ user, profile, onBack }: any) {
     'q3': 'Савол 3',
     'q4': 'Савол 4',
     'q5': 'Савол 5',
-    'note': 'Қайди шахсӣ'
+    'note': 'Дарс чи омухтед',
+    'result': 'Натиҷа'
   };
+
 
   return (
     <div>
