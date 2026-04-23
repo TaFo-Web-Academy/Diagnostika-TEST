@@ -9,17 +9,12 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<number | null>(null);
   const [userName, setUserName] = useState<string>('');
-  const [activeTab, setActiveTab] = useState<'assignment' | 'profile'>('assignment');
   
   // Assignment state
   const [assignment, setAssignment] = useState<any>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-
-  // Profile state
-  const [profile, setProfile] = useState<any>(null);
-  const [progress, setProgress] = useState<any>(null);
 
   const router = useRouter();
 
@@ -33,7 +28,6 @@ export default function Home() {
         if (savedName && savedId) {
           setUserName(savedName);
           setUserId(parseInt(savedId));
-          setActiveTab('assignment');
           return;
         }
 
@@ -47,10 +41,6 @@ export default function Home() {
           localStorage.setItem('userId', newUserId);
           setUserName(newUserName);
           setUserId(parseInt(newUserId));
-          setActiveTab('assignment');
-        } else {
-          // Show name input
-          setUserName(savedName || '');
         }
       } catch (error) {
         console.error('Init error:', error);
@@ -68,13 +58,6 @@ export default function Home() {
     loadAssignment();
   }, [userId]);
 
-  // Load profile when tab changes
-  useEffect(() => {
-    if (activeTab === 'profile' && userId) {
-      loadProfile();
-    }
-  }, [activeTab, userId]);
-
   const loadAssignment = async () => {
     try {
       const res = await fetch(`${API_BASE}/api/assignments?user_id=${userId}`);
@@ -86,17 +69,6 @@ export default function Home() {
       }, {}));
     } catch (error) {
       console.error('Load assignment error:', error);
-    }
-  };
-
-  const loadProfile = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/api/profile?user_id=${userId}`);
-      const data = await res.json();
-      setProfile(data.user);
-      setProgress(data.progress);
-    } catch (error) {
-      console.error('Load profile error:', error);
     }
   };
 
@@ -135,7 +107,6 @@ export default function Home() {
       localStorage.setItem('userId', data.user.id.toString());
       setUserId(data.user.id);
       setUserName(data.user.name);
-      setActiveTab('assignment');
     } catch (error: any) {
       console.error('Register error:', error);
       alert('Хатогӣ дар пайвастшавӣ: ' + error.message);
@@ -143,7 +114,6 @@ export default function Home() {
       setIsSaving(false);
     }
   };
-
 
   const handleAnswerChange = (key: string, value: string) => {
     setAnswers(prev => ({ ...prev, [key]: value }));
@@ -171,16 +141,11 @@ export default function Home() {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
       loadAssignment(); // Refresh assignment status
-      loadProfile();    // Update profile stats
     } catch (error) {
       console.error('Save answers error:', error);
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const handleTabChange = (tab: 'assignment' | 'profile') => {
-    setActiveTab(tab);
   };
 
   if (loading) {
@@ -195,23 +160,6 @@ export default function Home() {
     <div className="app-container">
       <header className="app-header">
         <h1>ҚАДАМИ АМАЛИ ИМРӮЗ</h1>
-        
-        {userId && (
-          <div className="tabs">
-            <button 
-              className={`tab-btn ${activeTab === 'assignment' ? 'active' : ''}`}
-              onClick={() => handleTabChange('assignment')}
-            >
-              ⏰ Машқи ҳаррӯза
-            </button>
-            <button 
-              className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
-              onClick={() => handleTabChange('profile')}
-            >
-              👤 Профил
-            </button>
-          </div>
-        )}
       </header>
 
       <main>
@@ -236,7 +184,7 @@ export default function Home() {
               {isSaving ? '...' : 'Оғоз кардан'}
             </button>
           </div>
-        ) : activeTab === 'assignment' && assignment ? (
+        ) : assignment ? (
           <div className="assignment-content">
             <div className="assignment-header">
               <h2 className="assignment-title">{assignment.title || 'Машқи имрӯз'}</h2>
@@ -331,46 +279,11 @@ export default function Home() {
               </div>
             )}
           </div>
-        ) : activeTab === 'profile' && profile ? (
-          <div className="profile-content">
-            <div className="profile-header">
-              <h2>Салом, {profile.name}!</h2>
-              <div className="stats-row">
-                <div className="stat-box">
-                  <span className="stat-value">{progress?.current_streak || 0}</span>
-                  <span className="stat-label">Ҳафтаи зинда</span>
-                </div>
-                <div className="stat-box">
-                  <span className="stat-value">{progress?.total_days_completed || 0}</span>
-                  <span className="stat-label">Кунҷҳо</span>
-                </div>
-                <div className="stat-box">
-                  <span className="stat-value">{progress?.total_points || 0}</span>
-                  <span className="stat-label">Андоз</span>
-                </div>
-                <div className="stat-box">
-                  <span className="stat-value">Ур.{progress?.level || 1}</span>
-                  <span className="stat-label">Сатҳ</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="history-section">
-              <h3>Таърихи машқот</h3>
-              <div className="history-list">
-                {progress?.assignments?.map((a: any, idx: number) => (
-                  <div key={a.id} className={`history-item ${a.status}`}>
-                    <span className="date">{new Date(a.assigned_date).toLocaleDateString('tg-TJ')}</span>
-                    <span className="title">{a.title}</span>
-                    <span className={`status ${a.status}`}>
-                      {a.status === 'completed' ? `✅ ${a.score} балл` : '⏳'}
-                    </span>
-                  </div>
-                )) || <p>Ҳанӯз машқе анҷом дода нашудааст.</p>}
-              </div>
-            </div>
+        ) : (
+          <div className="assignment-content">
+            <p>Машқи имрӯз ёфт нашуд.</p>
           </div>
-        ) : null}
+        )}
       </main>
     </div>
   );

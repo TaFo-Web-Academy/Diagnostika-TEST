@@ -151,8 +151,25 @@ export default function AdminPage() {
         <div className="recent-card">
           <div className="recent-header">
             <h2>📋 Рӯйхати корбарон ({users.length})</h2>
-            <button onClick={loadUsers}>🔄 Обновить</button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button 
+                onClick={() => window.open('/api/admin/export?format=csv', '_blank')}
+                style={{ 
+                  background: 'var(--success)', 
+                  color: 'white',
+                  padding: '8px 16px',
+                  borderRadius: '10px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontWeight: '500'
+                }}
+              >
+                📥 Скачать CSV
+              </button>
+              <button onClick={loadUsers}>🔄 Обновить</button>
+            </div>
           </div>
+
           <table className="sessions-table">
             <thead>
               <tr>
