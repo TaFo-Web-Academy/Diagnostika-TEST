@@ -226,9 +226,10 @@ function UserDetail({ user, onBack, onUpdate }: any) {
 
   const loadProfile = async () => {
     try {
-      const res = await fetch(`/api/admin/users/${user.id}/full`);
+      const res = await fetch(`/api/admin/users/${user.id}`);
       const data = await res.json();
       setProfile(data);
+
     } catch (error) {
       console.error('Load profile error:', error);
     }

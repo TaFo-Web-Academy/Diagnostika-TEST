@@ -31,7 +31,7 @@ export default function Home() {
           return;
         }
 
-        // Check if we have user in query params (after registration)
+        // Check query params
         const params = new URLSearchParams(window.location.search);
         const newUserId = params.get('user_id');
         const newUserName = params.get('name');
@@ -62,11 +62,13 @@ export default function Home() {
     try {
       const res = await fetch(`${API_BASE}/api/assignments?user_id=${userId}`);
       const data = await res.json();
-      setAssignment(data.assignment);
-      setAnswers(data.answers.reduce((acc: any, ans: any) => {
-        acc[ans.question_key] = ans.answer_text;
-        return acc;
-      }, {}));
+      if (data.assignment) {
+        setAssignment(data.assignment);
+        setAnswers(data.answers.reduce((acc: any, ans: any) => {
+          acc[ans.question_key] = ans.answer_text;
+          return acc;
+        }, {}));
+      }
     } catch (error) {
       console.error('Load assignment error:', error);
     }
@@ -81,7 +83,6 @@ export default function Home() {
     
     setIsSaving(true);
     try {
-      console.log('Registering user:', trimmedName);
       const res = await fetch(`${API_BASE}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -89,27 +90,16 @@ export default function Home() {
       });
       
       const data = await res.json();
-      console.log('Registration response:', data);
-
-      if (!res.ok || data.error) {
-        console.error('Registration failed:', data);
+      if (res.ok && data.user) {
+        localStorage.setItem('userName', data.user.name);
+        localStorage.setItem('userId', data.user.id.toString());
+        setUserId(data.user.id);
+        setUserName(data.user.name);
+      } else {
         alert('Хатогии сабт: ' + (data.error || 'Хатогии номаълум'));
-        return;
       }
-
-      if (!data.user || !data.user.id) {
-        console.error('Invalid user data received:', data);
-        alert('Хатогӣ: Сервер маълумоти нодуруст фиристод');
-        return;
-      }
-      
-      localStorage.setItem('userName', data.user.name);
-      localStorage.setItem('userId', data.user.id.toString());
-      setUserId(data.user.id);
-      setUserName(data.user.name);
     } catch (error: any) {
-      console.error('Register error:', error);
-      alert('Хатогӣ дар пайвастшавӣ: ' + error.message);
+      alert('Хатогии пайвастшавӣ: ' + error.message);
     } finally {
       setIsSaving(false);
     }
@@ -124,8 +114,8 @@ export default function Home() {
     
     setIsSaving(true);
     try {
-      // Сохраняем все ответы
       for (const [key, value] of Object.entries(answers)) {
+        if (!value) continue;
         await fetch(`${API_BASE}/api/answers`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -139,8 +129,7 @@ export default function Home() {
       }
       
       setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-      loadAssignment(); // Refresh assignment status
+      loadAssignment(); 
     } catch (error) {
       console.error('Save answers error:', error);
     } finally {
@@ -149,11 +138,7 @@ export default function Home() {
   };
 
   if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <p>Боркунӣ...</p>
-      </div>
-    );
+    return <div className="loading">Боркунӣ...</div>;
   }
 
   return (
@@ -181,16 +166,23 @@ export default function Home() {
               onClick={handleRegister}
               disabled={userName.trim().length < 2 || isSaving}
             >
-              {isSaving ? '...' : 'Оғоз кардан'}
+              {isSaving ? 'Оғоз...' : 'Оғоз кардан'}
             </button>
+          </div>
+        ) : assignment?.status === 'completed' ? (
+          <div className="waiting-card">
+            <div className="waiting-icon">🌟</div>
+            <h2 className="waiting-title">Офарин, {userName}!</h2>
+            <p className="waiting-text">
+              Машқи имрӯз бо муваффақият иҷро шуд. То фардо мунтазир бошед, машқи нав дастрас мешавад.
+            </p>
+            <div className="status-badge completed">✅ Иҷро шуд</div>
           </div>
         ) : assignment ? (
           <div className="assignment-content">
             <div className="assignment-header">
-              <h2 className="assignment-title">{assignment.title || 'Машқи имрӯз'}</h2>
-              <span className={`status-badge ${assignment.status}`}>
-                {assignment.status === 'completed' ? '✅ Иҷро шуд' : '⏳ Дар ҳол'}
-              </span>
+              <h2 className="assignment-title">{assignment.title}</h2>
+              <span className="status-badge">⏳ Дар ҳол</span>
             </div>
 
             <div 
@@ -198,90 +190,49 @@ export default function Home() {
               dangerouslySetInnerHTML={{ __html: assignment.content }}
             />
 
-            {assignment.status !== 'completed' && (
-              <div className="answers-form">
-                <h3>Ҷавобҳои шумо:</h3>
-                
-                <div className="answer-item">
-                  <label>1. Ман имрӯз дарди худро чӣ қадар равшан дидам? (1-10)</label>
+            <div className="answers-form">
+              <h3>Ҷавобҳои шумо:</h3>
+              
+              {[
+                { key: 'q1', label: '1. Ман имрӯз дарди худро чӣ қадар равшан дидам? (1-10)' },
+                { key: 'q2', label: '2. Ман имрӯз бо худ чӣ қадар рост будам? (1-10)' },
+                { key: 'q3', label: '3. Ман фаҳмидам, ки сардии ӯ танҳо trigger аст? (1-10)' },
+                { key: 'q4', label: '4. Ман машқи имрӯзро чӣ қадар пурра иҷро кардам? (1-10)' },
+                { key: 'q5', label: '5. Ман хоҳиши контрол ё истерикаро чӣ қадар идора кардам? (1-10)' }
+              ].map(q => (
+                <div key={q.key} className="answer-item">
+                  <label>{q.label}</label>
                   <input 
                     type="number" min="1" max="10"
-                    value={answers.q1 || ''}
-                    onChange={(e) => handleAnswerChange('q1', e.target.value)}
+                    value={answers[q.key] || ''}
+                    onChange={(e) => handleAnswerChange(q.key, e.target.value)}
                     placeholder="1-10"
                   />
                 </div>
+              ))}
 
-                <div className="answer-item">
-                  <label>2. Ман имрӯз бо худ чӣ қадар рост будам? (1-10)</label>
-                  <input 
-                    type="number" min="1" max="10"
-                    value={answers.q2 || ''}
-                    onChange={(e) => handleAnswerChange('q2', e.target.value)}
-                    placeholder="1-10"
-                  />
-                </div>
-
-                <div className="answer-item">
-                  <label>3. Ман фаҳмидам, ки сардии ӯ танҳо trigger аст? (1-10)</label>
-                  <input 
-                    type="number" min="1" max="10"
-                    value={answers.q3 || ''}
-                    onChange={(e) => handleAnswerChange('q3', e.target.value)}
-                    placeholder="1-10"
-                  />
-                </div>
-
-                <div className="answer-item">
-                  <label>4. Ман машқи имрӯзро чӣ қадар пурра иҷро кардам? (1-10)</label>
-                  <input 
-                    type="number" min="1" max="10"
-                    value={answers.q4 || ''}
-                    onChange={(e) => handleAnswerChange('q4', e.target.value)}
-                    placeholder="1-10"
-                  />
-                </div>
-
-                <div className="answer-item">
-                  <label>5. Ман хоҳиши контрол ё истерикаро чӣ қадар идора кардам? (1-10)</label>
-                  <input 
-                    type="number" min="1" max="10"
-                    value={answers.q5 || ''}
-                    onChange={(e) => handleAnswerChange('q5', e.target.value)}
-                    placeholder="1-10"
-                  />
-                </div>
-
-                <div className="answer-item">
-                  <label>Қайдҳои шахсӣ (ихтиёрӣ):</label>
-                  <textarea 
-                    className="note-area"
-                    placeholder="Чӣ дард метавонед нависед..."
-                    value={answers.note || ''}
-                    onChange={(e) => handleAnswerChange('note', e.target.value)}
-                    rows={3}
-                  />
-                </div>
-
-                <button 
-                  className="save-btn"
-                  onClick={handleSaveAnswers}
-                  disabled={isSaving || saved}
-                >
-                  {isSaving ? 'Сабт...' : saved ? '✅ Сабт шуд!' : 'Сабот кардан'}
-                </button>
+              <div className="answer-item">
+                <label>Қайдҳои шахсӣ (ихтиёрӣ):</label>
+                <textarea 
+                  className="note-area"
+                  placeholder="Чӣ дард метавонед нависед..."
+                  value={answers.note || ''}
+                  onChange={(e) => handleAnswerChange('note', e.target.value)}
+                />
               </div>
-            )}
 
-            {assignment.status === 'completed' && (
-              <div className="completed-message">
-                <p>✅ Машқи имрӯз ба анҷом расид! Бародарӣ барои ф oj!</p>
-              </div>
-            )}
+              <button 
+                className="save-btn"
+                onClick={handleSaveAnswers}
+                disabled={isSaving}
+              >
+                {isSaving ? 'Сабт...' : 'Сабт кардан'}
+              </button>
+            </div>
           </div>
         ) : (
-          <div className="assignment-content">
-            <p>Машқи имрӯз ёфт нашуд.</p>
+          <div className="waiting-card">
+            <p>Машқи нав ба зудӣ дастрас мешавад.</p>
           </div>
         )}
       </main>
