@@ -139,12 +139,18 @@ export default function Home() {
     }, 0);
   }, [answers]);
 
+  const conclusion = useMemo(() => {
+    if (totalScore <= 20) return 'ту ҳоло бештар дар дард ҳастӣ, на дар фаҳмиш';
+    if (totalScore <= 35) return 'ту бедор шуда истодаӣ, вале ҳанӯз реша пурра равшан нест';
+    return 'ту аллакай дардро дида истодаӣ ва метавонӣ шифоро сар кунӣ';
+  }, [totalScore]);
+
   if (loading) return <div className="loading">Боркунӣ...</div>;
 
   return (
     <div className="app-container">
       <header className="app-header">
-        <h1>ҚАДАМИ АМАЛИ ИМРӮЗ</h1>
+        <h1>ТЕСТИ ХУД-САНҶӢ ДАР ОХИРИ ДАРС</h1>
       </header>
 
       <main>
@@ -171,56 +177,17 @@ export default function Home() {
           </div>
         ) : assignment ? (
           <div className="assignment-content">
-            <div className="assignment-card">
-              <h2 className="section-title">Қадам ба қадам:</h2>
-              
-              <div className="step-item">
-                <p><strong>Қадами 1.</strong> Як ҳолати охиринро навис, ки дар он туро сардӣ, дуршавӣ ё шубҳа шикаст.</p>
-                <p><strong>Қадами 2.</strong> Зери он навис:</p>
-                <ul className="sub-list">
-                  <li>- он вақт ман чӣ ҳис кардам?</li>
-                  <li>- ман аз чӣ тарсидам?</li>
-                  <li>- ман дар бораи худам чӣ хулосаи бад баровардам?</li>
-                </ul>
-                <textarea 
-                  className="note-area"
-                  placeholder="Нависед дар инчо . ."
-                  value={answers.note || ''}
-                  onChange={(e) => handleAnswerChange('note', e.target.value)}
-                  disabled={saved}
-                  style={{ marginTop: '12px' }}
-                />
-              </div>
-
-              <div className="step-item" style={{ marginTop: '20px' }}>
-                <p><strong>Қадами 3.</strong> 3 бор дар рӯз 10 нафаси чуқур бикаш.</p>
-              </div>
-
-              <div className="step-item" style={{ marginTop: '12px' }}>
-                <p><strong>Қадами 4.</strong> Вақте хоҳиши тафтиш, ҷанг ё паёми изтиробӣ омад, 10 дақиқа таваққуф кун.</p>
-              </div>
-
-              <div className="step-item" style={{ marginTop: '12px' }}>
-                <p><strong>Қадами 5.</strong> Ин ҷумлаҳоро баланд ё дар дил бигӯ:</p>
-                <div className="quote-box">
-                  “Ин дарди имрӯз нест.”<br/>
-                  “Ман ҳозир кӯдак нестам.”<br/>
-                  “Ман метавонам дардро ҳис кунам, бе он ки он маро идора кунад.”
-                </div>
-              </div>
-            </div>
-
             <div className="answers-section">
-              <h2 className="section-title">4. НАТИҶАИ ДАРС</h2>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>Аз 1 то 10 ба худ баҳо деҳ:</p>
+              <h2 className="section-title">ЧЕНИ НАТИҶАИ ДАРС</h2>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>Аз 1 то 10 баҳогузорӣ кун:</p>
               
               <div className="questions-list">
                 {[
-                  { key: 'q1', label: 'Ман имрӯз дарди худро чӣ қадар равшан дидам?' },
-                  { key: 'q2', label: 'Ман имрӯз бо худ чӣ қадар рост будам?' },
-                  { key: 'q3', label: 'Ман фаҳмидам, ки сардии ӯ танҳо trigger аст, реша кӯҳнатар аст?' },
-                  { key: 'q4', label: 'Ман машқи имрӯзро чӣ қадар пурра иҷро кардам?' },
-                  { key: 'q5', label: 'Ман хоҳиши контрол ё истерикаро имрӯз чӣ қадар идора кардам?' }
+                  { key: 'q1', label: 'Ман фаҳмидам, ки дарди ман фақат аз имрӯз нест.' },
+                  { key: 'q2', label: 'Ман тавонистам trigger-и худро аз решаи кӯҳна ҷудо кунам.' },
+                  { key: 'q3', label: 'Ман рост фаҳмидам, ки даруни ман бештар тарс аст, на фақат “муҳаббат”.' },
+                  { key: 'q4', label: 'Ман имрӯз ҳиссиёти худро бе фиреб навиштам ё дидам.' },
+                  { key: 'q5', label: 'Ман медонам, ки ба ҷои истерика имрӯз чӣ қадами дуруст кунам.' }
                 ].map((q, idx) => (
                   <div key={q.key} className="eval-row">
                     <span className="eval-label">{idx + 1}. {q.label}</span>
@@ -239,8 +206,28 @@ export default function Home() {
               </div>
 
               <div className="total-score-card">
-                <span className="score-label">Бали умумии рӯз:</span>
-                <span className="score-value">{totalScore}/50</span>
+                <div style={{ flex: 1 }}>
+                  <h3 className="score-label" style={{ fontSize: '0.9rem', marginBottom: '4px', opacity: 0.8 }}>ХУЛОСАИ ХУД-САНҶӢ:</h3>
+                  <p style={{ fontSize: '1rem', fontWeight: '600', color: '#fff', lineHeight: '1.4' }}>
+                    {conclusion}
+                  </p>
+                </div>
+                <div style={{ textAlign: 'right', marginLeft: '16px' }}>
+                   <div className="score-value">{totalScore}/50</div>
+                </div>
+              </div>
+
+              <div className="reflection-section" style={{ marginTop: '32px' }}>
+                <label className="field-label" style={{ display: 'block', marginBottom: '12px', fontSize: '1rem', lineHeight: '1.4' }}>
+                  Аз ин дарси имрузаи РОЙГОН дар Телеграм, шумо чи гирифтед аз он барои худ ?
+                </label>
+                <textarea 
+                  className="note-area"
+                  placeholder="Дар ин чо фахмиши худро оид ба Курс нависед . ."
+                  value={answers.note || ''}
+                  onChange={(e) => handleAnswerChange('note', e.target.value)}
+                  disabled={saved}
+                />
               </div>
 
               {!saved ? (
@@ -248,14 +235,14 @@ export default function Home() {
                   className="primary-btn save-btn"
                   onClick={handleSaveAnswers}
                   disabled={isSaving}
-                  style={{ marginTop: '24px' }}
+                  style={{ marginTop: '32px' }}
                 >
                   {isSaving ? 'Дар ҳоли сабт...' : 'Сабт кардан'}
                 </button>
               ) : (
                 <div className="completion-card">
                   <div className="success-icon">✅</div>
-                  <p>Сабт карда шуд! То фардо мунтазир бошед, машқи нав дастрас мешавад.</p>
+                  <p>Сабт карда шуд! Ташаккур барои иштирок.</p>
                 </div>
               )}
             </div>
