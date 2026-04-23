@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 const API_BASE = '';
 
@@ -133,12 +133,18 @@ export default function Home() {
     }
   };
 
+  const totalScore = useMemo(() => {
+    return ['q1', 'q2', 'q3', 'q4', 'q5'].reduce((acc, key) => {
+      return acc + (parseInt(answers[key]) || 0);
+    }, 0);
+  }, [answers]);
+
   if (loading) return <div className="loading">Боркунӣ...</div>;
 
   return (
     <div className="app-container">
       <header className="app-header">
-        <h1>КАДАМИ АМАЛИ ИМРӮЗ</h1>
+        <h1>ҚАДАМИ АМАЛИ ИМРӮЗ</h1>
       </header>
 
       <main>
@@ -165,67 +171,76 @@ export default function Home() {
           </div>
         ) : assignment ? (
           <div className="assignment-content">
-            {/* Карточка задания */}
             <div className="assignment-card">
-              <div className="assignment-header">
-                <h2 className="assignment-title">{assignment.title}</h2>
-                {saved && <span className="status-badge completed">Иҷро шуд ✅</span>}
-              </div>
-
-              <div 
-                className="assignment-body" 
-                dangerouslySetInnerHTML={{ __html: assignment.content }}
-              />
-            </div>
-
-            {/* Форма ответов */}
-            <div className="answers-section">
-              <h3 className="section-title">Ҷавобҳои шумо:</h3>
+              <h2 className="section-title">Қадам ба қадам:</h2>
               
-              <div className="questions-list">
-                {[
-                  { key: 'q1', label: '1. Ман имрӯз дарди худро чӣ қадар равшан дидам? худро бахо дихед аз 1 то 10' },
-                  { key: 'q2', label: '2. Ман имрӯз бо худ чӣ қадар рост будам? худро бахо дихед аз 1 то 10 ' },
-                  { key: 'q3', label: '3. Ман фаҳмидам, ки сардии ӯ танҳо trigger аст? худро бахо дихед аз 1 то 10 ' },
-                  { key: 'q4', label: '4. Ман машқи имрӯзро чӣ қадар пурра иҷро кардам? худро бахо дихед аз 1 то 10 ' },
-                  { key: 'q5', label: '5. Ман хоҳиши контрол ё истерикаро чӣ қадар идора кардам? худро бахо дихед аз 1 то 10' }
-                ].map(q => (
-                  <div key={q.key} className="answer-item">
-                    <label>{q.label}</label>
-                    <input 
-                      type="number" min="1" max="10"
-                      value={answers[q.key] || ''}
-                      onChange={(e) => handleAnswerChange(q.key, e.target.value)}
-                      placeholder="1-10"
-                      disabled={saved}
-                    />
-                  </div>
-                ))}
-              </div>
-
-              <div className="answer-item" style={{ marginTop: '24px' }}>
-                <label className="field-label">Имруз шумо аз дарс чи омухтед ?</label>
+              <div className="step-item">
+                <p><strong>Қадами 1.</strong> Як ҳолати охиринро навис, ки дар он туро сардӣ, дуршавӣ ё шубҳа шикаст.</p>
+                <p><strong>Қадами 2.</strong> Зери он навис:</p>
+                <ul className="sub-list">
+                  <li>- он вақт ман чӣ ҳис кардам?</li>
+                  <li>- ман аз чӣ тарсидам?</li>
+                  <li>- ман дар бораи худам чӣ хулосаи бад баровардам?</li>
+                </ul>
                 <textarea 
                   className="note-area"
                   placeholder="Нависед дар инчо . ."
                   value={answers.note || ''}
                   onChange={(e) => handleAnswerChange('note', e.target.value)}
                   disabled={saved}
+                  style={{ marginTop: '12px' }}
                 />
               </div>
 
-              <div className="result-section" style={{ marginTop: '32px' }}>
-                <h3 className="section-title">НАТИЧАИ ШУМО :</h3>
-                
-                <div className="answer-item">
-                  <textarea 
-                    className="note-area result-area"
-                    placeholder="Натичаи худро нависед..."
-                    value={answers.result || ''}
-                    onChange={(e) => handleAnswerChange('result', e.target.value)}
-                    disabled={saved}
-                  />
+              <div className="step-item" style={{ marginTop: '20px' }}>
+                <p><strong>Қадами 3.</strong> 3 бор дар рӯз 10 нафаси чуқур бикаш.</p>
+              </div>
+
+              <div className="step-item" style={{ marginTop: '12px' }}>
+                <p><strong>Қадами 4.</strong> Вақте хоҳиши тафтиш, ҷанг ё паёми изтиробӣ омад, 10 дақиқа таваққуф кун.</p>
+              </div>
+
+              <div className="step-item" style={{ marginTop: '12px' }}>
+                <p><strong>Қадами 5.</strong> Ин ҷумлаҳоро баланд ё дар дил бигӯ:</p>
+                <div className="quote-box">
+                  “Ин дарди имрӯз нест.”<br/>
+                  “Ман ҳозир кӯдак нестам.”<br/>
+                  “Ман метавонам дардро ҳис кунам, бе он ки он маро идора кунад.”
                 </div>
+              </div>
+            </div>
+
+            <div className="answers-section">
+              <h2 className="section-title">4. НАТИҶАИ ДАРС</h2>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>Аз 1 то 10 ба худ баҳо деҳ:</p>
+              
+              <div className="questions-list">
+                {[
+                  { key: 'q1', label: 'Ман имрӯз дарди худро чӣ қадар равшан дидам?' },
+                  { key: 'q2', label: 'Ман имрӯз бо худ чӣ қадар рост будам?' },
+                  { key: 'q3', label: 'Ман фаҳмидам, ки сардии ӯ танҳо trigger аст, реша кӯҳнатар аст?' },
+                  { key: 'q4', label: 'Ман машқи имрӯзро чӣ қадар пурра иҷро кардам?' },
+                  { key: 'q5', label: 'Ман хоҳиши контрол ё истерикаро имрӯз чӣ қадар идора кардам?' }
+                ].map((q, idx) => (
+                  <div key={q.key} className="eval-row">
+                    <span className="eval-label">{idx + 1}. {q.label}</span>
+                    <div className="eval-input-group">
+                      <input 
+                        type="number" min="0" max="10"
+                        value={answers[q.key] || ''}
+                        onChange={(e) => handleAnswerChange(q.key, e.target.value)}
+                        placeholder="0"
+                        disabled={saved}
+                      />
+                      <span className="eval-total">/10</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="total-score-card">
+                <span className="score-label">Бали умумии рӯз:</span>
+                <span className="score-value">{totalScore}/50</span>
               </div>
 
               {!saved ? (
@@ -233,7 +248,7 @@ export default function Home() {
                   className="primary-btn save-btn"
                   onClick={handleSaveAnswers}
                   disabled={isSaving}
-                  style={{ marginTop: '32px' }}
+                  style={{ marginTop: '24px' }}
                 >
                   {isSaving ? 'Дар ҳоли сабт...' : 'Сабт кардан'}
                 </button>

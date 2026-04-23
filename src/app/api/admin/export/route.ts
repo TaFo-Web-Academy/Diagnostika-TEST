@@ -26,8 +26,7 @@ export async function GET(request: Request) {
         MAX(CASE WHEN ra.question_key = 'q3' AND ra.rn = 1 THEN ra.answer_text END) as q3,
         MAX(CASE WHEN ra.question_key = 'q4' AND ra.rn = 1 THEN ra.answer_text END) as q4,
         MAX(CASE WHEN ra.question_key = 'q5' AND ra.rn = 1 THEN ra.answer_text END) as q5,
-        MAX(CASE WHEN ra.question_key = 'note' AND ra.rn = 1 THEN ra.answer_text END) as note,
-        MAX(CASE WHEN ra.question_key = 'result' AND ra.rn = 1 THEN ra.answer_text END) as res
+        MAX(CASE WHEN ra.question_key = 'note' AND ra.rn = 1 THEN ra.answer_text END) as note
       FROM users u
       LEFT JOIN user_progress up ON u.id = up.user_id
       LEFT JOIN RecentAnswers ra ON u.id = ra.user_id
@@ -40,7 +39,7 @@ export async function GET(request: Request) {
     if (format === 'csv') {
       const headers = [
         'ID', 'Номи корбар', 'Стрик', 
-        'Савол 1', 'Савол 2', 'Савол 3', 'Савол 4', 'Савол 5', 'Дарс чи омухтед', 'Натиҷа'
+        'Савол 1', 'Савол 2', 'Савол 3', 'Савол 4', 'Савол 5', 'Дарс чи омухтед'
       ];
       
       let csv = '\uFEFF' + headers.join(',') + '\n';
@@ -50,13 +49,12 @@ export async function GET(request: Request) {
           u.id,
           u.name || '',
           u.streak || 0,
-          u.q1 || '-',
-          u.q2 || '-',
-          u.q3 || '-',
-          u.q4 || '-',
-          u.q5 || '-',
-          u.note || '-',
-          u.res || '-'
+          u.q1 || '0',
+          u.q2 || '0',
+          u.q3 || '0',
+          u.q4 || '0',
+          u.q5 || '0',
+          u.note || '-'
         ].map(val => `"${String(val).replace(/"/g, '""')}"`).join(',');
         csv += row + '\n';
       });

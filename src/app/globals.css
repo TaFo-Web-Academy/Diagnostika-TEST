@@ -152,144 +152,110 @@ main {
   filter: grayscale(0.5);
 }
 
-/* ASSIGNMENT */
-.assignment-content {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  animation: slideUp 0.6s ease;
-}
-
-.assignment-card {
-  background: var(--surface-light);
-  border-radius: var(--radius-sm);
-  padding: 32px;
-  border: 1px solid var(--border);
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
-}
-
-.assignment-header {
-  margin-bottom: 24px;
-}
-
-.assignment-title {
-  font-family: var(--font-heading);
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #fff;
-  line-height: 1.3;
-}
-
-.assignment-body {
+/* LESSON SPECIFIC */
+.step-item {
   font-size: 1.05rem;
+  line-height: 1.6;
   color: var(--text-secondary);
-  line-height: 1.8;
 }
 
-.assignment-body h3 {
+.step-item strong {
   color: #fff;
-  margin-bottom: 16px;
-  font-family: var(--font-heading);
-}
-
-.assignment-body p { margin-bottom: 16px; }
-.assignment-body ul, .assignment-body ol { padding-left: 20px; margin-bottom: 16px; }
-.assignment-body li { margin-bottom: 8px; }
-
-/* ANSWERS SECTION */
-.answers-section {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.section-title {
-  font-family: var(--font-heading);
-  font-size: 1.25rem;
   font-weight: 700;
-  color: var(--primary-light);
-  margin-bottom: 8px;
 }
 
-.questions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.answer-item {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.field-label {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text);
-}
-
-.example-box {
-  background: rgba(139, 92, 246, 0.05);
-  border: 1px dashed rgba(139, 92, 246, 0.3);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 16px;
-}
-
-.example-tag {
-  display: inline-block;
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  font-weight: 800;
-  color: var(--primary-light);
-  margin-bottom: 8px;
-  letter-spacing: 0.05em;
-}
-
-.example-box p {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-bottom: 8px;
-  color: var(--text-secondary);
-}
-
-.example-box ul {
+.sub-list {
   list-style: none;
-  font-size: 0.9rem;
+  padding-left: 12px;
+  margin-top: 8px;
+  font-size: 0.95rem;
   color: var(--text-muted);
 }
 
-.example-box li {
-  margin-bottom: 4px;
+.quote-box {
+  margin-top: 12px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 4px solid var(--primary);
+  border-radius: 4px 16px 16px 4px;
+  font-style: italic;
+  color: var(--text);
+  line-height: 1.8;
 }
 
-.result-area {
-  min-height: 150px !important;
-}
-
-/* COMPLETION */
-.completion-card {
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.2);
-  border-radius: var(--radius-sm);
-  padding: 24px;
-  text-align: center;
+/* EVALUATION ROWS */
+.eval-row {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
 }
 
-.success-icon {
-  font-size: 2rem;
+.eval-label {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  flex: 1;
 }
 
-.completion-card p {
-  color: var(--success);
+.eval-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 90px;
+}
+
+.eval-input-group input {
+  width: 50px;
+  padding: 10px;
+  background: var(--surface-light);
+  border: 2px solid var(--border);
+  border-radius: 10px;
+  color: var(--primary-light);
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-align: center;
+  outline: none;
+}
+
+.eval-input-group input:focus {
+  border-color: var(--primary);
+}
+
+.eval-total {
+  font-size: 0.9rem;
+  color: var(--text-muted);
   font-weight: 600;
-  font-size: 1.05rem;
 }
+
+/* TOTAL SCORE */
+.total-score-card {
+  margin-top: 32px;
+  padding: 24px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-sm);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.score-label {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.score-value {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--primary-light);
+}
+
 
 /* ANSWERS FORM */
 .answers-form {
