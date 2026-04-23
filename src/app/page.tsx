@@ -207,7 +207,7 @@ export default function Home() {
                 <label className="field-label">Имруз шумо аз дарс чи омухтед ?</label>
                 <textarea 
                   className="note-area"
-                  placeholder="Нависед..."
+                  placeholder="Нависед дар инчо . ."
                   value={answers.note || ''}
                   onChange={(e) => handleAnswerChange('note', e.target.value)}
                   disabled={saved}
@@ -217,17 +217,7 @@ export default function Home() {
               <div className="result-section" style={{ marginTop: '32px' }}>
                 <h3 className="section-title">НАТИЧАИ ШУМО :</h3>
                 
-                <div className="example-box">
-                  <span className="example-tag">Намуна:</span>
-                  <p>Бояд худро ба 3 рафтор кор кунам, ки ман дӯст дорам:</p>
-                  <ul>
-                    <li>1. Худро эҳтиром кунам ва ба қадри худ шунидам.</li>
-                    <li>2. Шогирдӣ диҳам ба қадри заҳмати худамон.</li>
-                    <li>3. Мушкилиҳои худро ба ҷойи худ медҳанд.</li>
-                  </ul>
-                </div>
-
-                <div className="answer-item" style={{ marginTop: '16px' }}>
+                <div className="answer-item">
                   <textarea 
                     className="note-area result-area"
                     placeholder="Натичаи худро нависед..."
