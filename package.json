@@ -6,11 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "vercel-build": "next build"
   },
   "dependencies": {
     "@vercel/postgres": "^0.8.0",
-    "next": "14.1.0",
+    "next": "14.2.35",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
