@@ -1,7 +1,9 @@
 import { sql } from '@vercel/postgres';
 
+// Экспортируем sql, чтобы другие файлы могли его использовать
+export { sql };
+
 export async function initDb() {
-  // Создаем таблицу пользователей с новыми полями
   await sql`
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
@@ -14,7 +16,6 @@ export async function initDb() {
     );
   `;
 
-  // Создаем таблицу ответов
   await sql`
     CREATE TABLE IF NOT EXISTS answers (
       id SERIAL PRIMARY KEY,
