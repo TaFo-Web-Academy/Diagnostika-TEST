@@ -4,49 +4,36 @@ import { useState, useEffect } from 'react';
 import { RAVONI_TESTS, RESULTS_INTERPRETATION } from '@/data/questions';
 import { motion, AnimatePresence } from 'framer-motion';
 
-type Step = 'PROMO' | 'ONBOARDING' | 'DAYS' | 'TEST' | 'RESULT';
+type Tab = 'COURSES' | 'PROFILE';
+type Step = 'PROMO' | 'ONBOARDING' | 'APP' | 'TEST' | 'RESULT';
 
 export default function Home() {
+  const [activeTab, setActiveTab] = useState<Tab>('COURSES');
   const [step, setStep] = useState<Step>('PROMO');
   const [promo, setPromo] = useState('');
   const [user, setUser] = useState<any>(null);
-  const [userData, setUserData] = useState({
-    name: '',
-    surname: '',
-    age: '',
-    maritalStatus: '',
-    gender: '',
-    interest: ''
-  });
+  const [userData, setUserData] = useState({ name: '', surname: '', age: '', maritalStatus: '' });
   
   const [currentDay, setCurrentDay] = useState('day1');
   const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [result, setResult] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('ravoni_user');
     if (savedUser) {
       setUser(JSON.parse(savedUser));
-      setStep('DAYS');
+      setStep('APP');
     }
   }, []);
 
   const handlePromoSubmit = () => {
-    if (promo.trim().toLowerCase() === 'тести равони') {
-      setStep('ONBOARDING');
-    } else {
-      alert('Промокод нодуруст аст!');
-    }
+    if (promo.trim().toLowerCase() === 'тести равони') setStep('ONBOARDING');
+    else alert('Промокод нодуруст аст!');
   };
 
   const handleOnboardingSubmit = async () => {
-    if (!userData.name || !userData.age) {
-      alert('Лутфан ҳамаи маълумотро пур кунед');
-      return;
-    }
-    setIsSaving(true);
+    if (!userData.name || !userData.age) return alert('Лутфан пур кунед');
     try {
       const res = await fetch('/api/users', {
         method: 'POST',
@@ -57,41 +44,9 @@ export default function Home() {
       if (data.user) {
         localStorage.setItem('ravoni_user', JSON.stringify(data.user));
         setUser(data.user);
-        setStep('DAYS');
+        setStep('APP');
       }
-    } catch (e) {
-      alert('Хатогии техникӣ');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleAnswer = async (option: string) => {
-    const newAnswers = { ...answers, [currentQuestionIdx]: option };
-    setAnswers(newAnswers);
-    fetch('/api/answers', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId: user.id,
-        dayNumber: parseInt(currentDay.replace('day', '')),
-        questionIndex: currentQuestionIdx,
-        selectedOption: option
-      })
-    });
-    if (currentQuestionIdx < RAVONI_TESTS[currentDay].questions.length - 1) {
-      setCurrentQuestionIdx(prev => prev + 1);
-    } else {
-      calculateResult(newAnswers);
-    }
-  };
-
-  const calculateResult = (finalAnswers: Record<number, string>) => {
-    const counts: Record<string, number> = { A: 0, Б: 0, В: 0, Г: 0 };
-    Object.values(finalAnswers).forEach(val => { counts[val] = (counts[val] || 0) + 1; });
-    const winner = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
-    setResult(winner);
-    setStep('RESULT');
+    } catch (e) { alert('Хатогӣ'); }
   };
 
   const isDayLocked = (dayNum: number) => {
@@ -102,27 +57,88 @@ export default function Home() {
     return dayNum > diffDays + 1;
   };
 
+  const handleAnswer = (option: string) => {
+    const newAnswers = { ...answers, [currentQuestionIdx]: option };
+    setAnswers(newAnswers);
+    fetch('/api/answers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: user.id, dayNumber: parseInt(currentDay.replace('day', '')),
+        questionIndex: currentQuestionIdx, selectedOption: option
+      })
+    });
+    if (currentQuestionIdx < RAVONI_TESTS[currentDay].questions.length - 1) setCurrentQuestionIdx(prev => prev + 1);
+    else calculateResult(newAnswers);
+  };
+
+  const calculateResult = (finalAnswers: Record<number, string>) => {
+    const counts: Record<string, number> = { A: 0, Б: 0, В: 0, Г: 0 };
+    Object.values(finalAnswers).forEach(val => { counts[val] = (counts[val] || 0) + 1; });
+    const winner = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+    setResult(winner);
+    setStep('RESULT');
+  };
+
+  const renderCourses = () => (
+    <div className="p-8 animate-fade">
+      <div className="mb-8">
+        <h2 className="text-3xl font-bold">Марафон</h2>
+        <p className="text-muted text-sm uppercase font-black tracking-widest opacity-40">5 Days of Diagnosis</p>
+      </div>
+      
+      <div className="flex flex-col gap-4">
+        {[1, 2, 3, 4, 5].map((d) => {
+          const locked = isDayLocked(d);
+          return (
+            <div key={d} onClick={() => !locked && (setCurrentDay(`day${d}`), setStep('TEST'))} 
+              className={`p-6 rounded-[32px] border-2 flex justify-between items-center transition-all ${locked ? 'opacity-40 bg-gray-50 border-transparent' : 'bg-white border-primary-soft shadow-sm hover:border-primary'}`}>
+              <div className="flex items-center gap-4">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold ${locked ? 'bg-gray-200 text-gray-400' : 'bg-primary-soft text-primary'}`}>{d}</div>
+                <div>
+                  <p className={`font-bold ${locked ? 'text-gray-400' : 'text-text'}`}>Рӯзи {d}</p>
+                  <p className="text-xs text-muted font-medium">{d === 1 ? 'Эҳсоси ботинӣ' : `Дарси рӯзи ${d}`}</p>
+                </div>
+              </div>
+              <span className="text-xl">{locked ? '🔒' : '→'}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+
+  const renderProfile = () => (
+    <div className="p-8 animate-fade text-center">
+      <div className="w-24 h-24 bg-primary-soft rounded-[32px] mx-auto mb-6 flex items-center justify-center text-4xl">👤</div>
+      <h2 className="text-3xl font-bold mb-2">{user?.name} {user?.surname}</h2>
+      <p className="text-muted font-medium mb-8">Синну сол: {user?.age} • Статус: <span className="text-primary font-bold">PRO</span></p>
+      
+      <div className="text-left bg-bg p-8 rounded-[40px] border border-border shadow-inner">
+        <h3 className="font-bold mb-4 text-lg">Натиҷаҳои охирин:</h3>
+        <p className="text-sm opacity-60 leading-relaxed italic">Дар ин ҷо натиҷаҳои санҷишҳои гузаштаи шумо пайдо мешаванд. Аввал рӯзи аввалро гузаред!</p>
+      </div>
+    </div>
+  );
+
   return (
     <div className="app-container">
       <AnimatePresence mode="wait">
         
         {step === 'PROMO' && (
-          <motion.div key="promo" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-8 flex flex-col gap-6">
-            <div className="text-center py-6">
-              <h1 className="text-3xl mb-1 tracking-tight">РАВОНИ</h1>
-              <p className="text-muted text-sm font-medium uppercase tracking-widest">Psychology Platform</p>
-            </div>
+          <motion.div key="promo" className="p-10 flex flex-col gap-8 text-center justify-center min-h-screen">
+            <h1 className="text-4xl font-black tracking-tighter text-primary">РАВОНИ</h1>
             <div className="flex flex-col gap-4">
-              <input type="text" placeholder="Промокодро ворид кунед" value={promo} onChange={(e) => setPromo(e.target.value)} className="text-center font-bold" />
-              <button className="btn-primary shadow-lg" onClick={handlePromoSubmit}>ВУРУД</button>
+               <p className="text-sm font-bold opacity-40 uppercase tracking-widest">Промокодро ворид кунед</p>
+               <input type="text" placeholder="Тести Равони" value={promo} onChange={(e) => setPromo(e.target.value)} className="text-center font-bold text-xl" />
             </div>
+            <button className="btn-primary shadow-xl" onClick={handlePromoSubmit}>ВУРУД</button>
           </motion.div>
         )}
 
         {step === 'ONBOARDING' && (
-          <motion.div key="onboarding" initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="p-8 flex flex-col gap-5">
-            <h2 className="text-2xl mb-2 text-center">Салом! 😊</h2>
-            <p className="text-center text-muted text-sm mb-4">Лутфан маълумоти худро ворид кунед, то ташхисро оғоз кунем.</p>
+          <motion.div key="onboarding" className="p-8 flex flex-col gap-5 justify-center min-h-screen">
+            <h2 className="text-3xl font-bold mb-6 text-center">Маълумот</h2>
             <input placeholder="Ном" value={userData.name} onChange={(e) => setUserData({...userData, name: e.target.value})} />
             <input placeholder="Насаб" value={userData.surname} onChange={(e) => setUserData({...userData, surname: e.target.value})} />
             <input type="number" placeholder="Синну сол" value={userData.age} onChange={(e) => setUserData({...userData, age: e.target.value})} />
@@ -131,97 +147,62 @@ export default function Home() {
               <option value="single">Муҷаррад</option>
               <option value="married">Оиладор</option>
             </select>
-            <button className="btn-primary mt-4" onClick={handleOnboardingSubmit} disabled={isSaving}>
-              {isSaving ? 'САБТ...' : 'ОҒОЗИ МАРАФОН'}
-            </button>
+            <button className="btn-primary mt-6 shadow-lg" onClick={handleOnboardingSubmit}>ОҒОЗ</button>
           </motion.div>
         )}
 
-        {step === 'DAYS' && (
-          <motion.div key="days" className="p-8 flex flex-col gap-6">
-            <div className="flex justify-between items-center mb-2">
-              <div>
-                <h2 className="text-2xl leading-tight">Марафон</h2>
-                <p className="text-xs text-muted font-bold uppercase">5 Рӯзи Ташхис</p>
+        {step === 'APP' && (
+          <motion.div key="app" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            {activeTab === 'COURSES' ? renderCourses() : renderProfile()}
+            
+            <nav className="bottom-nav" style={{ gridTemplateColumns: '1fr 1fr' }}>
+              <div className={`nav-item ${activeTab === 'COURSES' ? 'active' : ''}`} onClick={() => setActiveTab('COURSES')}>
+                <div className="nav-icon">{activeTab === 'COURSES' ? '🧪' : '🧪'}</div>
+                <span className="text-[12px] uppercase font-black">Тестҳо</span>
               </div>
-              <div className="bg-accent text-white px-3 py-1 rounded-full text-[10px] font-black tracking-tighter">PRO</div>
-            </div>
-
-            <div className="flex flex-col gap-4">
-              {[1, 2, 3, 4, 5].map((d) => {
-                const locked = isDayLocked(d);
-                return (
-                  <motion.div 
-                    whileHover={!locked ? { scale: 1.02 } : {}}
-                    key={d} 
-                    onClick={() => !locked && (setCurrentDay(`day${d}`), setStep('TEST'))} 
-                    className={`group p-6 rounded-[24px] border-2 flex justify-between items-center transition-all ${
-                      locked ? 'bg-gray-50 border-transparent opacity-60' : 'bg-white border-primary-soft shadow-sm hover:border-primary hover:shadow-md'
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold ${locked ? 'bg-gray-200 text-gray-400' : 'bg-primary-soft text-primary'}`}>
-                        {d}
-                      </div>
-                      <div className="flex flex-col">
-                        <span className={`font-bold ${locked ? 'text-gray-400' : 'text-text'}`}>Рӯзи {d}</span>
-                        <span className="text-xs text-muted">{d === 1 ? 'Эҳсоси ботинӣ' : `Дарси рӯзи ${d}`}</span>
-                      </div>
-                    </div>
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${locked ? 'bg-transparent' : 'bg-bg group-hover:bg-primary group-hover:text-white'}`}>
-                      {locked ? '🔒' : '→'}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
+              <div className={`nav-item ${activeTab === 'PROFILE' ? 'active' : ''}`} onClick={() => setActiveTab('PROFILE')}>
+                <div className="nav-icon">{activeTab === 'PROFILE' ? '👤' : '👤'}</div>
+                <span className="text-[12px] uppercase font-black">Профил</span>
+              </div>
+            </nav>
           </motion.div>
         )}
 
         {step === 'TEST' && (
-          <motion.div key="test" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="p-8 flex flex-col gap-6">
-            <div className="flex justify-between items-center">
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black text-primary uppercase tracking-widest">РӮЗИ {currentDay.replace('day','')}</span>
-                <h3 className="text-lg font-bold">Саволи {currentQuestionIdx + 1}/15</h3>
+          <motion.div key="test" className="p-8 flex flex-col gap-8 min-h-screen">
+            <header className="flex justify-between items-center">
+              <div className="w-12 h-12 bg-primary text-white rounded-2xl flex items-center justify-center font-black">
+                {currentQuestionIdx + 1}
               </div>
-              <div className="h-2 w-20 bg-gray-100 rounded-full overflow-hidden">
-                <div className="h-full bg-primary" style={{ width: `${((currentQuestionIdx + 1) / 15) * 100}%` }}></div>
+              <div className="h-2 flex-1 mx-6 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-full bg-primary transition-all duration-500" style={{ width: `${((currentQuestionIdx + 1) / 15) * 100}%` }}></div>
               </div>
-            </div>
-            <p className="text-lg font-medium leading-relaxed">{RAVONI_TESTS[currentDay].questions[currentQuestionIdx].question}</p>
-            <div className="flex flex-col gap-3 mt-2">
+              <span className="text-[10px] font-black opacity-40 uppercase">Day {currentDay.replace('day','')}</span>
+            </header>
+            <p className="text-2xl font-bold leading-tight text-primary">{RAVONI_TESTS[currentDay].questions[currentQuestionIdx].question}</p>
+            <div className="flex flex-col gap-4 mt-4">
               {Object.entries(RAVONI_TESTS[currentDay].questions[currentQuestionIdx].options).map(([key, text]) => (
-                <button key={key} onClick={() => handleAnswer(key)} className="p-5 text-left border-2 border-border rounded-2xl hover:border-primary hover:bg-primary-soft transition-all flex gap-4 items-center group">
-                  <span className="w-8 h-8 rounded-full bg-bg flex items-center justify-center font-bold text-xs group-hover:bg-primary group-hover:text-white transition-colors">{key}</span>
-                  <span className="flex-1 text-sm font-medium">{text}</span>
-                </button>
+                <div key={key} onClick={() => handleAnswer(key)} className="question-btn" style={{ padding: '20px' }}>
+                  <div className="letter" style={{ background: 'var(--primary)', color: 'white' }}>{key}</div>
+                  <span className="text-[15px] font-bold opacity-80">{text}</span>
+                </div>
               ))}
             </div>
           </motion.div>
         )}
 
         {step === 'RESULT' && result && (
-          <motion.div key="result" className="p-8 flex flex-col gap-6 text-center">
-             <div className="py-4">
-                <div className="w-24 h-24 bg-primary text-white rounded-full flex items-center justify-center mx-auto text-4xl font-black shadow-xl mb-4">
-                  {result}
-                </div>
-                <h2 className="text-2xl font-bold">{RESULTS_INTERPRETATION[result as keyof typeof RESULTS_INTERPRETATION].title}</h2>
-             </div>
-            <div className="p-6 bg-bg rounded-[32px] text-left border border-border shadow-inner">
-              <p className="text-sm italic leading-relaxed opacity-80">{RESULTS_INTERPRETATION[result as keyof typeof RESULTS_INTERPRETATION].description}</p>
+          <motion.div key="result" className="p-8 text-center flex flex-col gap-6 justify-center min-h-screen">
+            <div className="w-28 h-28 bg-primary text-white rounded-[40px] flex items-center justify-center mx-auto text-5xl font-black shadow-2xl rotate-3">{result}</div>
+            <h2 className="text-3xl font-black mt-4">{RESULTS_INTERPRETATION[result as keyof typeof RESULTS_INTERPRETATION].title}</h2>
+            <div className="p-8 bg-bg rounded-[40px] text-left border border-border italic text-sm leading-relaxed shadow-inner">
+              {RESULTS_INTERPRETATION[result as keyof typeof RESULTS_INTERPRETATION].description}
             </div>
-            <button className="btn-primary mt-4 shadow-lg" onClick={() => (setCurrentQuestionIdx(0), setAnswers({}), setStep('DAYS'))}>БА САҲИФАИ АСОСӢ</button>
+            <button className="btn-primary mt-8 shadow-xl" onClick={() => {setStep('APP'); setActiveTab('COURSES'); setCurrentQuestionIdx(0);}}>БАРГАШТАН</button>
           </motion.div>
         )}
 
       </AnimatePresence>
-
-      <style jsx>{`
-        .bg-accent { background-color: var(--accent); }
-        .text-text { color: var(--text); }
-      `}</style>
     </div>
   );
 }
