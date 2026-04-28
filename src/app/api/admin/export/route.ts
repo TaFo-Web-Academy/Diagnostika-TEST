@@ -8,7 +8,6 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const format = searchParams.get('format') || 'json';
     
-    // Обновленный запрос под новую схему RAVONI
     const result = await sql`
       SELECT 
         u.id,
@@ -19,8 +18,8 @@ export async function GET(request: Request) {
         u.promo_code,
         u.created_at,
         COUNT(a.id) as total_answers
-      FROM users u
-      LEFT JOIN answers a ON u.id = a.user_id
+      FROM ravoni_users u
+      LEFT JOIN ravoni_answers a ON u.id = a.user_id
       GROUP BY u.id, u.name, u.surname, u.age, u.marital_status, u.promo_code, u.created_at
       ORDER BY u.id DESC
     `;

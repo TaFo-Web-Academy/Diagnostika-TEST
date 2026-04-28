@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   try {
     const result = await sql`
-      SELECT * FROM users 
+      SELECT * FROM ravoni_users 
       ORDER BY created_at DESC;
     `;
 
