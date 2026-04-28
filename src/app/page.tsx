@@ -1,258 +1,219 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
+import { RAVONI_TESTS, RESULTS_INTERPRETATION } from '@/data/questions';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const API_BASE = '';
+type Step = 'PROMO' | 'ONBOARDING' | 'DAYS' | 'TEST' | 'RESULT';
 
 export default function Home() {
-  const [loading, setLoading] = useState(true);
-  const [userId, setUserId] = useState<number | null>(null);
-  const [userName, setUserName] = useState<string>('');
+  const [step, setStep] = useState<Step>('PROMO');
+  const [promo, setPromo] = useState('');
+  const [user, setUser] = useState<any>(null);
+  const [userData, setUserData] = useState({
+    name: '',
+    surname: '',
+    age: '',
+    maritalStatus: '',
+    gender: '',
+    interest: ''
+  });
   
-  const [assignment, setAssignment] = useState<any>(null);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [currentDay, setCurrentDay] = useState('day1');
+  const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [result, setResult] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
 
+  // При загрузке проверяем, есть ли пользователь в localStorage
   useEffect(() => {
-    const init = async () => {
-      try {
-        const savedName = localStorage.getItem('userName');
-        const savedId = localStorage.getItem('userId');
-        
-        if (savedName && savedId) {
-          setUserName(savedName);
-          setUserId(parseInt(savedId));
-          return;
-        }
-
-        const params = new URLSearchParams(window.location.search);
-        const newUserId = params.get('user_id');
-        const newUserName = params.get('name');
-        
-        if (newUserId && newUserName) {
-          localStorage.setItem('userName', newUserName);
-          localStorage.setItem('userId', newUserId);
-          setUserName(newUserName);
-          setUserId(parseInt(newUserId));
-        }
-      } catch (error) {
-        console.error('Init error:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    init();
+    const savedUser = localStorage.getItem('ravoni_user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+      setStep('DAYS');
+    }
   }, []);
 
-  useEffect(() => {
-    if (!userId) return;
-    loadAssignment();
-  }, [userId]);
-
-  const loadAssignment = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/api/assignments?user_id=${userId}`);
-      const data = await res.json();
-      if (data.assignment) {
-        setAssignment(data.assignment);
-        setAnswers(data.answers.reduce((acc: any, ans: any) => {
-          acc[ans.question_key] = ans.answer_text;
-          return acc;
-        }, {}));
-        if (data.assignment.status === 'completed') {
-          setSaved(true);
-        }
-      }
-    } catch (error) {
-      console.error('Load assignment error:', error);
+  const handlePromoSubmit = () => {
+    if (promo.trim().toLowerCase() === 'тести равони') {
+      setStep('ONBOARDING');
+    } else {
+      alert('Промокод нодуруст аст!');
     }
   };
 
-  const handleRegister = async () => {
-    const trimmedName = userName.trim();
-    if (trimmedName.length < 2) {
-      alert('Ном бояд ҳадди ақал 2 ҳарф бошад');
+  const handleOnboardingSubmit = async () => {
+    if (!userData.name || !userData.age) {
+      alert('Лутфан ҳамаи маълумотро пур кунед');
       return;
     }
-    
+
     setIsSaving(true);
     try {
-      const res = await fetch(`${API_BASE}/api/users`, {
+      const res = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: trimmedName })
+        body: JSON.stringify({ ...userData, promoCode: promo })
       });
-      
       const data = await res.json();
-      if (res.ok && data.user) {
-        localStorage.setItem('userName', data.user.name);
-        localStorage.setItem('userId', data.user.id.toString());
-        setUserId(data.user.id);
-        setUserName(data.user.name);
+      if (data.user) {
+        localStorage.setItem('ravoni_user', JSON.stringify(data.user));
+        setUser(data.user);
+        setStep('DAYS');
       }
-    } catch (error: any) {
-      alert('Хатогӣ!');
+    } catch (e) {
+      alert('Хатогии техникӣ ҳангоми сабт');
     } finally {
       setIsSaving(false);
     }
   };
 
-  const handleAnswerChange = (key: string, value: string) => {
-    setAnswers(prev => ({ ...prev, [key]: value }));
-  };
+  const handleAnswer = async (option: string) => {
+    const newAnswers = { ...answers, [currentQuestionIdx]: option };
+    setAnswers(newAnswers);
 
-  const handleSaveAnswers = async () => {
-    if (!userId || !assignment || saved) return;
-    
-    setIsSaving(true);
-    try {
-      for (const [key, value] of Object.entries(answers)) {
-        if (!value) continue;
-        await fetch(`${API_BASE}/api/answers`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            userId,
-            assignmentId: assignment.id,
-            questionKey: key,
-            answerText: value
-          })
-        });
-      }
-      
-      setSaved(true);
-      setTimeout(() => {
-        loadAssignment();
-      }, 1000);
-    } catch (error) {
-      console.error('Save error:', error);
-    } finally {
-      setIsSaving(false);
+    // Сохраняем в базу (фоном)
+    fetch('/api/answers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        userId: user.id,
+        dayNumber: parseInt(currentDay.replace('day', '')),
+        questionIndex: currentQuestionIdx,
+        selectedOption: option
+      })
+    });
+
+    if (currentQuestionIdx < RAVONI_TESTS[currentDay].questions.length - 1) {
+      setCurrentQuestionIdx(prev => prev + 1);
+    } else {
+      calculateResult(newAnswers);
     }
   };
 
-  const totalScore = useMemo(() => {
-    return ['q1', 'q2', 'q3', 'q4', 'q5'].reduce((acc, key) => {
-      return acc + (parseInt(answers[key]) || 0);
-    }, 0);
-  }, [answers]);
+  const calculateResult = (finalAnswers: Record<number, string>) => {
+    const counts: Record<string, number> = { A: 0, Б: 0, В: 0, Г: 0 };
+    Object.values(finalAnswers).forEach(val => {
+      counts[val] = (counts[val] || 0) + 1;
+    });
+    const winner = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+    setResult(winner);
+    setStep('RESULT');
+  };
 
-  const conclusion = useMemo(() => {
-    if (totalScore <= 20) return 'ту ҳоло бештар дар дард ҳастӣ, на дар фаҳмиш';
-    if (totalScore <= 35) return 'ту бедор шуда истодаӣ, вале ҳанӯз реша пурра равшан нест';
-    return 'ту аллакай дардро дида истодаӣ ва метавонӣ шифоро сар кунӣ';
-  }, [totalScore]);
-
-  if (loading) return <div className="loading">Боркунӣ...</div>;
+  // Проверка: какой день открыт (по дате регистрации)
+  const isDayLocked = (dayNum: number) => {
+    if (!user) return true;
+    const regDate = new Date(user.created_at || Date.now());
+    const now = new Date();
+    const diffDays = Math.floor((now.getTime() - regDate.getTime()) / (1000 * 3600 * 24));
+    return dayNum > diffDays + 1; // День 1 (diff=0), День 2 (diff=1) и т.д.
+  };
 
   return (
     <div className="app-container">
-      <header className="app-header">
-        <h1>ТЕСТИ ХУД-САНҶӢ ДАР ОХИРИ ДАРС</h1>
-      </header>
-
-      <main>
-        {!userId ? (
-          <div className="register-section">
-            <p className="register-prompt">Барои оғоз номи худро ворид кунед:</p>
-            <input 
-              type="text" 
-              className="name-input" 
-              placeholder="Номи шумо" 
-              value={userName}
-              onChange={(e) => setUserName(e.target.value)}
-              maxLength={50}
-              autoFocus
-              onKeyDown={(e) => e.key === 'Enter' && handleRegister()}
-            />
-            <button 
-              className="primary-btn"
-              onClick={handleRegister}
-              disabled={userName.trim().length < 2 || isSaving}
-            >
-              {isSaving ? 'Оғоз...' : 'Оғоз кардан'}
-            </button>
-          </div>
-        ) : assignment ? (
-          <div className="assignment-content">
-            <div className="answers-section">
-              <h2 className="section-title">ЧЕНИ НАТИҶАИ ДАРС</h2>
-              <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>Аз 1 то 10 баҳогузорӣ кун:</p>
-              
-              <div className="questions-list">
-                {[
-                  { key: 'q1', label: 'Ман фаҳмидам, ки дарди ман фақат аз имрӯз нест.' },
-                  { key: 'q2', label: 'Ман тавонистам trigger-и худро аз решаи кӯҳна ҷудо кунам.' },
-                  { key: 'q3', label: 'Ман рост фаҳмидам, ки даруни ман бештар тарс аст, на фақат “муҳаббат”.' },
-                  { key: 'q4', label: 'Ман имрӯз ҳиссиёти худро бе фиреб навиштам ё дидам.' },
-                  { key: 'q5', label: 'Ман медонам, ки ба ҷои истерика имрӯз чӣ қадами дуруст кунам.' }
-                ].map((q, idx) => (
-                  <div key={q.key} className="eval-row">
-                    <span className="eval-label">{idx + 1}. {q.label}</span>
-                    <div className="eval-input-group">
-                      <input 
-                        type="number" min="0" max="10"
-                        value={answers[q.key] || ''}
-                        onChange={(e) => handleAnswerChange(q.key, e.target.value)}
-                        placeholder="0"
-                        disabled={saved}
-                      />
-                      <span className="eval-total">/10</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="total-score-card">
-                <div style={{ flex: 1 }}>
-                  <h3 className="score-label" style={{ fontSize: '0.9rem', marginBottom: '4px', opacity: 0.8 }}>ХУЛОСАИ ХУД-САНҶӢ:</h3>
-                  <p style={{ fontSize: '1rem', fontWeight: '600', color: '#fff', lineHeight: '1.4' }}>
-                    {conclusion}
-                  </p>
-                </div>
-                <div style={{ textAlign: 'right', marginLeft: '16px' }}>
-                   <div className="score-value">{totalScore}/50</div>
-                </div>
-              </div>
-
-              <div className="reflection-section" style={{ marginTop: '32px' }}>
-                <label className="field-label" style={{ display: 'block', marginBottom: '12px', fontSize: '1rem', lineHeight: '1.4' }}>
-                  Аз ин дарси имрузаи РОЙГОН дар Телеграм, шумо чи гирифтед аз он барои худ ?
-                </label>
-                <textarea 
-                  className="note-area"
-                  placeholder="Дар ин чо фахмиши худро оид ба Курс нависед . ."
-                  value={answers.note || ''}
-                  onChange={(e) => handleAnswerChange('note', e.target.value)}
-                  disabled={saved}
-                />
-              </div>
-
-              {!saved ? (
-                <button 
-                  className="primary-btn save-btn"
-                  onClick={handleSaveAnswers}
-                  disabled={isSaving}
-                  style={{ marginTop: '32px' }}
-                >
-                  {isSaving ? 'Дар ҳоли сабт...' : 'Сабт кардан'}
-                </button>
-              ) : (
-                <div className="completion-card">
-                  <div className="success-icon">✅</div>
-                  <p>Сабт карда шуд! Ташаккур барои иштирок.</p>
-                </div>
-              )}
+      <AnimatePresence mode="wait">
+        
+        {step === 'PROMO' && (
+          <motion.div key="promo" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="p-8 flex flex-col gap-6">
+            <div className="text-center mb-4">
+              <h1 className="text-3xl mb-2">РАВОНИ</h1>
+              <p className="text-muted">Платформаи психологӣ</p>
             </div>
-          </div>
-        ) : (
-          <div className="waiting-card">
-            <p>Машқи нав ба зудӣ дастрас мешавад.</p>
-          </div>
+            <div className="flex flex-col gap-4">
+              <label className="text-sm font-semibold opacity-70">ПРОМОКОДРО ВОРИД КУНЕД:</label>
+              <input type="text" placeholder="Масалан: Тести Равони" value={promo} onChange={(e) => setPromo(e.target.value)} />
+              <button className="btn-primary" onClick={handlePromoSubmit}>ВУРУД</button>
+            </div>
+          </motion.div>
         )}
-      </main>
+
+        {step === 'ONBOARDING' && (
+          <motion.div key="onboarding" initial={{ opacity: 0, x: 50 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -50 }} className="p-8 flex flex-col gap-5">
+            <h2 className="text-2xl mb-4">Маълумоти аввалия</h2>
+            <input placeholder="Ном" value={userData.name} onChange={(e) => setUserData({...userData, name: e.target.value})} />
+            <input placeholder="Насаб" value={userData.surname} onChange={(e) => setUserData({...userData, surname: e.target.value})} />
+            <input type="number" placeholder="Синну сол" value={userData.age} onChange={(e) => setUserData({...userData, age: e.target.value})} />
+            <select className="w-full p-4 border-2 border-border rounded-2xl bg-bg outline-none" value={userData.maritalStatus} onChange={(e) => setUserData({...userData, maritalStatus: e.target.value})}>
+              <option value="">Вазъи оилавӣ</option>
+              <option value="single">Муҷаррад</option>
+              <option value="married">Оиладор</option>
+            </select>
+            <button className="btn-primary mt-4" onClick={handleOnboardingSubmit} disabled={isSaving}>
+              {isSaving ? 'САБТ...' : 'ДАВОМ ДОДАН'}
+            </button>
+          </motion.div>
+        )}
+
+        {step === 'DAYS' && (
+          <motion.div key="days" className="p-8 flex flex-col gap-4">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-2xl">Марафон</h2>
+              <span className="text-xs bg-primary-soft text-primary px-3 py-1 rounded-full font-bold">PRO</span>
+            </div>
+            {[1, 2, 3, 4, 5].map((d) => {
+              const locked = isDayLocked(d);
+              return (
+                <div key={d} onClick={() => !locked && (setCurrentDay(`day${d}`), setStep('TEST'))} 
+                  className={`p-6 rounded-2xl border-2 flex justify-between items-center cursor-pointer transition-all ${
+                    locked ? 'opacity-40 bg-gray-50 border-transparent' : 'border-primary-soft bg-white hover:border-primary shadow-sm'
+                  }`}>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold opacity-50 uppercase">Рӯзи {d}</span>
+                    <span className="font-semibold">{d === 1 ? 'Эҳсоси ботинӣ' : `Дарси рӯзи ${d}`}</span>
+                  </div>
+                  <span>{locked ? '🔒' : '→'}</span>
+                </div>
+              );
+            })}
+          </motion.div>
+        )}
+
+        {step === 'TEST' && (
+          <motion.div key="test" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-8 flex flex-col gap-6">
+            <div className="flex justify-between items-center">
+              <span className="text-xs font-bold text-primary opacity-60 uppercase">РӮЗИ {currentDay.replace('day','')} • САВОЛИ {currentQuestionIdx + 1}/15</span>
+              <div className="h-1.5 w-24 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-full bg-primary transition-all" style={{ width: `${((currentQuestionIdx + 1) / 15) * 100}%` }}></div>
+              </div>
+            </div>
+            <h3 className="text-xl leading-snug min-h-[80px]">{RAVONI_TESTS[currentDay].questions[currentQuestionIdx].question}</h3>
+            <div className="flex flex-col gap-3">
+              {Object.entries(RAVONI_TESTS[currentDay].questions[currentQuestionIdx].options).map(([key, text]) => (
+                <button key={key} onClick={() => handleAnswer(key)} className="p-5 text-left border-2 border-border rounded-2xl hover:border-primary hover:bg-primary-soft transition-all flex gap-4 items-center group">
+                  <span className="w-8 h-8 rounded-full bg-bg flex items-center justify-center font-bold text-sm group-hover:bg-primary group-hover:text-white transition-colors">{key}</span>
+                  <span className="flex-1 font-medium">{text}</span>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
+        {step === 'RESULT' && result && (
+          <motion.div key="result" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="p-8 flex flex-col gap-6 text-center">
+            <div className="w-20 h-20 bg-primary-soft rounded-full flex items-center justify-center mx-auto">
+              <span className="text-3xl text-primary font-bold">{result}</span>
+            </div>
+            <h2 className="text-2xl">{RESULTS_INTERPRETATION[result as keyof typeof RESULTS_INTERPRETATION].title}</h2>
+            <div className="p-6 bg-bg rounded-3xl text-left border border-border">
+              <p className="text-sm italic leading-relaxed opacity-80">{RESULTS_INTERPRETATION[result as keyof typeof RESULTS_INTERPRETATION].description}</p>
+            </div>
+            <button className="btn-primary mt-4" onClick={() => (setCurrentQuestionIdx(0), setAnswers({}), setStep('DAYS'))}>БА САҲИФАИ АСОСӢ</button>
+          </motion.div>
+        )}
+
+      </AnimatePresence>
+
+      <style jsx>{`
+        .text-muted { color: var(--text-muted); }
+        .bg-bg { background-color: var(--bg); }
+        .border-border { border-color: var(--border); }
+        .text-primary { color: var(--primary); }
+        .bg-primary { background-color: var(--primary); }
+        .bg-primary-soft { background-color: var(--primary-soft); }
+        .border-primary { border-color: var(--primary); }
+        .border-primary-soft { border-color: var(--primary-soft); }
+      `}</style>
     </div>
   );
 }

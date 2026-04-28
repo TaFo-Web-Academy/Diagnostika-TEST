@@ -1,11 +1,9 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Қадами Амали Имрӯз',
-  description: 'Амалиёти рӯҳии рӯзагона — шикасту беморотӣ',
-  icons: {
-    icon: '/favicon.ico',
-  },
+  title: 'РАВОНИ — Платформаи Психологӣ',
+  description: 'Ташхиси ҳолати эмотсионалӣ ва равонии шумо',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
 };
 
 export default function RootLayout({
@@ -15,12 +13,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="tg">
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap"
-          rel="stylesheet"
-        />
-      </head>
       <body>{children}</body>
     </html>
   );
