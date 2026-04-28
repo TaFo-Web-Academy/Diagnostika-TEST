@@ -1,27 +1,24 @@
-import './globals.css';
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
 
-export const metadata = {
-  title: 'Қадами Амали Имрӯз',
-  description: 'Амалиёти рӯҳии рӯзагона — шикасту беморотӣ',
-  icons: {
-    icon: '/favicon.ico',
-  },
-};
+const inter = Inter({ subsets: ['cyrillic', 'latin'], variable: '--font-inter' })
+
+export const metadata: Metadata = {
+  title: 'РАВОНИ - Платформаи психологӣ',
+  description: 'Тестҳои психологӣ барои шинохти худ',
+}
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
-    <html lang="tg">
-      <head>
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap"
-          rel="stylesheet"
-        />
-      </head>
-      <body>{children}</body>
+    <html lang="tj">
+      <body className={`${inter.variable} font-sans bg-cream-100 min-h-screen`}>
+        {children}
+      </body>
     </html>
-  );
+  )
 }
