@@ -11,6 +11,7 @@ export async function initDb() {
       surname TEXT,
       age INTEGER,
       marital_status TEXT,
+      gender TEXT,
       promo_code TEXT,
       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );

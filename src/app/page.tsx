@@ -421,6 +421,19 @@ export default function Home() {
                   </select>
                   <label>Вазъи оилавӣ</label>
                 </div>
+
+                <div className="input-group">
+                  <select
+                    value={userData.gender || ''}
+                    onChange={(e) => setUserData({ ...userData, gender: e.target.value })}
+                  >
+                    <option value="">Пол / интерес</option>
+                    <option value="male">Мард / Дӯстӣ бо муҷаррад</option>
+                    <option value="female">Зан / Дӯстӣ бо муҷаррад</option>
+                    <option value="other">Дигар</option>
+                  </select>
+                  <label>Пол / интерес</label>
+                </div>
               </div>
             </motion.div>
 
