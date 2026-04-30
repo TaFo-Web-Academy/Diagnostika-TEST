@@ -33,6 +33,5 @@ export async function initDb() {
     console.log('Database tables initialized successfully');
   } catch (error) {
     console.error('Database Init Error:', error);
-    // Don't throw here, so the app doesn't crash if tables already exist but check fails
   }
 }
