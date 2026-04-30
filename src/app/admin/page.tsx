@@ -44,7 +44,7 @@ export default function AdminPage() {
   const calculateStreak = (answers: any[]) => {
     if (!answers.length) return 0;
     // Get unique dates when user answered
-    const dates = [...new Set(answers.map(a => new Date(a.created_at).toDateString()))]
+    const dates = Array.from(new Set(answers.map(a => new Date(a.created_at).toDateString())))
       .map(d => new Date(d).getTime())
       .sort((a, b) => b - a);
     
