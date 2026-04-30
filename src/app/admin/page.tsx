@@ -43,7 +43,6 @@ export default function AdminPage() {
 
   const calculateStreak = (answers: any[]) => {
     if (!answers.length) return 0;
-    // Get unique dates when user answered
     const dates = Array.from(new Set(answers.map(a => new Date(a.created_at).toDateString())))
       .map(d => new Date(d).getTime())
       .sort((a, b) => b - a);
@@ -54,7 +53,6 @@ export default function AdminPage() {
     const oneDay = 86400000;
 
     for (let i = 0; i < dates.length; i++) {
-      // Check if current date or previous date matches
       if (dates[i] === currentDate || dates[i] === currentDate - oneDay) {
         streak++;
         currentDate = dates[i];
@@ -72,175 +70,179 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <div className="app-container full-width flex items-center justify-center min-h-screen bg-[#080a09]">
-        <div className="text-primary animate-pulse font-black uppercase tracking-[0.3em]">
-          Loading Data...
+      <div className="flex items-center justify-center min-h-screen bg-[#080a09]">
+        <div className="text-[#10b981] font-medium tracking-widest text-xs uppercase animate-pulse">
+          Syncing...
         </div>
       </div>
     );
   }
 
   return (
-    <div className="app-container full-width">
-      <div className="p-6 md:p-10">
-        <div className="glass-card mb-10 border-primary/20">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div>
-              <h1 className="text-3xl md:text-5xl font-black text-gradient mb-2">
-                Панели Админ
-              </h1>
-              <p className="text-muted text-sm uppercase font-bold tracking-widest opacity-60">
-                Идоракунии фойдаланувандагон ва натиҷаҳо
-              </p>
-            </div>
-            <div className="glass-card md:w-auto bg-primary/10 border-primary/30 flex flex-col items-center justify-center py-4 px-8 min-w-[140px]">
-              <div className="text-4xl font-black text-primary leading-none">{users.length}</div>
-              <div className="text-[10px] uppercase font-black tracking-widest text-primary/70 mt-1">Ҳамагӣ</div>
+    <div className="min-h-screen bg-[#080a09] text-[#f0fdf4] font-sans selection:bg-[#10b981]/30">
+      <div className="max-w-6xl mx-auto px-6 py-12">
+        
+        {/* Minimal Header */}
+        <header className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
+          <div>
+            <h1 className="text-sm font-bold text-[#10b981] uppercase tracking-[0.4em] mb-4">
+              Dashboard / Admin
+            </h1>
+            <div className="flex items-baseline gap-4">
+              <h2 className="text-4xl md:text-5xl font-bold tracking-tight">Панели Админ</h2>
+              <span className="text-white/20 text-4xl font-light">/</span>
+              <div className="text-white/40 font-medium">
+                <span className="text-white">{users.length}</span> users
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="glass-card mb-10 p-4">
-          <div className="input-group">
-            <label>Ҷустуҷӯи фойдаланувандагон...</label>
-            <input
-              type="text"
-              placeholder="Ном ё промокодро ворид кунед"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-white/5"
-            />
+          
+          <div className="w-full md:w-72">
+            <div className="relative group">
+              <input
+                type="text"
+                placeholder="Search database..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full bg-transparent border-b border-white/10 py-3 px-1 text-sm outline-none focus:border-[#10b981] transition-colors placeholder:text-white/20"
+              />
+              <span className="absolute right-2 top-3 text-white/20 group-focus-within:text-[#10b981] transition-colors">
+                🔍
+              </span>
+            </div>
           </div>
-        </div>
+        </header>
 
-        <div className="glass-card p-0 overflow-hidden shadow-2xl border-white/5">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-white/5 bg-white/5">
-                  <th className="p-6 font-black text-primary text-[10px] uppercase tracking-widest">ID</th>
-                  <th className="p-6 font-black text-primary text-[10px] uppercase tracking-widest">Исм ва Насаб</th>
-                  <th className="p-6 font-black text-primary text-[10px] uppercase tracking-widest hidden sm:table-cell">Синн</th>
-                  <th className="p-6 font-black text-primary text-[10px] uppercase tracking-widest">Промокод</th>
-                  <th className="p-6 font-black text-primary text-[10px] uppercase tracking-widest hidden md:table-cell text-right">Сана</th>
+        {/* Minimalist Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-white/5">
+                <th className="pb-6 pr-6 font-bold text-white/30 text-[10px] uppercase tracking-widest w-16">ID</th>
+                <th className="pb-6 pr-6 font-bold text-white/30 text-[10px] uppercase tracking-widest">Name</th>
+                <th className="pb-6 pr-6 font-bold text-white/30 text-[10px] uppercase tracking-widest hidden sm:table-cell">Age</th>
+                <th className="pb-6 pr-6 font-bold text-white/30 text-[10px] uppercase tracking-widest">Code</th>
+                <th className="pb-6 font-bold text-white/30 text-[10px] uppercase tracking-widest text-right">Registered</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/[0.03]">
+              {filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="py-20 text-center text-white/20 text-sm font-medium">
+                    No results found in current view.
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="p-20 text-center text-muted italic">
-                      Фойдаланувандагон ёфт нашуд
+              ) : (
+                filteredUsers.map((u: any) => (
+                  <tr
+                    key={u.id}
+                    onClick={() => handleUserClick(u)}
+                    className="group cursor-pointer hover:bg-white/[0.02] transition-all"
+                  >
+                    <td className="py-6 pr-6 text-white/20 text-xs font-mono">#{u.id}</td>
+                    <td className="py-6 pr-6">
+                      <div className="text-sm font-bold group-hover:text-[#10b981] transition-colors tracking-tight">
+                        {u.name} {u.surname}
+                      </div>
+                    </td>
+                    <td className="py-6 pr-6 hidden sm:table-cell text-xs text-white/40 font-medium">
+                      {u.age} y.o.
+                    </td>
+                    <td className="py-6 pr-6">
+                      <span className="text-[10px] font-bold text-white/40 border border-white/10 px-2 py-1 rounded">
+                        {u.promo_code}
+                      </span>
+                    </td>
+                    <td className="py-6 text-white/30 text-xs text-right font-medium">
+                      {new Date(u.created_at).toLocaleDateString('tg-TJ', { day: '2-digit', month: 'short' })}
                     </td>
                   </tr>
-                ) : (
-                  filteredUsers.map((u: any) => (
-                    <tr
-                      key={u.id}
-                      onClick={() => handleUserClick(u)}
-                      className="border-t border-white/5 hover:bg-primary/5 transition-all cursor-pointer group"
-                    >
-                      <td className="p-6 opacity-30 text-xs font-bold">#{u.id}</td>
-                      <td className="p-6">
-                        <div className="font-bold text-base text-text group-hover:text-primary transition-colors">{u.name} {u.surname}</div>
-                      </td>
-                      <td className="p-6 hidden sm:table-cell text-muted">{u.age}</td>
-                      <td className="p-6">
-                        <span className="stat-pill bg-primary/20 text-primary text-[10px]">
-                          {u.promo_code}
-                        </span>
-                      </td>
-                      <td className="p-6 text-muted text-sm hidden md:table-cell text-right font-medium">
-                        {new Date(u.created_at).toLocaleDateString('tg-TJ')}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
 
-        {/* User Detail Modal */}
+        {/* Minimalist Footer */}
+        <footer className="mt-20 pt-8 border-t border-white/5 flex justify-between items-center opacity-20">
+          <p className="text-[9px] font-bold tracking-[0.3em] uppercase">Ravoni Infrastructure</p>
+          <p className="text-[9px] font-bold tracking-[0.3em] uppercase">2026</p>
+        </footer>
+
+        {/* Detail Modal - Clean Minimalist */}
         <AnimatePresence>
           {selectedUser && (
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-[2000] flex items-center justify-center p-4 overflow-hidden"
+              className="fixed inset-0 z-[2000] flex items-center justify-center p-6"
             >
               <div 
-                className="absolute inset-0 bg-black/80 backdrop-blur-md"
+                className="absolute inset-0 bg-black/90"
                 onClick={() => setSelectedUser(null)}
               />
               <motion.div 
-                initial={{ scale: 0.9, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
-                className="glass-card w-full max-w-2xl max-h-[90vh] overflow-y-auto relative z-10 border-primary/30 shadow-[0_0_50px_rgba(0,0,0,0.5)] scrollbar-hide"
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                className="bg-[#0f1110] w-full max-w-2xl max-h-[85vh] overflow-y-auto relative z-10 border border-white/10 rounded-2xl shadow-2xl p-8 scrollbar-hide"
               >
-                <div className="flex justify-between items-start mb-8">
+                <div className="flex justify-between items-start mb-12">
                   <div>
-                    <h2 className="text-3xl font-black text-gradient">{selectedUser.name} {selectedUser.surname}</h2>
-                    <p className="text-muted text-xs uppercase font-bold tracking-widest mt-1">ID: #{selectedUser.id} • {selectedUser.age} сол</p>
+                    <p className="text-[10px] font-bold text-[#10b981] uppercase tracking-[0.3em] mb-2">User Details</p>
+                    <h2 className="text-3xl font-bold tracking-tight">{selectedUser.name} {selectedUser.surname}</h2>
+                    <p className="text-white/30 text-xs mt-1">Status: <span className="text-[#10b981]">Professional</span> / Joined {new Date(selectedUser.created_at).toLocaleDateString()}</p>
                   </div>
                   <button 
                     onClick={() => setSelectedUser(null)}
-                    className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-red-500/20 hover:text-red-500 transition-all text-xl"
+                    className="text-white/20 hover:text-white transition-colors text-2xl p-2"
                   >
                     ✕
                   </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                  <div className="glass-card bg-primary/5 border-primary/10 p-4 text-center">
-                    <p className="text-[10px] uppercase font-black text-primary tracking-widest mb-1">Daily Streak</p>
-                    <p className="text-3xl font-black text-text">{calculateStreak(userAnswers)} 🔥</p>
+                <div className="grid grid-cols-2 gap-px bg-white/5 border border-white/5 rounded-xl overflow-hidden mb-12">
+                  <div className="bg-[#0f1110] p-6 text-center">
+                    <p className="text-[9px] uppercase font-bold text-white/30 tracking-widest mb-2">Activity</p>
+                    <p className="text-3xl font-bold">{calculateStreak(userAnswers)} <span className="text-sm font-medium text-white/20">streak</span></p>
                   </div>
-                  <div className="glass-card bg-white/5 border-white/10 p-4 text-center">
-                    <p className="text-[10px] uppercase font-black text-muted tracking-widest mb-1">Ҷавобҳо</p>
-                    <p className="text-3xl font-black text-text">{userAnswers.length}</p>
+                  <div className="bg-[#0f1110] p-6 text-center">
+                    <p className="text-[9px] uppercase font-bold text-white/30 tracking-widest mb-2">Responses</p>
+                    <p className="text-3xl font-bold">{userAnswers.length} <span className="text-sm font-medium text-white/20">total</span></p>
                   </div>
                 </div>
 
-                <h3 className="text-sm font-black text-primary uppercase tracking-widest mb-4">Натиҷаҳои тестҳо</h3>
-                
-                {modalLoading ? (
-                  <div className="py-10 text-center animate-pulse text-primary font-bold">Загрузка ответов...</div>
-                ) : userAnswers.length === 0 ? (
-                  <div className="py-10 text-center text-muted italic">Ҷавобҳо мавҷуд нестанд</div>
-                ) : (
-                  <div className="space-y-6">
-                    {[1, 2, 3, 4, 5].map(day => {
-                      const dayAnswers = userAnswers.filter(a => a.day_number === day);
-                      if (dayAnswers.length === 0) return null;
-                      return (
-                        <div key={day} className="glass-card bg-white/5 border-white/5 p-4">
-                          <div className="flex justify-between items-center mb-4">
-                            <p className="font-black text-primary uppercase text-xs tracking-widest">Рӯзи {day}</p>
-                            <p className="text-[10px] text-muted">{new Date(dayAnswers[0].created_at).toLocaleDateString('tg-TJ')}</p>
-                          </div>
-                          <div className="grid grid-cols-1 gap-2">
-                            {dayAnswers.map((ans, idx) => (
-                              <div key={idx} className="flex items-center justify-between text-sm py-2 border-b border-white/5 last:border-0">
-                                <span className="text-muted">Саволи {ans.question_index + 1}</span>
-                                <span className="font-bold text-primary bg-primary/10 w-8 h-8 rounded-lg flex items-center justify-center">{ans.selected_option}</span>
-                              </div>
-                            ))}
-                          </div>
+                <div className="space-y-10">
+                  {[1, 2, 3, 4, 5].map(day => {
+                    const dayAnswers = userAnswers.filter(a => a.day_number === day);
+                    if (dayAnswers.length === 0) return null;
+                    return (
+                      <div key={day}>
+                        <div className="flex items-center gap-4 mb-4">
+                          <p className="font-bold text-[10px] uppercase tracking-widest text-[#10b981]">Day 0{day}</p>
+                          <div className="h-px flex-1 bg-white/5"></div>
+                          <p className="text-[10px] text-white/20 font-medium">{new Date(dayAnswers[0].created_at).toLocaleDateString('tg-TJ')}</p>
                         </div>
-                      );
-                    })}
-                  </div>
-                )}
+                        <div className="space-y-3">
+                          {dayAnswers.map((ans, idx) => (
+                            <div key={idx} className="flex items-center justify-between group">
+                              <span className="text-sm text-white/40 group-hover:text-white/60 transition-colors">Question {ans.question_index + 1}</span>
+                              <div className="flex items-center gap-3">
+                                <div className="text-[10px] font-bold text-white/20 opacity-0 group-hover:opacity-100 transition-opacity uppercase tracking-tighter">Selected</div>
+                                <span className="font-bold text-[#10b981] bg-[#10b981]/10 w-8 h-8 rounded flex items-center justify-center text-xs border border-[#10b981]/20">{ans.selected_option}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
-
-        <div className="text-center text-dim text-[10px] uppercase font-black tracking-[0.3em] mt-10">
-          РАВОНИ PLATFORM v1.1.0
-        </div>
       </div>
     </div>
   );
