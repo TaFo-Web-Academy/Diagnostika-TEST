@@ -4,7 +4,7 @@ export const metadata = {
   title: 'РАВОНИ — Платформаи Психологӣ',
   description: 'Ташхиси ҳолати эмотсионалӣ ва равонии шумо',
   viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
-  themeColor: '#3d5a41',
+  themeColor: '#10b981',
   appleMobileWebAppCapable: 'yes',
   appleMobileWebAppStatusBarStyle: 'default',
 };

@@ -69,7 +69,7 @@ export default function Home() {
       return;
     }
     
-    if (promo.trim().toLowerCase() === 'тести равони') {
+    if (promo.trim() === '99') {
       setError(null);
       setStep('ONBOARDING');
     } else {
@@ -152,132 +152,118 @@ export default function Home() {
   }, []);
 
   const renderCourses = () => (
-    <div className="p-4 md:p-8 animate-fade">
-      <div className="mb-8">
-        <h2 className="text-3xl md:text-4xl font-black tracking-tighter text-primary mb-2">
+    <div className="p-6 md:p-8 animate-fade">
+      <div className="mb-10 mt-4">
+        <h2 className="text-4xl font-black text-gradient mb-1">
           Марафон
         </h2>
-        <p className="text-muted text-sm md:text-base uppercase font-black tracking-widest opacity-40">
+        <p className="text-primary text-xs uppercase font-bold tracking-[0.2em]">
           5 Рӯзи Шиноҳӣ
         </p>
       </div>
       
-      <div className="flex flex-col gap-4">
+      <div className="space-y-4">
         {[1, 2, 3, 4, 5].map((d) => {
           const locked = isDayLocked(d);
           return (
             <motion.div
               key={d}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: d * 0.1 }}
+              onClick={() => !locked && (setCurrentDay(`day${d}`), setStep('TEST'))}
+              className={`day-card ${locked ? 'locked' : ''}`}
             >
-              <div
-                onClick={() => !locked && (setCurrentDay(`day${d}`), setStep('TEST'))}
-                className={`p-5 md:p-6 rounded-[28px] border-2 flex justify-between items-center transition-all cursor-pointer group ${
-                  locked 
-                    ? 'opacity-40 bg-gray-50 border-transparent cursor-not-allowed' 
-                    : 'bg-white border-primary-soft shadow-sm hover:border-primary hover:shadow-md'
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <div className={`w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center font-bold text-lg md:text-xl transition-all ${
-                    locked 
-                      ? 'bg-gray-200 text-gray-400' 
-                      : 'bg-primary-soft text-primary group-hover:bg-primary group-hover:text-white'
-                  }`}>
-                    {d}
-                  </div>
-                  <div>
-                    <p className={`font-bold text-base md:text-lg ${
-                      locked ? 'text-gray-400' : 'text-text'
-                    }`}>
-                      Рӯзи {d}
-                    </p>
-                    <p className="text-xs md:text-sm text-muted font-medium">
-                      {d === 1 ? 'Эҳсоси ботинӣ' : `Дарси рӯзи ${d}`}
-                    </p>
-                  </div>
-                </div>
-                <span className="text-xl md:text-2xl transition-transform group-hover:translate-x-1">
-                  {locked ? '🔒' : '→'}
-                </span>
+              <div className="day-number">
+                {locked ? '🔒' : d}
               </div>
+              <div className="flex-1">
+                <p className={`font-bold text-lg ${locked ? 'text-dim' : 'text-text'}`}>
+                  Рӯзи {d}
+                </p>
+                <p className="text-xs text-muted font-medium">
+                  {d === 1 ? 'Эҳсоси ботинӣ' : `Дарси рӯзи ${d}`}
+                </p>
+              </div>
+              {!locked && (
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                  →
+                </div>
+              )}
             </motion.div>
           );
         })}
       </div>
 
-      <div className="mt-8 p-4 md:p-6 bg-gradient rounded-2xl text-white">
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.6 }}
+        className="mt-10 glass-card border-primary/20"
+      >
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
-            🎓
+          <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center text-2xl">
+            ✨
           </div>
           <div>
-            <p className="font-bold text-lg">Мақсади марафон</p>
-            <p className="text-sm opacity-80">
-              Бо муҳлати 5 рӯзӣ бо худра боҳиш диҳед ва ҳолати эмотсионалӣ худро шиноҳ кунед
+            <p className="font-bold text-primary">Мақсади марафон</p>
+            <p className="text-xs text-muted leading-relaxed">
+              Бо муҳлати 5 рӯзӣ бо худра боҳиш диҳед ва ҳолати эмотсионалӣ худро шиноҳ кунед.
             </p>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 
   const renderProfile = () => (
-    <div className="p-4 md:p-8 animate-fade">
-      <div className="text-center mb-8">
-        <div className="w-20 h-20 md:w-24 md:h-24 bg-primary-soft rounded-[32px] mx-auto mb-4 flex items-center justify-center text-3xl md:text-4xl shadow-md">
+    <div className="p-6 md:p-8 animate-fade">
+      <div className="text-center mb-10 mt-6">
+        <div className="w-24 h-24 bg-primary/10 rounded-[32px] mx-auto mb-4 flex items-center justify-center text-4xl shadow-2xl border border-primary/20">
           👤
         </div>
-        <h2 className="text-2xl md:text-3xl font-bold mb-2">{user?.name} {user?.surname}</h2>
-        <p className="text-muted font-medium">
-          Синну сол: {user?.age} • <span className="text-primary font-bold">PRO</span>
-        </p>
+        <h2 className="text-3xl font-black text-gradient">{user?.name} {user?.surname}</h2>
+        <div className="flex justify-center gap-2 mt-2">
+          <span className="stat-pill">Синну сол: {user?.age}</span>
+          <span className="stat-pill bg-primary text-primary-text">PRO</span>
+        </div>
       </div>
       
-      <div className="card mb-6">
-        <div className="card-header">Натиҷаҳои охирин</div>
-        <p className="text-sm text-muted leading-relaxed italic">
-          Дар ин ҷо натиҷаҳои санҷишҳои гузаштаи шумо пайдо мешаванд. Аввал рӯзи аввалро гузаред,
-          барои дидани натиҷаҳои ҳисобот ва таҳлили ҳолати худ.
+      <div className="glass-card mb-6">
+        <h3 className="text-primary font-bold mb-3 flex items-center gap-2">
+          📊 Натиҷаҳои охирин
+        </h3>
+        <p className="text-xs text-muted leading-relaxed">
+          Дар ин ҷо натиҷаҳои санҷишҳои гузаштаи шумо пайдо мешаванд. Аввал рӯзи аввалро гузаред...
         </p>
       </div>
 
-      <div className="stats-card mb-6">
-        <div className="stat-value">5</div>
-        <div className="stat-label">Рӯзи ба поёнтон</div>
+      <div className="glass-card mb-6 flex items-center justify-between border-primary/30">
+        <div>
+          <p className="text-xs text-muted uppercase font-bold tracking-widest">Прогресс</p>
+          <p className="text-2xl font-black text-primary">5 Рӯз боқӣ монд</p>
+        </div>
+        <div className="w-12 h-12 rounded-full border-2 border-primary/30 flex items-center justify-center font-black text-primary">
+          5
+        </div>
       </div>
 
-      <div className="card">
-        <div className="card-header">Пешниҳоди рӯзона</div>
+      <div className="glass-card">
+        <h3 className="text-sm font-bold text-muted uppercase tracking-widest mb-4">Нақшаи марафон</h3>
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((d) => {
             const locked = isDayLocked(d);
             return (
-              <div
-                key={d}
-                className={`flex items-center justify-between p-3 rounded-xl ${
-                  locked ? 'bg-gray-50' : 'bg-primary-soft/20'
-                }`}
-              >
+              <div key={d} className={`flex items-center justify-between p-3 rounded-2xl ${locked ? 'bg-white/5' : 'bg-primary/10'}`}>
                 <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold ${
-                    locked ? 'bg-gray-200 text-gray-400' : 'bg-primary text-white'
-                  }`}>
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${locked ? 'bg-white/10 text-dim' : 'bg-primary text-primary-text'}`}>
                     {d}
                   </div>
-                  <span className={`text-sm ${
-                    locked ? 'text-gray-400' : 'text-text'
-                  }`}>
+                  <span className={`text-xs font-medium ${locked ? 'text-dim' : 'text-text'}`}>
                     Рӯзи {d}: {d === 1 ? 'Эҳсоси ботинӣ' : `Дарси рӯзи ${d}`}
                   </span>
                 </div>
-                {locked ? (
-                  <span className="text-gray-400">🔒</span>
-                ) : (
-                  <span className="text-primary text-sm font-bold">Доступ</span>
-                )}
+                {locked ? <span className="text-xs opacity-30">🔒</span> : <span className="text-[10px] font-black text-primary uppercase">Active</span>}
               </div>
             );
           })}
@@ -302,12 +288,12 @@ export default function Home() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-center"
+              className="text-center mb-8"
             >
-              <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-primary mb-4">
+              <h1 className="text-6xl font-black tracking-tighter text-gradient mb-4">
                 РАВОНИ
               </h1>
-              <p className="text-muted text-sm md:text-base mb-8">
+              <p className="text-muted text-sm px-10">
                 Платформаи психологӣ барои шиноҳкунии ҳолати эмотсионалӣ
               </p>
             </motion.div>
@@ -316,16 +302,17 @@ export default function Home() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="max-w-md mx-auto w-full"
+              className="max-w-md mx-auto w-full px-4"
             >
-              <div className="card mb-4">
-                <p className="text-sm text-muted text-center mb-4">
+              <div className="glass-card mb-6">
+                <p className="text-sm text-muted text-center mb-6">
                   Барои истифода аз марафон, промокодро ворид кунед
                 </p>
-                <div className="input-group mb-4">
+                <div className="input-group">
+                  <label>Промокод</label>
                   <input
                     type="text"
-                    placeholder=" "
+                    placeholder="Масалан: Тести Равони"
                     value={promo}
                     onChange={(e) => {
                       setPromo(e.target.value);
@@ -334,24 +321,23 @@ export default function Home() {
                     onKeyPress={(e) => e.key === 'Enter' && handlePromoSubmit()}
                     className={error ? 'border-danger' : ''}
                   />
-                  <label>Промокод</label>
                 </div>
                 {error && (
-                  <p className="text-danger text-sm mb-4 animate-fade">
+                  <p className="text-danger text-xs mt-2 mb-4 animate-fade text-center">
                     ⚠ {error}
                   </p>
                 )}
                 <button
-                  className="btn btn-primary btn-full shadow-lg"
+                  className="btn btn-primary mt-4 shadow-2xl"
                   onClick={handlePromoSubmit}
                 >
                   ВУРУД
                 </button>
               </div>
 
-              <div className="text-center">
-                <p className="text-xs text-muted">
-                  Промокод намоӣ: <span className="font-bold text-primary">Тести Равони</span>
+              <div className="text-center opacity-40">
+                <p className="text-[10px] uppercase font-bold tracking-widest">
+                  Промокод намоӣ: <span className="text-primary">99</span>
                 </p>
               </div>
             </motion.div>
@@ -377,75 +363,54 @@ export default function Home() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.1 }}
-              className="card"
+              className="glass-card mx-4"
             >
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <div className="input-group">
+                  <label>Ном</label>
                   <input
                     type="text"
-                    placeholder=" "
+                    placeholder="Номи шумо"
                     value={userData.name}
                     onChange={(e) => setUserData({ ...userData, name: e.target.value })}
                   />
-                  <label>Ном</label>
                 </div>
 
                 <div className="input-group">
+                  <label>Насаб</label>
                   <input
                     type="text"
-                    placeholder=" "
+                    placeholder="Насаби шумо"
                     value={userData.surname}
                     onChange={(e) => setUserData({ ...userData, surname: e.target.value })}
                   />
-                  <label>Насаб</label>
                 </div>
 
                 <div className="input-group">
+                  <label>Синну сол</label>
                   <input
                     type="number"
-                    placeholder=" "
+                    placeholder="Син"
                     value={userData.age}
                     onChange={(e) => setUserData({ ...userData, age: e.target.value })}
                   />
-                  <label>Синну сол</label>
                 </div>
 
                 <div className="input-group">
+                  <label>Вазъи оилавӣ</label>
                   <select
                     value={userData.maritalStatus}
                     onChange={(e) => setUserData({ ...userData, maritalStatus: e.target.value })}
                   >
-                    <option value="">Вазъи оилавӣ</option>
+                    <option value="">Интихоб кунед</option>
                     <option value="single">Муҷаррад</option>
                     <option value="married">Оиладор</option>
                   </select>
-                  <label>Вазъи оилавӣ</label>
-                </div>
-
-                <div className="input-group">
-                  <select
-                    value={userData.gender || ''}
-                    onChange={(e) => setUserData({ ...userData, gender: e.target.value })}
-                  >
-                    <option value="">Пол / интерес</option>
-                    <option value="male">Мард / Дӯстӣ бо муҷаррад</option>
-                    <option value="female">Зан / Дӯстӣ бо муҷаррад</option>
-                    <option value="other">Дигар</option>
-                  </select>
-                  <label>Пол / интерес</label>
                 </div>
               </div>
-            </motion.div>
 
-            <motion.div
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-            >
               <button
-                className={`btn btn-primary btn-full shadow-lg ${
-                  loading ? 'btn-loading' : ''
-                }`}
+                className={`btn btn-primary mt-8 ${loading ? 'opacity-50' : ''}`}
                 onClick={handleOnboardingSubmit}
                 disabled={loading}
               >
@@ -461,43 +426,24 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            className="flex-1"
           >
             {activeTab === 'COURSES' ? renderCourses() : renderProfile()}
 
-            <nav
-              className={`bottom-nav ${
-                showNav ? 'translate-y-0' : 'translate-y-full'
-              }`}
-              style={{
-                gridTemplateColumns: activeTab === 'COURSES' ? '1fr 1fr' : '1fr 1fr',
-                transition: 'transform 0.3s ease, opacity 0.3s ease',
-              }}
-            >
+            <nav className={`bottom-nav ${showNav ? 'translate-y-0' : 'translate-y-[120%]'}`}>
               <div
-                className={`nav-item ${
-                  activeTab === 'COURSES' ? 'active' : ''
-                }`}
+                className={`nav-item ${activeTab === 'COURSES' ? 'active' : ''}`}
                 onClick={() => setActiveTab('COURSES')}
               >
-                <div className="nav-icon">
-                  {activeTab === 'COURSES' ? '🧪' : '🧪'}
-                </div>
-                <span className="text-[11px] md:text-[12px] uppercase font-black tracking-wide">
-                  Тестҳо
-                </span>
+                <div className="nav-icon">🧪</div>
+                <span>Тестҳо</span>
               </div>
               <div
-                className={`nav-item ${
-                  activeTab === 'PROFILE' ? 'active' : ''
-                }`}
+                className={`nav-item ${activeTab === 'PROFILE' ? 'active' : ''}`}
                 onClick={() => setActiveTab('PROFILE')}
               >
-                <div className="nav-icon">
-                  {activeTab === 'PROFILE' ? '👤' : '👤'}
-                </div>
-                <span className="text-[11px] md:text-[12px] uppercase font-black tracking-wide">
-                  Профил
-                </span>
+                <div className="nav-icon">👤</div>
+                <span>Профил</span>
               </div>
             </nav>
           </motion.div>
@@ -511,52 +457,44 @@ export default function Home() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <header className="flex flex-wrap items-center justify-between gap-4">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-primary text-white rounded-xl md:rounded-2xl flex items-center justify-center font-black text-sm md:text-base">
-                {currentQuestionIdx + 1}
+            <header className="flex flex-col gap-4 mb-8">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">
+                  Рӯзи {currentDay.replace('day', '')}
+                </span>
+                <span className="text-[10px] font-bold text-muted uppercase">
+                  {currentQuestionIdx + 1} аз {RAVONI_TESTS[currentDay].questions.length}
+                </span>
               </div>
-              <div className="flex-1 min-w-32 mx-2 md:mx-6 bg-gray-100 rounded-full overflow-hidden h-2 md:h-3">
+              <div className="progress-container">
                 <div
-                  className="h-full bg-primary transition-all duration-500"
+                  className="progress-bar"
                   style={{
                     width: `${((currentQuestionIdx + 1) / RAVONI_TESTS[currentDay].questions.length) * 100}%`,
                   }}
                 ></div>
               </div>
-              <span className="text-[10px] md:text-xs font-black opacity-40 uppercase whitespace-nowrap">
-                Рӯзи {currentDay.replace('day', '')}
-              </span>
             </header>
 
             <div className="flex-1">
-              <p className="text-lg md:text-2xl font-bold leading-tight text-primary mb-2">
+              <h2 className="text-2xl font-bold leading-tight mb-8 text-gradient">
                 {RAVONI_TESTS[currentDay].questions[currentQuestionIdx].question}
-              </p>
-              <p className="text-xs md:text-sm text-muted mb-6">
-                {currentQuestionIdx + 1} аз {RAVONI_TESTS[currentDay].questions.length}
-              </p>
+              </h2>
 
-              <div className="flex flex-col gap-3 md:gap-4 mt-6">
+              <div className="space-y-3">
                 {Object.entries(RAVONI_TESTS[currentDay].questions[currentQuestionIdx].options).map(
                   ([key, text]) => (
-                    <div
+                    <motion.div
+                      whileTap={{ scale: 0.98 }}
                       key={key}
                       onClick={() => handleAnswer(key)}
                       className={`question-btn ${
                         answers[currentQuestionIdx] === key ? 'selected' : ''
                       }`}
                     >
-                      <div
-                        className="letter"
-                        style={{
-                          background: answers[currentQuestionIdx] === key ? 'var(--primary)' : '',
-                          color: answers[currentQuestionIdx] === key ? 'white' : '',
-                        }}
-                      >
-                        {key}
-                      </div>
-                      <span className="question-text">{text}</span>
-                    </div>
+                      <div className="letter">{key}</div>
+                      <span className="text-sm font-medium leading-relaxed">{text}</span>
+                    </motion.div>
                   )
                 )}
               </div>
@@ -567,7 +505,7 @@ export default function Home() {
         {step === 'RESULT' && result && (
           <motion.div
             key="result"
-            className="p-4 md:p-8 text-center flex flex-col gap-6 justify-center min-h-screen"
+            className="p-6 md:p-10 text-center flex flex-col gap-8 justify-center min-h-screen"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
@@ -576,7 +514,7 @@ export default function Home() {
               initial={{ scale: 0.8, rotate: -10 }}
               animate={{ scale: 1, rotate: 0 }}
               transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-              className="w-24 h-24 md:w-32 md:h-32 bg-primary text-white rounded-[40px] flex items-center justify-center mx-auto text-4xl md:text-6xl font-black shadow-2xl"
+              className="w-28 h-28 md:w-32 md:h-32 bg-primary text-primary-text rounded-[38px] flex items-center justify-center mx-auto text-5xl md:text-6xl font-black shadow-[0_0_50px_rgba(16,185,129,0.4)]"
             >
               {result}
             </motion.div>
@@ -586,7 +524,7 @@ export default function Home() {
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
             >
-              <h2 className="text-2xl md:text-3xl font-black mt-4 text-primary">
+              <h2 className="text-3xl md:text-4xl font-black text-gradient leading-tight">
                 {RESULTS_INTERPRETATION[result as keyof typeof RESULTS_INTERPRETATION].title}
               </h2>
             </motion.div>
@@ -595,9 +533,9 @@ export default function Home() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="card text-left"
+              className="glass-card text-left border-primary/20"
             >
-              <p className="text-sm md:text-base leading-relaxed italic text-muted">
+              <p className="text-sm md:text-base leading-relaxed text-muted italic">
                 {RESULTS_INTERPRETATION[result as keyof typeof RESULTS_INTERPRETATION].description}
               </p>
             </motion.div>
@@ -606,9 +544,10 @@ export default function Home() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
+              className="mt-4"
             >
               <button
-                className="btn btn-primary btn-full shadow-lg"
+                className="btn btn-primary shadow-2xl"
                 onClick={() => {
                   setStep('APP');
                   setActiveTab('COURSES');
@@ -617,7 +556,7 @@ export default function Home() {
                   setResult(null);
                 }}
               >
-                БАРГАШТАН
+                БАРГАШТАН БА АСОСӢ
               </button>
             </motion.div>
           </motion.div>

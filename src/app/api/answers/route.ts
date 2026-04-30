@@ -16,3 +16,24 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+
+    if (!userId) {
+      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
+    }
+
+    const { rows } = await sql`
+      SELECT * FROM ravoni_answers 
+      WHERE user_id = ${parseInt(userId)}
+      ORDER BY day_number ASC, question_index ASC;
+    `;
+
+    return NextResponse.json({ answers: rows }, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
