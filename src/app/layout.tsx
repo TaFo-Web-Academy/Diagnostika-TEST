@@ -1,4 +1,17 @@
 import './globals.css';
+import { Outfit, Inter } from 'next/font/google';
+
+const outfit = Outfit({ 
+  subsets: ['latin'],
+  variable: '--font-outfit',
+  display: 'swap',
+});
+
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
 
 export const metadata = {
   title: 'РАВОНИ — Платформаи Психологӣ',
@@ -15,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="tg" suppressHydrationWarning>
+    <html lang="tg" className={`${outfit.variable} ${inter.variable}`} suppressHydrationWarning>
       <body className="antialiased">
         <div id="toast-container" className="toast-container" />
         {children}
