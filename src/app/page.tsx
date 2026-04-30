@@ -312,7 +312,7 @@ export default function Home() {
                   <label>Промокод</label>
                   <input
                     type="text"
-                    placeholder="Масалан: Тести Равони"
+                    placeholder="Ворид кунед"
                     value={promo}
                     onChange={(e) => {
                       setPromo(e.target.value);
@@ -337,7 +337,7 @@ export default function Home() {
 
               <div className="text-center opacity-40">
                 <p className="text-[10px] uppercase font-bold tracking-widest">
-                  Промокод намоӣ: <span className="text-primary">99</span>
+                  RAVONI PLATFORM
                 </p>
               </div>
             </motion.div>
