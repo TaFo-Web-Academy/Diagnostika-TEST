@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { RAVONI_TESTS } from '@/data/questions';
 
 export const dynamic = 'force-dynamic';
 
@@ -278,13 +279,36 @@ export default function AdminPage() {
                               <span className="text-sm font-black text-[#10b981] uppercase tracking-widest bg-[#10b981]/10 px-4 py-2 rounded-xl">Рӯзи {day}</span>
                               <span className="text-[10px] font-bold text-white/30 uppercase tracking-widest">{new Date(dayAnswers[0].created_at).toLocaleDateString()}</span>
                             </div>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                              {dayAnswers.map((ans, idx) => (
-                                <div key={idx} className="flex flex-col items-center justify-center p-6 bg-black/40 rounded-3xl border border-white/5 group hover:border-[#10b981]/30 transition-all">
-                                  <span className="text-[10px] font-black text-white/20 uppercase mb-2">Саволи {ans.question_index + 1}</span>
-                                  <span className="text-3xl font-black text-[#10b981]">{ans.selected_option}</span>
-                                </div>
-                              ))}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              {(() => {
+                                // Фильтруем, чтобы оставить только последний ответ на каждый вопрос
+                                const latestAnswers = dayAnswers.reduce((acc: any, curr: any) => {
+                                  if (!acc[curr.question_index] || new Date(curr.created_at) > new Date(acc[curr.question_index].created_at)) {
+                                    acc[curr.question_index] = curr;
+                                  }
+                                  return acc;
+                                }, {});
+
+                                return Object.values(latestAnswers)
+                                  .sort((a: any, b: any) => a.question_index - b.question_index)
+                                  .map((ans: any, idx) => {
+                                    const questionData = RAVONI_TESTS[`day${day}`]?.questions.find(q => q.id === (ans.question_id || ans.question_index + 1 + (day-1)*10)); // Attempt to find by ID or index
+                                    // For day 1 it might be different, let's use a safer approach:
+                                    const dayQuestions = RAVONI_TESTS[`day${day}`]?.questions;
+                                    const q = dayQuestions[ans.question_index];
+                                    const fullText = q?.options[ans.selected_option as keyof typeof q.options];
+
+                                    return (
+                                      <div key={idx} className="flex flex-col p-6 bg-black/40 rounded-3xl border border-white/5 group hover:border-[#10b981]/30 transition-all">
+                                        <span className="text-[10px] font-black text-white/20 uppercase mb-2">Саволи {ans.question_index + 1}</span>
+                                        <div className="flex gap-3 items-start">
+                                          <span className="text-xl font-black text-[#10b981] min-w-[24px]">{ans.selected_option}</span>
+                                          <span className="text-xs text-white/70 font-medium leading-relaxed">{fullText || 'Матн ёфт нашуд'}</span>
+                                        </div>
+                                      </div>
+                                    );
+                                  });
+                              })()}
                             </div>
                           </div>
                         );
