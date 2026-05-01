@@ -18,6 +18,13 @@ export async function initDb() {
       );
     `;
 
+    // Migration: ensure gender column exists (for existing tables)
+    try {
+      await sql`ALTER TABLE ravoni_users ADD COLUMN IF NOT EXISTS gender TEXT;`;
+    } catch (e) {
+      // Column might already exist or other issue, ignore
+    }
+
     // Create answers table
     await sql`
       CREATE TABLE IF NOT EXISTS ravoni_answers (
