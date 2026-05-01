@@ -281,15 +281,15 @@ export default function Home() {
             {completedDays.map(dayNum => {
               const resKey = getDayResult(dayNum);
               if (!resKey) return null;
-              const interpretation = RESULTS_INTERPRETATION[resKey as keyof typeof RESULTS_INTERPRETATION];
+              const interpretation = RAVONI_TESTS[`day${dayNum}`].interpretations[resKey];
               return (
                 <div key={dayNum} className="p-4 rounded-2xl bg-white/5 border border-white/10">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-[10px] font-black text-primary uppercase">Рӯзи {dayNum}</span>
                     <span className="w-6 h-6 rounded-lg bg-primary text-primary-text flex items-center justify-center text-xs font-bold">{resKey}</span>
                   </div>
-                  <p className="font-bold text-sm mb-1">{interpretation.title}</p>
-                  <p className="text-[10px] text-muted line-clamp-2">{interpretation.description}</p>
+                  <p className="font-bold text-sm mb-1">{interpretation?.title || 'Натиҷа'}</p>
+                  <p className="text-[10px] text-muted line-clamp-2">{interpretation?.description || 'Ташаккур барои гузаштан'}</p>
                 </div>
               );
             })}
@@ -601,7 +601,7 @@ export default function Home() {
               transition={{ delay: 0.2 }}
             >
               <h2 className="text-3xl md:text-4xl font-black text-gradient leading-tight">
-                {RESULTS_INTERPRETATION[result as keyof typeof RESULTS_INTERPRETATION].title}
+                {RAVONI_TESTS[currentDay].interpretations[result]?.title}
               </h2>
             </motion.div>
 
@@ -612,7 +612,7 @@ export default function Home() {
               className="glass-card text-left border-primary/20"
             >
               <p className="text-sm md:text-base leading-relaxed text-muted italic">
-                {RESULTS_INTERPRETATION[result as keyof typeof RESULTS_INTERPRETATION].description}
+                {RAVONI_TESTS[currentDay].interpretations[result]?.description}
               </p>
             </motion.div>
 
