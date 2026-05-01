@@ -8,27 +8,38 @@ type Tab = 'COURSES' | 'PROFILE';
 type Step = 'PROMO' | 'ONBOARDING' | 'APP' | 'TEST' | 'RESULT';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<Tab>('COURSES');
-  const [step, setStep] = useState<Step>('PROMO');
-  const [promo, setPromo] = useState('');
-  const [user, setUser] = useState<any>(null);
-  const [userData, setUserData] = useState({ name: '', surname: '', age: '', maritalStatus: '' });
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  
-  const [currentDay, setCurrentDay] = useState('day1');
-  const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [result, setResult] = useState<string | null>(null);
-  const [showNav, setShowNav] = useState(true);
+  const [userAnswers, setUserAnswers] = useState<any[]>([]);
+  const [completedDays, setCompletedDays] = useState<number[]>([]);
+
+  const fetchUserAnswers = useCallback(async (userId: number) => {
+    try {
+      const res = await fetch(`/api/answers?userId=${userId}`);
+      const data = await res.json();
+      if (data.answers) {
+        setUserAnswers(data.answers);
+        
+        // Определяем пройденные дни
+        const completed = [1, 2, 3, 4, 5].filter(day => {
+          const dayQuestionsCount = RAVONI_TESTS[`day${day}`].questions.length;
+          const userDayAnswersCount = data.answers.filter((a: any) => a.day_number === day).length;
+          return userDayAnswersCount >= dayQuestionsCount;
+        });
+        setCompletedDays(completed);
+      }
+    } catch (e) {
+      console.error('Error fetching answers:', e);
+    }
+  }, []);
 
   useEffect(() => {
     const savedUser = localStorage.getItem('ravoni_user');
     if (savedUser) {
-      setUser(JSON.parse(savedUser));
+      const parsedUser = JSON.parse(savedUser);
+      setUser(parsedUser);
       setStep('APP');
+      fetchUserAnswers(parsedUser.id);
     }
-  }, []);
+  }, [fetchUserAnswers]);
 
   useEffect(() => {
     let lastScrollY = window.scrollY;
@@ -149,7 +160,8 @@ export default function Home() {
     const winner = Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
     setResult(winner);
     setStep('RESULT');
-  }, []);
+    if (user) fetchUserAnswers(user.id); // Обновляем прогресс
+  }, [user, fetchUserAnswers]);
 
   const renderCourses = () => (
     <div className="p-6 md:p-8 animate-fade">
@@ -165,6 +177,7 @@ export default function Home() {
       <div className="space-y-4">
         {[1, 2, 3, 4, 5].map((d) => {
           const locked = isDayLocked(d);
+          const completed = completedDays.includes(d);
           return (
             <motion.div
               key={d}
@@ -172,20 +185,20 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: d * 0.1 }}
               onClick={() => !locked && (setCurrentDay(`day${d}`), setStep('TEST'))}
-              className={`day-card ${locked ? 'locked' : ''}`}
+              className={`day-card ${locked ? 'locked' : ''} ${completed ? 'completed border-primary/50' : ''}`}
             >
-              <div className="day-number">
-                {locked ? '🔒' : d}
+              <div className={`day-number ${completed ? 'bg-primary text-primary-text' : ''}`}>
+                {completed ? '✅' : (locked ? '🔒' : d)}
               </div>
               <div className="flex-1">
                 <p className={`font-bold text-lg ${locked ? 'text-dim' : 'text-text'}`}>
-                  Рӯзи {d}
+                  Рӯзи {d} {completed && <span className="text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-full ml-2">ТАМОМ</span>}
                 </p>
                 <p className="text-xs text-muted font-medium">
                   {d === 1 ? 'Эҳсоси ботинӣ' : `Дарси рӯзи ${d}`}
                 </p>
               </div>
-              {!locked && (
+              {!locked && !completed && (
                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                   →
                 </div>
@@ -216,6 +229,17 @@ export default function Home() {
     </div>
   );
 
+  const getDayResult = (dayNum: number) => {
+    const dayAnswers = userAnswers.filter(a => a.day_number === dayNum);
+    if (dayAnswers.length === 0) return null;
+    
+    const counts: Record<string, number> = { A: 0, Б: 0, В: 0, Г: 0 };
+    dayAnswers.forEach(ans => {
+      counts[ans.selected_option] = (counts[ans.selected_option] || 0) + 1;
+    });
+    return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+  };
+
   const renderProfile = () => (
     <div className="p-6 md:p-8 animate-fade">
       <div className="text-center mb-10 mt-6">
@@ -230,21 +254,42 @@ export default function Home() {
       </div>
       
       <div className="glass-card mb-6">
-        <h3 className="text-primary font-bold mb-3 flex items-center gap-2">
+        <h3 className="text-primary font-bold mb-4 flex items-center gap-2">
           📊 Натиҷаҳои охирин
         </h3>
-        <p className="text-xs text-muted leading-relaxed">
-          Дар ин ҷо натиҷаҳои санҷишҳои гузаштаи шумо пайдо мешаванд. Аввал рӯзи аввалро гузаред...
-        </p>
+        
+        {completedDays.length === 0 ? (
+          <p className="text-xs text-muted leading-relaxed italic">
+            Дар ин ҷо натиҷаҳои санҷишҳои гузаштаи шумо пайдо мешаванд. Аввал рӯзи аввалро гузаред...
+          </p>
+        ) : (
+          <div className="space-y-4">
+            {completedDays.map(dayNum => {
+              const resKey = getDayResult(dayNum);
+              if (!resKey) return null;
+              const interpretation = RESULTS_INTERPRETATION[resKey as keyof typeof RESULTS_INTERPRETATION];
+              return (
+                <div key={dayNum} className="p-4 rounded-2xl bg-white/5 border border-white/10">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-[10px] font-black text-primary uppercase">Рӯзи {dayNum}</span>
+                    <span className="w-6 h-6 rounded-lg bg-primary text-primary-text flex items-center justify-center text-xs font-bold">{resKey}</span>
+                  </div>
+                  <p className="font-bold text-sm mb-1">{interpretation.title}</p>
+                  <p className="text-[10px] text-muted line-clamp-2">{interpretation.description}</p>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <div className="glass-card mb-6 flex items-center justify-between border-primary/30">
         <div>
           <p className="text-xs text-muted uppercase font-bold tracking-widest">Прогресс</p>
-          <p className="text-2xl font-black text-primary">5 Рӯз боқӣ монд</p>
+          <p className="text-2xl font-black text-primary">{5 - completedDays.length} Рӯз боқӣ монд</p>
         </div>
         <div className="w-12 h-12 rounded-full border-2 border-primary/30 flex items-center justify-center font-black text-primary">
-          5
+          {completedDays.length}/5
         </div>
       </div>
 
@@ -253,17 +298,22 @@ export default function Home() {
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((d) => {
             const locked = isDayLocked(d);
+            const completed = completedDays.includes(d);
             return (
-              <div key={d} className={`flex items-center justify-between p-3 rounded-2xl ${locked ? 'bg-white/5' : 'bg-primary/10'}`}>
+              <div key={d} className={`flex items-center justify-between p-3 rounded-2xl ${completed ? 'bg-primary/20 border border-primary/30' : (locked ? 'bg-white/5' : 'bg-primary/5')}`}>
                 <div className="flex items-center gap-3">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${locked ? 'bg-white/10 text-dim' : 'bg-primary text-primary-text'}`}>
-                    {d}
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${completed ? 'bg-primary text-primary-text' : (locked ? 'bg-white/10 text-dim' : 'bg-primary/20 text-primary')}`}>
+                    {completed ? '✓' : d}
                   </div>
                   <span className={`text-xs font-medium ${locked ? 'text-dim' : 'text-text'}`}>
                     Рӯзи {d}: {d === 1 ? 'Эҳсоси ботинӣ' : `Дарси рӯзи ${d}`}
                   </span>
                 </div>
-                {locked ? <span className="text-xs opacity-30">🔒</span> : <span className="text-[10px] font-black text-primary uppercase">Active</span>}
+                {completed ? (
+                  <span className="text-[10px] font-black text-primary uppercase">Completed</span>
+                ) : (
+                  locked ? <span className="text-xs opacity-30">🔒</span> : <span className="text-[10px] font-black text-primary uppercase">Active</span>
+                )}
               </div>
             );
           })}
