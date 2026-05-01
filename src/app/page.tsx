@@ -523,6 +523,18 @@ export default function Home() {
           >
             <header className="flex flex-col gap-4 mb-8">
               <div className="flex items-center justify-between">
+                <button 
+                  onClick={() => {
+                    if (currentQuestionIdx > 0) {
+                      setCurrentQuestionIdx(prev => prev - 1);
+                    } else {
+                      setStep('APP');
+                    }
+                  }}
+                  className="flex items-center gap-2 text-[10px] font-black text-muted uppercase tracking-widest hover:text-primary transition-colors"
+                >
+                  ← {currentQuestionIdx > 0 ? 'Қафо' : 'Бекор кардан'}
+                </button>
                 <span className="text-[10px] font-black text-primary uppercase tracking-[0.2em]">
                   Рӯзи {currentDay.replace('day', '')}
                 </span>
