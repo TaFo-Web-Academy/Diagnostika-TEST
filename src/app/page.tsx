@@ -10,6 +10,20 @@ type Step = 'PROMO' | 'ONBOARDING' | 'APP' | 'TEST' | 'RESULT';
 export default function Home() {
   const [userAnswers, setUserAnswers] = useState<any[]>([]);
   const [completedDays, setCompletedDays] = useState<number[]>([]);
+  
+  const [activeTab, setActiveTab] = useState<Tab>('COURSES');
+  const [step, setStep] = useState<Step>('PROMO');
+  const [promo, setPromo] = useState('');
+  const [user, setUser] = useState<any>(null);
+  const [userData, setUserData] = useState({ name: '', surname: '', age: '', maritalStatus: '' });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  
+  const [currentDay, setCurrentDay] = useState('day1');
+  const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
+  const [answers, setAnswers] = useState<Record<number, string>>({});
+  const [result, setResult] = useState<string | null>(null);
+  const [showNav, setShowNav] = useState(true);
 
   const fetchUserAnswers = useCallback(async (userId: number) => {
     try {
