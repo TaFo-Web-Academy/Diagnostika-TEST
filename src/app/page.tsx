@@ -32,11 +32,12 @@ export default function Home() {
       if (data.answers) {
         setUserAnswers(data.answers);
         
-        // Определяем пройденные дни
+        // Определяем пройденные дни более надежно (по уникальным индексам вопросов)
         const completed = [1, 2, 3, 4, 5].filter(day => {
-          const dayQuestionsCount = RAVONI_TESTS[`day${day}`].questions.length;
-          const userDayAnswersCount = data.answers.filter((a: any) => a.day_number === day).length;
-          return userDayAnswersCount >= dayQuestionsCount;
+          const dayQuestions = RAVONI_TESTS[`day${day}`].questions;
+          const userDayAnswers = data.answers.filter((a: any) => a.day_number === day);
+          const uniqueAnsweredIndices = new Set(userDayAnswers.map((a: any) => a.question_index));
+          return uniqueAnsweredIndices.size >= dayQuestions.length;
         });
         setCompletedDays(completed);
       }
