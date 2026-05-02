@@ -394,6 +394,16 @@ export default function Home() {
             );
           })}
         </div>
+      <div className="mt-8 pt-8 border-t border-white/5">
+        <button 
+          onClick={() => {
+            localStorage.removeItem('ravoni_user');
+            window.location.reload();
+          }}
+          className="w-full py-4 rounded-2xl bg-danger/10 text-danger text-xs font-black uppercase tracking-widest hover:bg-danger hover:text-white transition-all border border-danger/20"
+        >
+          ❌ Баромадан ва тоза кардан
+        </button>
       </div>
     </div>
   );
