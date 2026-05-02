@@ -394,6 +394,7 @@ export default function Home() {
             );
           })}
         </div>
+      </div>
       <div className="mt-8 pt-8 border-t border-white/5">
         <button 
           onClick={() => {
