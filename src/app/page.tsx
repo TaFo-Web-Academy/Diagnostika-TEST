@@ -299,6 +299,29 @@ export default function Home() {
           📊 Натиҷаҳои охирин
         </h3>
         
+        {(() => {
+          const nextDay = completedDays.length + 1;
+          if (nextDay <= 5 && isDayLocked(nextDay)) {
+            const countdown = getNextDayCountdown(nextDay);
+            return (
+              <motion.div 
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="glass-card mb-6 border-primary/40 bg-primary/5 flex items-center gap-4"
+              >
+                <div className="text-3xl">⏳</div>
+                <div>
+                  <p className="text-[10px] font-black text-primary uppercase tracking-widest">Рӯзи навбатӣ</p>
+                  <p className="text-sm font-bold text-white">
+                    Рӯзи {nextDay} пас аз <span className="text-primary">{countdown}</span> кушода мешавад
+                  </p>
+                </div>
+              </motion.div>
+            );
+          }
+          return null;
+        })()}
+
         {completedDays.length === 0 ? (
           <p className="text-xs text-muted leading-relaxed italic">
             Дар ин ҷо натиҷаҳои санҷишҳои гузаштаи шумо пайдо мешаванд. Аввал рӯзи аввалро гузаред...
