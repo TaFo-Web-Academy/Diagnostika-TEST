@@ -197,7 +197,7 @@ export default function Home() {
     
     // Запуск конфетти
     setTimeout(() => {
-      const duration = 3 * 1000;
+      const duration = 1 * 1000;
       const animationEnd = Date.now() + duration;
       const interval: any = setInterval(() => {
         const timeLeft = animationEnd - Date.now();
@@ -319,27 +319,6 @@ export default function Home() {
           </div>
         </div>
       </motion.div>
-
-      {/* Support Section */}
-      <div className="mt-12 mb-20">
-        <p className="text-[10px] text-muted text-center mb-4 font-black uppercase tracking-[0.2em]">Дастгирии техникӣ ва машварат</p>
-        <div className="flex flex-col gap-3">
-          <a 
-            href="https://t.me/jannat_abdullaeva_admin"
-            target="_blank"
-            className="flex items-center justify-center gap-3 w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold text-white hover:bg-white/10 transition-all"
-          >
-            <span>💬</span> Савол пурсидан
-          </a>
-          <a 
-            href="https://t.me/jannat_abdullaeva_admin"
-            target="_blank"
-            className="flex items-center justify-center gap-3 w-full py-4 bg-primary/10 border border-primary/20 rounded-2xl text-sm font-bold text-primary hover:bg-primary/20 transition-all shadow-xl"
-          >
-            <span>👩‍⚕️</span> Консултатсия гирифтан
-          </a>
-        </div>
-      </div>
     </div>
   );
 
