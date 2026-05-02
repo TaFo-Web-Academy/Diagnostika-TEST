@@ -251,7 +251,28 @@ export default function Home() {
     dayAnswers.forEach(ans => {
       counts[ans.selected_option] = (counts[ans.selected_option] || 0) + 1;
     });
-    return Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b);
+    
+    // Берем дату последнего ответа в этом дне
+    const lastAnswerDate = new Date(Math.max(...dayAnswers.map(a => new Date(a.created_at).getTime())));
+    
+    return {
+      key: Object.keys(counts).reduce((a, b) => counts[a] > counts[b] ? a : b),
+      date: lastAnswerDate
+    };
+  };
+
+  const getNextDayCountdown = (dayNum: number) => {
+    if (!user) return null;
+    const regDate = new Date(user.created_at);
+    const targetDate = new Date(regDate.getTime() + (dayNum - 1) * 24 * 60 * 60 * 1000);
+    const now = new Date();
+    const diff = targetDate.getTime() - now.getTime();
+    
+    if (diff <= 0) return null;
+    
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    return `${hours}с ${mins}д`;
   };
 
   const renderProfile = () => (
@@ -279,14 +300,19 @@ export default function Home() {
         ) : (
           <div className="space-y-4">
             {completedDays.map(dayNum => {
-              const resKey = getDayResult(dayNum);
-              if (!resKey) return null;
-              const interpretation = RAVONI_TESTS[`day${dayNum}`].interpretations[resKey];
+              const res = getDayResult(dayNum);
+              if (!res) return null;
+              const interpretation = RAVONI_TESTS[`day${dayNum}`].interpretations[res.key];
               return (
                 <div key={dayNum} className="p-4 rounded-2xl bg-white/5 border border-white/10">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-[10px] font-black text-primary uppercase">Рӯзи {dayNum}</span>
-                    <span className="w-6 h-6 rounded-lg bg-primary text-primary-text flex items-center justify-center text-xs font-bold">{resKey}</span>
+                    <div className="flex flex-col">
+                      <span className="text-[10px] font-black text-primary uppercase">Рӯзи {dayNum}</span>
+                      <span className="text-[9px] text-white/30 font-bold uppercase mt-0.5">
+                        {res.date.toLocaleDateString('tg-TJ', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    <span className="w-6 h-6 rounded-lg bg-primary text-primary-text flex items-center justify-center text-xs font-bold">{res.key}</span>
                   </div>
                   <p className="font-bold text-sm mb-1">{interpretation?.title || 'Натиҷа'}</p>
                   <p className="text-[10px] text-muted line-clamp-2">{interpretation?.description || 'Ташаккур барои гузаштан'}</p>
@@ -326,7 +352,14 @@ export default function Home() {
                 {completed ? (
                   <span className="text-[10px] font-black text-primary uppercase">Completed</span>
                 ) : (
-                  locked ? <span className="text-xs opacity-30">🔒</span> : <span className="text-[10px] font-black text-primary uppercase">Active</span>
+                  locked ? (
+                    <div className="flex flex-col items-end">
+                      <span className="text-xs opacity-30 mb-0.5">🔒</span>
+                      <span className="text-[8px] font-black text-white/20 uppercase tracking-tighter">
+                        Боз мешавад: {getNextDayCountdown(d)}
+                      </span>
+                    </div>
+                  ) : <span className="text-[10px] font-black text-primary uppercase">Active</span>
                 )}
               </div>
             );
