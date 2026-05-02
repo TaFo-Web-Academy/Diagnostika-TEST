@@ -157,20 +157,26 @@ export default function Home() {
     return dayNum > diffDays + 1;
   }, [user]);
 
-  const handleAnswer = useCallback((option: string) => {
+  const handleAnswer = useCallback(async (option: string) => {
     const newAnswers = { ...answers, [currentQuestionIdx]: option };
     setAnswers(newAnswers);
     
-    fetch('/api/answers', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userId: user.id,
-        dayNumber: parseInt(currentDay.replace('day', '')),
-        questionIndex: currentQuestionIdx,
-        selectedOption: option
-      })
-    }).catch(() => {});
+    if (user) {
+      try {
+        await fetch('/api/answers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: user.id,
+            dayNumber: parseInt(currentDay.replace('day', '')),
+            questionIndex: currentQuestionIdx,
+            selectedOption: option
+          })
+        });
+      } catch (e) {
+        console.error('Error saving answer:', e);
+      }
+    }
     
     if (currentQuestionIdx < RAVONI_TESTS[currentDay].questions.length - 1) {
       setCurrentQuestionIdx(prev => prev + 1);
@@ -227,7 +233,7 @@ export default function Home() {
     <div className="p-6 md:p-8 animate-fade">
       {/* Two Prominent Support Buttons */}
       <div className="grid grid-cols-2 gap-3 mb-8">
-        <motion.a 
+         <motion.a
           href="https://t.me/jannat_abdullaeva_admin"
           target="_blank"
           initial={{ x: -20, opacity: 0 }}
