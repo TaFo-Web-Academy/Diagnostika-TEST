@@ -18,9 +18,10 @@ export async function initDb() {
       );
     `;
 
-    // Migration: ensure gender column exists (for existing tables)
+    // Migration: ensure gender and device_id columns exist
     try {
       await sql`ALTER TABLE ravoni_users ADD COLUMN IF NOT EXISTS gender TEXT;`;
+      await sql`ALTER TABLE ravoni_users ADD COLUMN IF NOT EXISTS device_id TEXT;`;
     } catch (e) {
       // Column might already exist or other issue, ignore
     }

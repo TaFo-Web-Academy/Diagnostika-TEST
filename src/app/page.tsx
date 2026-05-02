@@ -119,10 +119,16 @@ export default function Home() {
     setError(null);
     
     try {
+      let deviceId = localStorage.getItem('ravoni_device_id');
+      if (!deviceId) {
+        deviceId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        localStorage.setItem('ravoni_device_id', deviceId);
+      }
+      
       const res = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...userData, promoCode: promo })
+        body: JSON.stringify({ ...userData, promoCode: promo, deviceId })
       });
       const data = await res.json();
       
@@ -190,7 +196,7 @@ export default function Home() {
           Дарси 7 Рӯза
         </h2>
         <p className="text-primary text-xs uppercase font-bold tracking-[0.2em]">
-          7 Рӯзи Шиноҳӣ
+          7 Рӯзи Тести
         </p>
       </div>
       
@@ -341,7 +347,9 @@ export default function Home() {
                         {res.date.toLocaleDateString('tg-TJ', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
-                    <span className="w-6 h-6 rounded-lg bg-primary text-primary-text flex items-center justify-center text-xs font-bold">{res.key}</span>
+                    <span className="w-6 h-6 rounded-lg bg-primary text-primary-text flex items-center justify-center text-xs font-bold">
+                      {res.key} ✅
+                    </span>
                   </div>
                   <p className="font-bold text-sm mb-1">{interpretation?.title || 'Натиҷа'}</p>
                   <p className="text-[10px] text-muted line-clamp-2">{interpretation?.description || 'Ташаккур барои гузаштан'}</p>
@@ -394,17 +402,6 @@ export default function Home() {
             );
           })}
         </div>
-      </div>
-      <div className="mt-8 pt-8 border-t border-white/5">
-        <button 
-          onClick={() => {
-            localStorage.removeItem('ravoni_user');
-            window.location.reload();
-          }}
-          className="w-full py-4 rounded-2xl bg-danger/10 text-danger text-xs font-black uppercase tracking-widest hover:bg-danger hover:text-white transition-all border border-danger/20"
-        >
-          ❌ Баромадан ва тоза кардан
-        </button>
       </div>
     </div>
   );
