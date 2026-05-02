@@ -386,6 +386,26 @@ export default function Home() {
           <span className="stat-pill">Синну сол: {user?.age}</span>
           <span className="stat-pill bg-primary text-primary-text">PRO</span>
         </div>
+
+        {/* Support Buttons Moved Up */}
+        <div className="grid grid-cols-2 gap-3 mt-8">
+          <a 
+            href="https://t.me/jannat_abdullaeva_admin"
+            target="_blank"
+            className="flex flex-col items-center justify-center p-3 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-all text-center"
+          >
+            <span className="text-xl mb-1">💬</span>
+            <span className="text-[9px] font-black text-white/40 uppercase tracking-widest">Савол пурсидан</span>
+          </a>
+          <a 
+            href="https://t.me/jannat_abdullaeva_admin"
+            target="_blank"
+            className="flex flex-col items-center justify-center p-3 bg-primary/10 border border-primary/20 rounded-2xl hover:bg-primary/20 transition-all text-center shadow-lg"
+          >
+            <span className="text-xl mb-1">👩‍⚕️</span>
+            <span className="text-[9px] font-black text-primary uppercase tracking-widest">Консултатсия</span>
+          </a>
+        </div>
       </div>
       
       <div className="glass-card mb-6">
@@ -490,17 +510,6 @@ export default function Home() {
             );
           })}
         </div>
-      </div>
-
-      <div className="mt-10 text-center pb-20">
-        <a 
-          href="https://t.me/jannat_abdullaeva_admin"
-          target="_blank"
-          className="inline-flex items-center gap-3 px-8 py-4 bg-primary/10 border border-primary/20 rounded-3xl text-sm font-black text-primary hover:bg-primary hover:text-white transition-all shadow-xl"
-        >
-          <span>👩‍⚕️</span> ПАЙВАСТ БО ПСИХОЛОГ
-        </a>
-        <p className="text-[10px] text-muted mt-4 uppercase font-bold tracking-widest opacity-40">Ҷаннат Абдуллаева</p>
       </div>
     </div>
   );
@@ -641,6 +650,10 @@ export default function Home() {
                   </select>
                 </div>
               </div>
+
+              <p className="text-[10px] text-muted text-center italic mt-6">
+                * Агар шумо аллакай сабти ном шуда бошед, маълумотро ворид кунед ва ворид шавед.
+              </p>
 
               <button
                 className={`btn btn-primary mt-8 ${loading ? 'opacity-50' : ''}`}
