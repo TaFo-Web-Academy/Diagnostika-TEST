@@ -66,3 +66,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Хатогӣ дар система', details: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get('userId');
+
+    if (!userId) {
+      return NextResponse.json({ error: 'ID-и корбар ҳатмист' }, { status: 400 });
+    }
+
+    // Удаляем ответы пользователя
+    await sql`DELETE FROM ravoni_answers WHERE user_id = ${userId}`;
+    
+    // Удаляем самого пользователя
+    await sql`DELETE FROM ravoni_users WHERE id = ${userId}`;
+
+    return NextResponse.json({ message: 'Аккаунт бо муваффақият нест карда шуд' });
+  } catch (error: any) {
+    console.error('Delete User Error:', error);
+    return NextResponse.json({ error: 'Хатогӣ ҳангоми нест кардан', details: error.message }, { status: 500 });
+  }
+}

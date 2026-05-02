@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { RAVONI_TESTS, RESULTS_INTERPRETATION } from '@/data/questions';
 import { motion, AnimatePresence } from 'framer-motion';
 
-type Tab = 'COURSES' | 'PROFILE';
+type Tab = 'COURSES' | 'PROFILE' | 'SETTINGS';
 type Step = 'PROMO' | 'ONBOARDING' | 'APP' | 'TEST' | 'RESULT';
 
 export default function Home() {
@@ -184,6 +184,38 @@ export default function Home() {
       calculateResult(newAnswers);
     }
   }, [answers, currentQuestionIdx, currentDay, user]);
+
+  const handleLogout = () => {
+    if (confirm('Шумо воқеан мехоҳед аз аккаунт бароед? Маълумоти шумо дар ин телефон боқӣ мемонад, аммо шумо бояд дубора ворид шавед.')) {
+      localStorage.removeItem('ravoni_user');
+      setUser(null);
+      setStep('PROMO');
+      setActiveTab('COURSES');
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (confirm('ОГОҲӢ! Аккаунт ва тамоми натиҷаҳои шумо пурра ва ҳамешагӣ нест карда мешаванд. Оё шумо мутмаин ҳастед?')) {
+      if (!user) return;
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/users?userId=${user.id}`, { method: 'DELETE' });
+        if (res.ok) {
+          localStorage.removeItem('ravoni_user');
+          setUser(null);
+          setStep('PROMO');
+          setActiveTab('COURSES');
+          showToast('Аккаунти шумо нест карда шуд', 'success');
+        } else {
+          showToast('Хатогӣ ҳангоми нест кардан', 'error');
+        }
+      } catch (e) {
+        showToast('Хатогӣ ҳангоми нест кардан', 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
   const calculateResult = useCallback((finalAnswers: Record<number, string>) => {
     const counts: Record<string, number> = { A: 0, Б: 0, В: 0, Г: 0 };
@@ -493,6 +525,56 @@ export default function Home() {
     </div>
   );
 
+  const renderSettings = () => (
+    <div className="p-6 md:p-8 animate-fade flex flex-col gap-6 min-h-[85vh]">
+      <div className="text-center mb-6 mt-10">
+         <div className="w-20 h-20 bg-white/5 rounded-[28px] mx-auto mb-4 flex items-center justify-center text-3xl border border-white/10 shadow-lg">
+           ⚙️
+         </div>
+         <h2 className="text-2xl font-black text-white">Танзимот</h2>
+         <p className="text-xs text-muted">Идоракунии аккаунт ва амният</p>
+      </div>
+
+      <div className="space-y-4">
+        <button 
+          onClick={handleLogout}
+          className="w-full flex items-center justify-between p-5 bg-white/5 border border-white/10 rounded-[24px] hover:bg-white/10 transition-all group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center text-xl">
+              🚪
+            </div>
+            <div className="text-left">
+              <p className="font-bold text-white group-hover:text-orange-400 transition-colors">Баромадан</p>
+              <p className="text-[10px] text-muted uppercase font-bold tracking-widest">Logout from account</p>
+            </div>
+          </div>
+          <span className="text-muted group-hover:translate-x-1 transition-transform">→</span>
+        </button>
+
+        <button 
+          onClick={handleDeleteAccount}
+          className="w-full flex items-center justify-between p-5 bg-red-500/5 border border-red-500/10 rounded-[24px] hover:bg-red-500/10 transition-all group"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center text-xl">
+              🗑️
+            </div>
+            <div className="text-left">
+              <p className="font-bold text-red-500">Нест кардани аккаунт</p>
+              <p className="text-[10px] text-red-500/50 uppercase font-bold tracking-widest">Delete all my data</p>
+            </div>
+          </div>
+          <span className="text-red-500/30 group-hover:translate-x-1 transition-transform">→</span>
+        </button>
+      </div>
+
+      <div className="mt-auto pt-10 text-center opacity-20">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em]">RAVONI 7 DAYS • v1.6.0</p>
+      </div>
+    </div>
+  );
+
   return (
     <div className={`app-container ${step === 'APP' ? '' : 'full-width'}`}>
       <AnimatePresence mode="wait">
@@ -653,7 +735,7 @@ export default function Home() {
             exit={{ opacity: 0 }}
             className="flex-1"
           >
-            {activeTab === 'COURSES' ? renderCourses() : renderProfile()}
+            {activeTab === 'COURSES' ? renderCourses() : activeTab === 'PROFILE' ? renderProfile() : renderSettings()}
 
             <nav className={`bottom-nav ${showNav ? 'translate-y-0' : 'translate-y-[120%]'}`}>
               <div
@@ -669,6 +751,13 @@ export default function Home() {
               >
                 <div className="nav-icon">👤</div>
                 <span>Профил</span>
+              </div>
+              <div
+                className={`nav-item ${activeTab === 'SETTINGS' ? 'active' : ''}`}
+                onClick={() => setActiveTab('SETTINGS')}
+              >
+                <div className="nav-icon">⚙️</div>
+                <span>Танзимот</span>
               </div>
             </nav>
           </motion.div>
