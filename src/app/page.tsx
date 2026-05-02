@@ -187,10 +187,10 @@ export default function Home() {
     <div className="p-6 md:p-8 animate-fade">
       <div className="mb-10 mt-4">
         <h2 className="text-4xl font-black text-gradient mb-1">
-          Марафон
+          Дарси 7 Рӯза
         </h2>
         <p className="text-primary text-xs uppercase font-bold tracking-[0.2em]">
-          5 Рӯзи Шиноҳӣ
+          7 Рӯзи Шиноҳӣ
         </p>
       </div>
       
@@ -239,9 +239,9 @@ export default function Home() {
             ✨
           </div>
           <div>
-            <p className="font-bold text-primary">Мақсади марафон</p>
+            <p className="font-bold text-primary">Мақсади Дарси 7 Рӯза</p>
             <p className="text-xs text-muted leading-relaxed">
-              Бо муҳлати 5 рӯзӣ бо худра боҳиш диҳед ва ҳолати эмотсионалӣ худро шиноҳ кунед.
+              Бо муҳлати 7 рӯзӣ, худро санчиш диҳед ва ҳолати эмотсионалӣ худро фахмед.
             </p>
           </div>
         </div>
@@ -363,7 +363,7 @@ export default function Home() {
       </div>
 
       <div className="glass-card">
-        <h3 className="text-sm font-bold text-muted uppercase tracking-widest mb-4">Нақшаи марафон</h3>
+        <h3 className="text-sm font-bold text-muted uppercase tracking-widest mb-4">Нақшаи Дарси 7 Рӯза</h3>
         <div className="space-y-3">
           {[1, 2, 3, 4, 5].map((d) => {
             const locked = isDayLocked(d);
@@ -463,7 +463,7 @@ export default function Home() {
 
               <div className="text-center opacity-40">
                 <p className="text-[10px] uppercase font-bold tracking-widest">
-                  RAVONI PLATFORM
+                  RAVONI 7 DAYS
                 </p>
               </div>
             </motion.div>
