@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { RAVONI_TESTS, RESULTS_INTERPRETATION } from '@/data/questions';
+import { RAVONI_TESTS } from '@/data/questions';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type Tab = 'COURSES' | 'PROFILE' | 'SETTINGS';
@@ -290,13 +290,18 @@ export default function Home() {
         </motion.a>
       </div>
 
-      <div className="mb-10 mt-4">
-        <h2 className="text-4xl font-black text-gradient mb-1">
-          Дарси 7 Рӯза
-        </h2>
-        <p className="text-primary text-xs uppercase font-bold tracking-[0.2em]">
-          7 Рӯзи Тести
-        </p>
+      <div className="mb-10 mt-4 flex items-center justify-between">
+        <div>
+          <h2 className="text-4xl font-black text-gradient mb-1">
+            Дарси 7 Рӯза
+          </h2>
+          <p className="text-primary text-xs uppercase font-bold tracking-[0.2em]">
+            7 Рӯзи Тести
+          </p>
+        </div>
+        <div className="text-[10px] font-black text-white/20 border border-white/5 px-2 py-1 rounded-lg">
+          v1.6.2
+        </div>
       </div>
       
       <div className="space-y-4">
