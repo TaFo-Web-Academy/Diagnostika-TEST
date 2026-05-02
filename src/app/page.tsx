@@ -225,25 +225,32 @@ export default function Home() {
 
   const renderCourses = () => (
     <div className="p-6 md:p-8 animate-fade">
-      {/* Top Banner for Psychologist */}
-      <motion.a 
-        href="https://t.me/jannat_abdullaeva_admin"
-        target="_blank"
-        initial={{ y: -20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="flex items-center justify-between p-4 mb-8 bg-gradient-to-r from-[#10b981]/20 to-blue-500/20 rounded-3xl border border-white/10 hover:border-primary/50 transition-all group"
-      >
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-xl shadow-lg">👩‍⚕️</div>
-          <div>
-            <p className="text-[10px] font-black text-primary uppercase tracking-widest">Психологи шумо</p>
-            <p className="text-xs font-bold text-white">Савол ё Машварат доред?</p>
-          </div>
-        </div>
-        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
-          →
-        </div>
-      </motion.a>
+      {/* Two Prominent Support Buttons */}
+      <div className="grid grid-cols-2 gap-3 mb-8">
+        <motion.a 
+          href="https://t.me/jannat_abdullaeva_admin"
+          target="_blank"
+          initial={{ x: -20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          className="flex flex-col items-center justify-center p-4 bg-primary/10 border border-primary/30 rounded-[24px] hover:bg-primary/20 transition-all shadow-lg text-center"
+        >
+          <span className="text-2xl mb-2">❓</span>
+          <span className="text-[10px] font-black text-primary uppercase tracking-widest mb-1">Савол дорам</span>
+          <span className="text-[11px] font-bold text-white">Савол пурсидан</span>
+        </motion.a>
+
+        <motion.a 
+          href="https://t.me/jannat_abdullaeva_admin"
+          target="_blank"
+          initial={{ x: 20, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          className="flex flex-col items-center justify-center p-4 bg-blue-500/10 border border-blue-500/30 rounded-[24px] hover:bg-blue-500/20 transition-all shadow-lg text-center"
+        >
+          <span className="text-2xl mb-2">👩‍⚕️</span>
+          <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1">Машварат</span>
+          <span className="text-[11px] font-bold text-white">Консултатсия</span>
+        </motion.a>
+      </div>
 
       <div className="mb-10 mt-4">
         <h2 className="text-4xl font-black text-gradient mb-1">
@@ -308,15 +315,24 @@ export default function Home() {
       </motion.div>
 
       {/* Support Section */}
-      <div className="mt-12 text-center pb-20">
-        <p className="text-xs text-muted mb-4 font-medium uppercase tracking-widest">Дастгирии техникӣ ва машварат</p>
-        <a 
-          href="https://t.me/jannat_abdullaeva_admin"
-          target="_blank"
-          className="inline-flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold text-white hover:bg-white/10 transition-all"
-        >
-          <span>💬</span> Савол дорам / Консултатсия
-        </a>
+      <div className="mt-12 mb-20">
+        <p className="text-[10px] text-muted text-center mb-4 font-black uppercase tracking-[0.2em]">Дастгирии техникӣ ва машварат</p>
+        <div className="flex flex-col gap-3">
+          <a 
+            href="https://t.me/jannat_abdullaeva_admin"
+            target="_blank"
+            className="flex items-center justify-center gap-3 w-full py-4 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold text-white hover:bg-white/10 transition-all"
+          >
+            <span>💬</span> Савол пурсидан
+          </a>
+          <a 
+            href="https://t.me/jannat_abdullaeva_admin"
+            target="_blank"
+            className="flex items-center justify-center gap-3 w-full py-4 bg-primary/10 border border-primary/20 rounded-2xl text-sm font-bold text-primary hover:bg-primary/20 transition-all shadow-xl"
+          >
+            <span>👩‍⚕️</span> Консултатсия гирифтан
+          </a>
+        </div>
       </div>
     </div>
   );
