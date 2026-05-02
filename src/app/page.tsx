@@ -188,10 +188,63 @@ export default function Home() {
     setResult(winner);
     setStep('RESULT');
     if (user) fetchUserAnswers(user.id); // Обновляем прогресс
+    
+    // Запуск конфетти
+    setTimeout(() => {
+      const duration = 3 * 1000;
+      const animationEnd = Date.now() + duration;
+      const interval: any = setInterval(() => {
+        const timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) return clearInterval(interval);
+        
+        const particleCount = 40;
+        const createParticle = () => {
+          const p = document.createElement('div');
+          p.style.position = 'fixed';
+          p.style.zIndex = '9999';
+          p.style.width = '8px';
+          p.style.height = '8px';
+          p.style.backgroundColor = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'][Math.floor(Math.random() * 5)];
+          p.style.left = Math.random() * 100 + 'vw';
+          p.style.top = '-10px';
+          p.style.borderRadius = '50%';
+          p.style.transform = `rotate(${Math.random() * 360}deg)`;
+          document.body.appendChild(p);
+          
+          const anim = p.animate([
+            { transform: `translate(0, 0) rotate(0deg)`, opacity: 1 },
+            { transform: `translate(${Math.random() * 100 - 50}px, 100vh) rotate(${Math.random() * 720}deg)`, opacity: 0 }
+          ], { duration: 2000 + Math.random() * 3000, easing: 'cubic-bezier(0, .9, .57, 1)' });
+          
+          anim.onfinish = () => p.remove();
+        };
+        for(let i=0; i<particleCount; i++) createParticle();
+      }, 250);
+    }, 500);
   }, [user, fetchUserAnswers]);
 
   const renderCourses = () => (
     <div className="p-6 md:p-8 animate-fade">
+      {/* Top Banner for Psychologist */}
+      <motion.a 
+        href="https://t.me/jannat_abdullaeva_admin"
+        target="_blank"
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="flex items-center justify-between p-4 mb-8 bg-gradient-to-r from-[#10b981]/20 to-blue-500/20 rounded-3xl border border-white/10 hover:border-primary/50 transition-all group"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-xl shadow-lg">👩‍⚕️</div>
+          <div>
+            <p className="text-[10px] font-black text-primary uppercase tracking-widest">Психологи шумо</p>
+            <p className="text-xs font-bold text-white">Савол ё Машварат доред?</p>
+          </div>
+        </div>
+        <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-all">
+          →
+        </div>
+      </motion.a>
+
       <div className="mb-10 mt-4">
         <h2 className="text-4xl font-black text-gradient mb-1">
           Дарси 7 Рӯза
@@ -253,6 +306,18 @@ export default function Home() {
           </div>
         </div>
       </motion.div>
+
+      {/* Support Section */}
+      <div className="mt-12 text-center pb-20">
+        <p className="text-xs text-muted mb-4 font-medium uppercase tracking-widest">Дастгирии техникӣ ва машварат</p>
+        <a 
+          href="https://t.me/jannat_abdullaeva_admin"
+          target="_blank"
+          className="inline-flex items-center gap-3 px-6 py-3 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold text-white hover:bg-white/10 transition-all"
+        >
+          <span>💬</span> Савол дорам / Консултатсия
+        </a>
+      </div>
     </div>
   );
 
@@ -403,6 +468,17 @@ export default function Home() {
             );
           })}
         </div>
+      </div>
+
+      <div className="mt-10 text-center pb-20">
+        <a 
+          href="https://t.me/jannat_abdullaeva_admin"
+          target="_blank"
+          className="inline-flex items-center gap-3 px-8 py-4 bg-primary/10 border border-primary/20 rounded-3xl text-sm font-black text-primary hover:bg-primary hover:text-white transition-all shadow-xl"
+        >
+          <span>👩‍⚕️</span> ПАЙВАСТ БО ПСИХОЛОГ
+        </a>
+        <p className="text-[10px] text-muted mt-4 uppercase font-bold tracking-widest opacity-40">Ҷаннат Абдуллаева</p>
       </div>
     </div>
   );
