@@ -278,7 +278,7 @@ export default function Home() {
     
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    return `${hours}с ${mins}д`;
+    return `${hours} соату ${mins} дақиқа`;
   };
 
   const renderProfile = () => (
@@ -312,8 +312,8 @@ export default function Home() {
                 <div className="text-3xl">⏳</div>
                 <div>
                   <p className="text-[10px] font-black text-primary uppercase tracking-widest">Рӯзи навбатӣ</p>
-                  <p className="text-sm font-bold text-white">
-                    Рӯзи {nextDay} пас аз <span className="text-primary">{countdown}</span> кушода мешавад
+                  <p className="text-sm font-bold text-white leading-tight">
+                    <span className="text-primary">{countdown}</span> пас Рӯзи {nextDay}-юм кушода мешавад!
                   </p>
                 </div>
               </motion.div>
