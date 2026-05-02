@@ -69,6 +69,12 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    if (activeTab === 'PROFILE' && user) {
+      fetchUserAnswers(user.id);
+    }
+  }, [activeTab, user, fetchUserAnswers]);
+
   const showToast = useCallback((message: string, type: 'success' | 'error' | 'warning' = 'success') => {
     const container = document.getElementById('toast-container');
     if (!container) return;
