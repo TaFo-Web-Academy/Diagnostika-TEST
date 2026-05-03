@@ -875,10 +875,34 @@ export default function Home() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
-              className="mt-4"
+              className="mt-4 flex flex-col gap-4"
             >
+              {currentDay === 'day5' && (
+                <div className="flex flex-col gap-4 animate-fade">
+                  <p className="text-xs md:text-sm font-bold text-primary bg-primary/10 p-4 rounded-2xl border border-primary/20 leading-relaxed">
+                    Омодаед, ки мушкилии худро ҳал кунед? Пас ин консультатсия барои шумост! Тугмаро зер кунед, то зиндагиатонро иваз намоед!
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <a 
+                      href="https://t.me/jannat_abdullaeva_kanal" 
+                      target="_blank"
+                      className="btn btn-primary bg-blue-600 border-blue-500 shadow-xl py-4 flex items-center justify-center gap-2"
+                    >
+                      <span>📚</span> Курсҳои Дигар
+                    </a>
+                    <a 
+                      href="https://t.me/jannat_abdullaeva_kanal" 
+                      target="_blank"
+                      className="btn btn-primary shadow-xl py-4 flex items-center justify-center gap-2"
+                    >
+                      <span>👩‍⚕️</span> Консультатсия
+                    </a>
+                  </div>
+                </div>
+              )}
+
               <button
-                className="btn btn-primary shadow-2xl"
+                className="btn bg-white/5 border border-white/10 text-muted text-xs font-bold py-3 px-6 rounded-2xl hover:bg-white/10 transition-all"
                 onClick={() => {
                   setStep('APP');
                   setActiveTab('COURSES');
