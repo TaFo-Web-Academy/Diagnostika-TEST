@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ман аз ин 7 рӯз чӣ гирифтам?</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#09090f;--s1:#111218;--s2:#181a22;
+  --gold:#c8922a;--gold2:#e8b84b;--glow:rgba(200,146,42,.12);
+  --border:rgba(200,146,42,.18);--text:#ede9de;--muted:#7a7670;
+  --green:#4aaf7c;--red:#e05959;--yellow:#e0a83d;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+body::before{content:'';position:fixed;top:-20%;left:-10%;width:70vw;height:70vw;
+  background:radial-gradient(circle,rgba(200,146,42,.06) 0%,transparent 65%);
+  pointer-events:none;z-index:0}
+.wrap{max-width:700px;margin:0 auto;padding:40px 22px 80px;position:relative;z-index:1}
+
+.screen{display:none}
+.screen.on{display:block;animation:up .45s ease both}
+@keyframes up{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+
+/* General styles */
+.badge{display:inline-flex;align-items:center;gap:8px;background:var(--glow);
+  border:1px solid var(--border);color:var(--gold2);font-size:12px;letter-spacing:2px;
+  text-transform:uppercase;padding:6px 16px;border-radius:100px;margin-bottom:30px}
+.dot{width:7px;height:7px;background:var(--gold);border-radius:50%;box-shadow:0 0 10px var(--gold)}
+h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,6vw,3.2rem);font-weight:700;
+  line-height:1.15;margin-bottom:18px;
+  background:linear-gradient(140deg,#ede9de 30%,var(--gold2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sub{font-size:15px;color:var(--muted);line-height:1.75;max-width:520px;margin-bottom:40px}
+.sub strong{color:var(--gold2);font-weight:500}
+.meta-row{display:flex;gap:24px;flex-wrap:wrap;margin-bottom:40px}
+.meta{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.meta span:first-child{font-size:17px}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:36px 0}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:10px;
+  background:linear-gradient(135deg,var(--gold) 0%,#a07018);
+  color:#09090f;border:none;padding:15px 36px;border-radius:100px;
+  font-size:14px;font-weight:600;font-family:'DM Sans',sans-serif;
+  cursor:pointer;transition:all .25s;box-shadow:0 4px 28px rgba(200,146,42,.28)}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 36px rgba(200,146,42,.42)}
+.btn .arr{display:inline-block;transition:transform .2s}
+.btn:hover .arr{transform:translateX(4px)}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;background:transparent;
+  border:1px solid var(--border);color:var(--muted);padding:13px 22px;border-radius:100px;
+  font-size:13px;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s}
+.btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+.btn-full{flex:1;justify-content:center}
+
+/* Inputs for Auth */
+.input-group { margin-bottom: 20px; text-align: left; }
+.input-label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+.input-field { width: 100%; background: var(--s2); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; padding: 14px 16px; border-radius: 12px; outline: none; transition: border-color .2s; }
+.input-field:focus { border-color: var(--gold); }
+select.input-field { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a7670' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
+
+/* Progress */
+.prog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.prog-label{font-size:12px;color:var(--muted)}
+.prog-num{font-size:12px;color:var(--gold);font-weight:500}
+.prog-bar{width:100%;height:3px;background:var(--s2);border-radius:2px;margin-bottom:44px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));
+  border-radius:2px;transition:width .5s cubic-bezier(.4,0,.2,1);box-shadow:0 0 8px var(--gold)}
+
+/* Test UI */
+.sec-tag{display:inline-block;background:var(--glow);border:1px solid var(--border); color:var(--gold);font-size:11px;letter-spacing:2.5px;text-transform:uppercase; padding:5px 14px;border-radius:100px;margin-bottom:18px}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.5rem,4.5vw,2.1rem); font-weight:600;line-height:1.3;margin-bottom:10px}
+.sec-max{font-size:13px;color:var(--muted);margin-bottom:36px}
+.q-card{background:var(--s1);border:1px solid var(--border);border-radius:16px; padding:24px 24px 20px;margin-bottom:14px;transition:border-color .2s}
+.q-card.answered{border-color:rgba(200,146,42,.35)}
+.q-num{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);opacity:.7;margin-bottom:8px}
+.q-text{font-size:15px;line-height:1.55;margin-bottom:6px}
+.q-example{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:16px;font-style:italic}
+.score-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.sc{flex:1;min-width:44px;background:var(--s2);border:1.5px solid transparent; color:var(--muted);padding:11px 6px;border-radius:10px;font-size:15px;font-weight:600; font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;text-align:center}
+.sc:hover{border-color:var(--gold);color:var(--gold2)}
+.sc.sel{background:linear-gradient(135deg,var(--gold),#a07018);color:#09090f; border-color:transparent;box-shadow:0 3px 16px rgba(200,146,42,.35)}
+.sc-hint{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:8px;padding:0 2px}
+.sec-total{background:var(--glow);border:1px solid var(--border);border-radius:12px; padding:18px 22px;margin:24px 0 8px;display:flex;justify-content:space-between;align-items:center}
+.sec-total-label{font-size:13px;color:var(--muted)}
+.sec-total-val{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:700;color:var(--gold2)}
+.nav-row{display:flex;gap:12px;margin-top:28px}
+
+/* Open Questions */
+.open-intro{font-family:'Cormorant Garamond',serif;font-size:clamp(1.4rem,4vw,2rem); font-weight:600;margin-bottom:8px}
+.open-sub{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:36px}
+.sphere-card{background:var(--s1);border:1px solid var(--border);border-radius:16px; padding:22px 24px;margin-bottom:14px}
+.sphere-icon{font-size:22px;margin-bottom:8px}
+.sphere-title{font-weight:600;font-size:15px;margin-bottom:4px}
+.sphere-q{font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5}
+textarea{width:100%;background:var(--s2);border:1px solid var(--border); color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px; padding:12px 14px;border-radius:10px;resize:vertical;min-height:72px; transition:border-color .2s;outline:none;line-height:1.6}
+textarea:focus{border-color:var(--gold)}
+textarea::placeholder{color:var(--muted)}
+
+/* Short Questions */
+.short-card{background:var(--s1);border:1px solid var(--border);border-radius:16px; padding:20px 22px;margin-bottom:12px}
+.short-num{font-size:11px;letter-spacing:2px;color:var(--gold);margin-bottom:6px;text-transform:uppercase}
+.short-q{font-size:14px;line-height:1.5;margin-bottom:12px}
+.scale10{display:flex;gap:5px;flex-wrap:wrap}
+.sc10{width:36px;height:36px;background:var(--s2);border:1.5px solid transparent; color:var(--muted);border-radius:8px;font-size:13px;font-weight:600; font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s; display:flex;align-items:center;justify-content:center}
+.sc10:hover{border-color:var(--gold);color:var(--gold2)}
+.sc10.sel{background:linear-gradient(135deg,var(--gold),#a07018);color:#09090f;border-color:transparent}
+
+/* Result Screen */
+.res-center{text-align:center}
+.res-icon{width:88px;height:88px;border-radius:50%;display:flex;align-items:center; justify-content:center;font-size:2.4rem;margin:0 auto 28px;animation:pulse 2.2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(200,146,42,.3)}50%{box-shadow:0 0 0 18px rgba(200,146,42,0)}}
+.res-badge{display:inline-block;font-size:11px;letter-spacing:2px;text-transform:uppercase; padding:5px 18px;border-radius:100px;margin-bottom:22px}
+.res-score-big{font-family:'Cormorant Garamond',serif;font-size:clamp(4.5rem,14vw,7rem); font-weight:700;line-height:1;margin-bottom:4px}
+.res-of{font-size:14px;color:var(--muted);margin-bottom:32px}
+.res-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.4rem,4.5vw,2.1rem); font-weight:600;margin-bottom:14px;line-height:1.3}
+.res-desc{font-size:14px;color:var(--muted);line-height:1.75;max-width:480px;margin:0 auto 36px}
+.breakdown{background:var(--s1);border:1px solid var(--border);border-radius:16px; padding:26px;max-width:500px;margin:0 auto 32px;text-align:left}
+.bd-head{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
+.bd-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.bd-row:last-child{margin-bottom:0}
+.bd-label{font-size:12px;color:var(--muted);flex:1;line-height:1.4}
+.bd-bar-wrap{width:110px;height:5px;background:var(--s2);border-radius:3px;flex-shrink:0;overflow:hidden}
+.bd-bar{height:100%;border-radius:3px;transition:width 1s .3s ease}
+.bd-val{font-size:13px;font-weight:600;color:var(--gold);width:50px;text-align:right;flex-shrink:0}
+.cta-box{background:var(--glow);border:1px solid var(--border);border-radius:14px; padding:24px 28px;max-width:500px;margin:0 auto 32px;text-align:left}
+.cta-em{font-size:20px;margin-bottom:10px}
+.cta-txt{font-size:13px;line-height:1.75;color:var(--text);opacity:.85}
+.cta-txt strong{color:var(--gold2)}
+
+@media(max-width:600px){
+  .wrap{padding:28px 14px 60px}
+  .score-btns{gap:5px}.sc{font-size:14px;padding:10px 4px}
+  .breakdown{padding:18px}.scale10{gap:4px}.sc10{width:30px;height:30px;font-size:12px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- 1. Экран Регистрации -->
+<div class="screen on" id="s-auth">
+  <div class="badge"><div class="dot"></div>Хуш омадед</div>
+  <h1>Қабл аз оғоз...</h1>
+  <p class="sub">Лутфан маълумоти худро ворид кунед, то натиҷаи шумо ба қайд гирифта шавад.</p>
+  
+  <div class="input-group">
+    <label class="input-label">Ном</label>
+    <input type="text" id="u-name" class="input-field" placeholder="Масалан: Мумина" required>
+  </div>
+  <div class="input-group">
+    <label class="input-label">Насаб</label>
+    <input type="text" id="u-surname" class="input-field" placeholder="Масалан: Раҳимова" required>
+  </div>
+  <div class="input-group">
+    <label class="input-label">Синну сол</label>
+    <input type="number" id="u-age" class="input-field" placeholder="Масалан: 22" required>
+  </div>
+  <div class="input-group">
+    <label class="input-label">Ҳолати оилавӣ</label>
+    <select id="u-status" class="input-field">
+      <option value="Оиладор">Оиладор</option>
+      <option value="Муҷаррад">Муҷаррад</option>
+    </select>
+  </div>
+
+  <div class="divider"></div>
+  <button class="btn btn-full" id="btn-login">Оғоз кардани тест <span class="arr">&#8594;</span></button>
+</div>
+
+<!-- 2. Экран Интро -->
+<div class="screen" id="s-intro">
+  <div class="badge"><div class="dot"></div>Тести Аналитикӣ</div>
+  <h1 id="intro-greeting">Ман аз ин<br>7 рӯз чӣ гирифтам?</h1>
+  <p class="sub">
+    Ин тест барои ту на танҳо <strong>отзыв</strong> медиҳад.<br>
+    Ин ба ту нишон медиҳад, ки курсат воқеан кор кардааст ё не.<br><br>
+    <strong>Росташ ҳамин:</strong> агар амалро чен накунӣ, ту натиҷаро намебинӣ.
+  </p>
+  <div class="meta-row">
+    <div class="meta"><span>&#9200;</span><span>10–15 дақиқа</span></div>
+    <div class="meta"><span>&#128221;</span><span>25 савол + 12 савол</span></div>
+    <div class="meta"><span>&#128202;</span><span>Натиҷаи аниқ</span></div>
+  </div>
+  <div class="divider"></div>
+  <button class="btn" id="btn-start">Давом додан <span class="arr">&#8594;</span></button>
+</div>
+
+<!-- 3. Экран Вопросов 1-25 -->
+<div class="screen" id="s-q">
+  <div class="prog-head">
+    <span class="prog-label">Пешрафт</span>
+    <span class="prog-num" id="pnum"></span>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" id="pfill"></div></div>
+  <div id="qbody"></div>
+  <div class="nav-row">
+    <button class="btn-ghost" id="btn-back">&#8592; Қафо</button>
+    <button class="btn btn-full" id="btn-next">Давом <span class="arr">&#8594;</span></button>
+  </div>
+</div>
+
+<!-- 4. Экран Открытых вопросов -->
+<div class="screen" id="s-open">
+  <div class="prog-head">
+    <span class="prog-label">Пешрафт</span>
+    <span class="prog-num">6 / 7</span>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" style="width:85%"></div></div>
+  <div class="open-intro">5 Сфераи Фоидаҳо</div>
+  <p class="open-sub">Ба ҳар савол бо сухани худ ҷавоб деҳ.</p>
+  <div class="sphere-card">
+    <div class="sphere-icon">&#129504;</div>
+    <div class="sphere-title">Ақл</div>
+    <div class="sphere-q">Ман кадом фикри навро фаҳмидам?</div>
+    <textarea id="op1" placeholder="Фикри нав..."></textarea>
+  </div>
+  <div class="sphere-card">
+    <div class="sphere-icon">&#128155;</div>
+    <div class="sphere-title">Эҳсос</div>
+    <div class="sphere-q">Кадом эҳсоси ман сабуктар шуд?</div>
+    <textarea id="op2" placeholder="Эҳсос..."></textarea>
+  </div>
+  <div class="sphere-card">
+    <div class="sphere-icon">&#127807;</div>
+    <div class="sphere-title">Бадан</div>
+    <div class="sphere-q">Дар баданам чӣ тағйир ҳис кардам?</div>
+    <textarea id="op3" placeholder="Тағйир дар бадан..."></textarea>
+  </div>
+  <div class="sphere-card">
+    <div class="sphere-icon">&#129309;</div>
+    <div class="sphere-title">Муносибат</div>
+    <div class="sphere-q">Ман дар муносибат бо худ ё дигарон чӣ дидам?</div>
+    <textarea id="op4" placeholder="Дар муносибат..."></textarea>
+  </div>
+  <div class="sphere-card">
+    <div class="sphere-icon">&#9889;</div>
+    <div class="sphere-title">Амал</div>
+    <div class="sphere-q">Ман кадом қадами аниқро кардам?</div>
+    <textarea id="op5" placeholder="Қадами аниқ..."></textarea>
+  </div>
+  <div class="nav-row">
+    <button class="btn-ghost" id="btn-open-back">&#8592; Қафо</button>
+    <button class="btn btn-full" id="btn-open-next">Давом <span class="arr">&#8594;</span></button>
+  </div>
+</div>
+
+<!-- 5. Экран Коротких вопросов -->
+<div class="screen" id="s-short">
+  <div class="prog-head">
+    <span class="prog-label">Пешрафт</span>
+    <span class="prog-num">7 / 7</span>
+  </div>
+  <div class="prog-bar"><div class="prog-fill" style="width:96%"></div></div>
+  <div class="open-intro">7 Саволи Кӯтоҳ</div>
+  <p class="open-sub">Охирин қисм — барои таҳлили амиқтар.</p>
+  <div class="short-card">
+    <div class="short-num">Савол 1</div>
+    <div class="short-q">Аз 0 то 10 — пеш аз курс ҳолати ту чанд буд?</div>
+    <div class="scale10" id="sc1"></div>
+  </div>
+  <div class="short-card">
+    <div class="short-num">Савол 2</div>
+    <div class="short-q">Аз 0 то 10 — ҳозир ҳолати ту чанд аст?</div>
+    <div class="scale10" id="sc2"></div>
+  </div>
+  <div class="short-card">
+    <div class="short-num">Савол 3</div>
+    <div class="short-q">Кадом дарс ба ту бештар таъсир кард?</div>
+    <textarea id="sh3" placeholder="Дарс ё мавзӯъ..."></textarea>
+  </div>
+  <div class="short-card">
+    <div class="short-num">Савол 4</div>
+    <div class="short-q">Кадом ҳақиқатро дар бораи худ дидӣ?</div>
+    <textarea id="sh4" placeholder="Ҳақиқат дар бораи худ..."></textarea>
+  </div>
+  <div class="short-card">
+    <div class="short-num">Савол 5</div>
+    <div class="short-q">Кадом амалро воқеан иҷро кардӣ?</div>
+    <textarea id="sh5" placeholder="Амали иҷрошуда..."></textarea>
+  </div>
+  <div class="short-card">
+    <div class="short-num">Савол 6</div>
+    <div class="short-q">Кадом фоидаи аниқ гирифтӣ?</div>
+    <textarea id="sh6" placeholder="Фоидаи аниқ..."></textarea>
+  </div>
+  <div class="short-card">
+    <div class="short-num">Савол 7</div>
+    <div class="short-q">Ҳозир ту ба кадом мавзӯъ бештар ниёз дорӣ?</div>
+    <textarea id="sh7" placeholder="Мавзӯи мавриди ниёз..."></textarea>
+  </div>
+  <div class="nav-row">
+    <button class="btn-ghost" id="btn-short-back">&#8592; Қафо</button>
+    <button class="btn btn-full" id="btn-result">Натиҷа гирифтан <span class="arr">&#8594;</span></button>
+  </div>
+</div>
+
+<!-- 6. Экран Результатов -->
+<div class="screen" id="s-res">
+  <div class="res-center">
+    <div class="res-icon" id="r-icon"></div>
+    <div class="res-badge" id="r-badge"></div>
+    <div class="res-score-big" id="r-score"></div>
+    <div class="res-of">аз 100 хол</div>
+    <h2 class="res-title" id="r-title"></h2>
+    <p class="res-desc" id="r-desc"></p>
+    <div class="breakdown" id="r-breakdown"></div>
+    <div class="cta-box" id="r-cta"></div>
+    <button class="btn btn-full" id="btn-share">&#128228; Натиҷаро фиристодан</button>
+  </div>
+</div>
+
+</div>
+
+<!-- Data JSON -->
+<script type="application/json" id="data">
+{
+  "sections":[
+    {
+      "tag": "Қисми 1",
+      "title": "Иҷрои Дарсҳо",
+      "questions":[
+        {"t": "Ман ҳамаи 7 дарсро дидам ё хондам.", "ex": null},
+        {"t": "Ман ҳар рӯз вазифаи хонагиро иҷро кардам.", "ex": null},
+        {"t": "Ман ҷавобҳоро навиштам, на фақат дар фикрам гузарондам.", "ex": null},
+        {"t": "Ман баъди дарс фикр кардам: ин ба зиндагии ман чӣ рабт дорад?", "ex": null},
+        {"t": "Ман ҳадди ақал як амалро дар зиндагӣ санҷидам.", "ex": null}
+      ]
+    },
+    {
+      "tag": "Қисми 2",
+      "title": "Фаҳмиш ва Ба Хотир Гирифтан",
+      "questions":[
+        {"t": "Ман метавонам фикри асосии курсро бо сухани худ фаҳмонам.", "ex": null},
+        {"t": "Ман фаҳмидам, ки мушкили ман фақат аз одамон нест, аз даруни худам ҳам аст.", "ex": null},
+        {"t": "Ман решаи баъзе рафторҳои худро дидам.", "ex": "Мисол: тарс, вобастагӣ, қаҳр, беқадрӣ, ранҷиш."},
+        {"t": "Ман фаҳмидам, ки кадом фикрҳои кӯҳна маро идора мекунанд.", "ex": null},
+        {"t": "Ман баъди дарсҳо худро беҳтар мешиносам.", "ex": null}
+      ]
+    },
+    {
+      "tag": "Қисми 3",
+      "title": "Ҳолати Рӯҳӣ ва Эҳсос",
+      "questions":[
+        {"t": "Оромии ман зиёд шуд.", "ex": null},
+        {"t": "Ман камтар худро айбдор кардам.", "ex": null},
+        {"t": "Ман камтар ба дигарон вобаста ҳис кардам.", "ex": null},
+        {"t": "Ман эҳсосҳои худро беҳтар фаҳмидам.", "ex": null},
+        {"t": "Ман дар дохилам каме сабукӣ ҳис кардам.", "ex": null}
+      ]
+    },
+    {
+      "tag": "Қисми 4",
+      "title": "Амал дар Зиндагӣ",
+      "questions":[
+        {"t": "Ман як рафтори кӯҳнаро дар худ дидам ва боздоштам.", "ex": null},
+        {"t": "Ман ба ҷои реаксияи кӯҳна, як ҷавоби нав интихоб кардам.", "ex": "Мисол: ба ҷои ҷанг — сукут, ба ҷои назорат — оромӣ."},
+        {"t": "Ман бо худ ростқавлтар шудам.", "ex": null},
+        {"t": "Ман камтар аз дард гурехтам ва бештар онро фаҳмидам.", "ex": null},
+        {"t": "Ман барои худ як қадами нав гузоштам.", "ex": null}
+      ]
+    },
+    {
+      "tag": "Қисми 5",
+      "title": "Фоидаҳое, ки Ман Гирифтам",
+      "questions":[
+        {"t": "Ман фаҳмидам, ки чаро баъзе ҳолатҳо маро сахт мешикананд.", "ex": null},
+        {"t": "Ман фаҳмидам, ки кадом захми кӯҳна ҳоло ҳам фаъол аст.", "ex": null},
+        {"t": "Ман ба худ каме меҳрубонтар шудам.", "ex": null},
+        {"t": "Ман фаҳмидам, ки барои шифо ёфтан бояд амал кунам, на фақат гӯш кунам.", "ex": null},
+        {"t": "Ман мехоҳам ин роҳро давом диҳам.", "ex": null}
+      ]
+    }
+  ],
+  "results":[
+    {
+      "max": 30,
+      "icon": "⚠️",
+      "color": "#e05959",
+      "range": "0–30 хол",
+      "title": "Дарсҳо хонда шуданд, амал — не",
+      "desc": "Одам дарсҳоро истеъмол кардааст, вале амал накардааст. Фоида кам аст. Сабаб: танбалӣ, муқовимат, тарс ё одати кӯҳна.",
+      "cta": "Вазифаҳоро осонтар кун. Назорат ва пайгириро зиёд кун. Баъди ҳар дарс 1 амали хурд дод."
+    },
+    {
+      "max": 50,
+      "icon": "🌱",
+      "color": "#e0a83d",
+      "range": "31–50 хол",
+      "title": "Фаҳмиш ҳаст — амал суст аст",
+      "desc": "Ин одам бедор шудааст, аммо ҳанӯз система надорад. Ба ӯ назорат, саволҳо ва дастгирӣ лозим аст.",
+      "cta": "Ба ин одамон назорат ва дастгирии фардӣ лозим. Саволҳои ҳафтагӣ гузор."
+    },
+    {
+      "max": 70,
+      "icon": "🚀",
+      "color": "#e0a83d",
+      "range": "51–70 хол",
+      "title": "Натиҷа оғоз шудааст",
+      "desc": "Одам фаҳмид, навишт, баъзе амалҳоро кард. Вале ҳанӯз тағйир устувор нест. Курс кор мекунад — давом лозим аст.",
+      "cta": "Ин иштирокчиён барои курси 7-рӯза ё 21-рӯза тайёранд. Онҳоро ба марҳалаи дуюм даъват кун."
+    },
+    {
+      "max": 85,
+      "icon": "🏅",
+      "color": "#4aaf7c",
+      "range": "71–85 хол",
+      "title": "Натиҷаи хуб!",
+      "desc": "Одам дарсро ба зиндагӣ пайваст кардааст. Фаҳмиш, оромӣ ва амал дида мешавад. Ин натиҷаи воқеӣ аст.",
+      "cta": "Аз ин одамон отзыв ва кейс гир. Онҳо беҳтарин намояндагони курсат ҳастанд."
+    },
+    {
+      "max": 100,
+      "icon": "🏆",
+      "color": "#4aaf7c",
+      "range": "86–100 хол",
+      "title": "Тағйири амиқ!",
+      "desc": "Одам на фақат шунид — фикр, эҳсос ва рафторашро тағйир дод. Инҳо омодаанд ба курси давомдор гузаранд.",
+      "cta": "Аз ҳамин одамон отзыв, натиҷа ва кейсҳои воқеӣ гир — маркетинги беҳтарин ҳамин аст."
+    }
+  ]
+}
+</script>
+
+<script>
+var DATA = JSON.parse(document.getElementById('data').textContent);
+var SECS = DATA.sections;
+var RESULTS = DATA.results;
+var answers = SECS.map(function(s) { return s.questions.map(function() { return -1; }); });
+var curSec = 0;
+var currentUser = {}; 
+
+function qs(id) { return document.getElementById(id); }
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('on'); });
+  var el = qs(id);
+  el.classList.add('on');
+  el.style.animation = 'none';
+  void el.offsetWidth;
+  el.style.animation = '';
+  window.scrollTo(0, 0);
+}
+
+// АВТОРИЗАЦИЯ
+qs('btn-login').onclick = function() {
+  var n = qs('u-name').value.trim();
+  var s = qs('u-surname').value.trim();
+  var a = qs('u-age').value.trim();
+  var st = qs('u-status').value;
+
+  if(!n || !s || !a) {
+    alert("Лутфан ҳамаи майдонҳоро пур кунед!");
+    return;
+  }
+
+  currentUser = { name: n, surname: s, age: a, status: st };
+  qs('intro-greeting').innerHTML = n + ",<br>аз ин 7 рӯз чӣ гирифтӣ?";
+  showScreen('s-intro');
+};
+
+// ТЕСТ ЛОГИКА
+function secTotal(si) {
+  return answers[si].reduce(function(a, v) { return a + (v >= 0 ? v : 0); }, 0);
+}
+function totalScore() {
+  return SECS.reduce(function(a, _, i) { return a + secTotal(i); }, 0);
+}
+
+function renderSec() {
+  var sec = SECS[curSec];
+  var total = secTotal(curSec);
+  var progress = Math.round(((curSec + 1) / (SECS.length + 2)) * 100);
+
+  qs('pnum').textContent = (curSec + 1) + ' / 7';
+  qs('pfill').style.width = progress + '%';
+  qs('btn-back').style.opacity = curSec === 0 ? '0.3' : '1';
+  qs('btn-back').disabled = curSec === 0;
+  qs('btn-next').innerHTML = 'Давом <span class="arr">&#8594;</span>';
+
+  var body = qs('qbody');
+  body.innerHTML = '';
+
+  var tagEl = document.createElement('div'); tagEl.className = 'sec-tag'; tagEl.textContent = sec.tag; body.appendChild(tagEl);
+  var titleEl = document.createElement('div'); titleEl.className = 'sec-title'; titleEl.textContent = sec.title; body.appendChild(titleEl);
+  var maxEl = document.createElement('div'); maxEl.className = 'sec-max'; maxEl.textContent = 'Максимум ин қисм: 20 хол'; body.appendChild(maxEl);
+
+  sec.questions.forEach(function(q, qi) {
+    var globalNum = curSec * 5 + qi + 1;
+    var sel = answers[curSec][qi];
+
+    var card = document.createElement('div');
+    card.className = 'q-card' + (sel >= 0 ? ' answered' : '');
+    card.id = 'qc-' + qi;
+
+    var numEl = document.createElement('div'); numEl.className = 'q-num'; numEl.textContent = 'Савол ' + globalNum; card.appendChild(numEl);
+    var tEl = document.createElement('div'); tEl.className = 'q-text'; tEl.textContent = q.t; card.appendChild(tEl);
+
+    if (q.ex) {
+      var exEl = document.createElement('div'); exEl.className = 'q-example'; exEl.textContent = q.ex; card.appendChild(exEl);
+    }
+
+    var btnsDiv = document.createElement('div'); btnsDiv.className = 'score-btns';
+    for (var v = 0; v <= 4; v++) {
+      (function(val) {
+        var btn = document.createElement('button');
+        btn.className = 'sc' + (sel === val ? ' sel' : '');
+        btn.textContent = val;
+        btn.onclick = function() { pick(qi, val); };
+        btnsDiv.appendChild(btn);
+      })(v);
+    }
+    card.appendChild(btnsDiv);
+
+    var hintDiv = document.createElement('div'); hintDiv.className = 'sc-hint';
+    hintDiv.innerHTML = '<span>Накардам</span><span>Нимкола</span><span>Пурра</span>';
+    card.appendChild(hintDiv);
+
+    body.appendChild(card);
+  });
+
+  var totalDiv = document.createElement('div'); totalDiv.className = 'sec-total';
+  var lbl = document.createElement('span'); lbl.className = 'sec-total-label'; lbl.textContent = 'Ҷамъи ин қисм';
+  var valEl = document.createElement('span'); valEl.className = 'sec-total-val'; valEl.id = 'sec-sum'; valEl.textContent = total + ' / 20';
+  totalDiv.appendChild(lbl); totalDiv.appendChild(valEl); body.appendChild(totalDiv);
+}
+
+function pick(qi, val) {
+  answers[curSec][qi] = val;
+  var card = qs('qc-' + qi);
+  if (card) {
+    card.classList.add('answered');
+    card.querySelectorAll('.sc').forEach(function(b, i) { b.classList.toggle('sel', i === val); });
+  }
+  var st = qs('sec-sum');
+  if (st) st.textContent = secTotal(curSec) + ' / 20';
+}
+
+function getSelectedSc10(id) {
+  var el = document.querySelector('#' + id + ' .sc10.sel');
+  return el ? el.textContent : 'Ҷавоб надод';
+}
+
+// ОТПРАВКА В ТЕЛЕГРАМ (ФОТО + ТЕКСТ)
+function saveResultData() {
+  var score = totalScore();
+  
+  var textData =[
+    { q: "Ақл", a: qs('op1').value || "Ҷавоб надод" },
+    { q: "Эҳсос", a: qs('op2').value || "Ҷавоб надод" },
+    { q: "Бадан", a: qs('op3').value || "Ҷавоб надод" },
+    { q: "Муносибат", a: qs('op4').value || "Ҷавоб надод" },
+    { q: "Амал", a: qs('op5').value || "Ҷавоб надод" },
+    { q: "Пеш аз курс (0-10)", a: getSelectedSc10('sc1') },
+    { q: "Ҳозира (0-10)", a: getSelectedSc10('sc2') },
+    { q: "Таъсири дарс", a: qs('sh3').value || "Ҷавоб надод" },
+    { q: "Ҳақиқат", a: qs('sh4').value || "Ҷавоб надод" },
+    { q: "Амали иҷрошуда", a: qs('sh5').value || "Ҷавоб надод" },
+    { q: "Фоида", a: qs('sh6').value || "Ҷавоб надод" },
+    { q: "Ниёз", a: qs('sh7').value || "Ҷавоб надод" }
+  ];
+
+  // Матни дароз бо ҳамаи ҷавобҳо
+  var msg = "👤 <b>Ном:</b> " + currentUser.name + " " + currentUser.surname + "\n";
+  msg += "📅 <b>Синн:</b> " + currentUser.age + " сол\n";
+  msg += "💍 <b>Статус:</b> " + currentUser.status + "\n";
+  msg += "⭐️ <b>Хол (Баҳо):</b> " + score + " аз 100\n\n";
+
+  msg += "📊 <b>ҚИСМИ 1: 25 САВОЛИ АСОСӢ</b>\n";
+  SECS.forEach(function(sec, secIdx) {
+    msg += "\n🔸 <i>" + sec.title + "</i>\n";
+    sec.questions.forEach(function(q, qIdx) {
+      var ansVal = answers[secIdx][qIdx];
+      var ansText = (ansVal >= 0) ? ansVal + " хол" : "Ҷавоб надод";
+      msg += "— " + q.t + "\n👉 <b>" + ansText + "</b>\n";
+    });
+  });
+
+  msg += "\n📝 <b>ҚИСМИ 2: 12 ҶАВОБИ КУШОД</b>\n";
+  textData.forEach(function(item) {
+    msg += "❓ " + item.q + "\n💬 <b>" + item.a + "</b>\n\n";
+  });
+
+  // ВАШИ ДАННЫЕ
+  var BOT_TOKEN = "8524656185:AAFQbFKmLXXO-x9nO3Faq5BsHhBwqLK60mM";
+  var CHAT_ID = "-1003918464775"; 
+  
+  // ==========================================
+  // ТУТ МОЖНО ПОМЕНЯТЬ ССЫЛКУ НА ВАШУ КАРТИНКУ
+  var PHOTO_URL = "https://i.postimg.cc/hvsg4mjS/Natija.png";
+  // ==========================================
+
+  // Матни кутоҳ барои зери расм
+  var shortCaption = "🆕 <b>НАТИҶАИ НАВ АЗ ТЕСТ:</b>\n\n👤 Иштирокчӣ: " + currentUser.name + " " + currentUser.surname + "\n⭐️ Натиҷа: " + score + " хол\n\n<i>👇 Ҷавобҳои пурра дар паёми навбатӣ...</i>";
+
+  // 1. Сначала отправляем картинку с коротким текстом
+  fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/sendPhoto", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: CHAT_ID,
+      photo: PHOTO_URL,
+      caption: shortCaption,
+      parse_mode: "HTML"
+    })
+  }).then(function() {
+    // 2. Сразу после картинки отправляем большое сообщение с ответами
+    return fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: CHAT_ID,
+        text: msg,
+        parse_mode: "HTML"
+      })
+    });
+  }).catch(function(err) {
+    console.error("Ошибка отправки в ТГ:", err);
+  });
+}
+
+function showResult() {
+  saveResultData(); 
+
+  var score = totalScore();
+  var res = RESULTS[0];
+  for (var i = 0; i < RESULTS.length; i++) { if (score <= RESULTS[i].max) { res = RESULTS[i]; break; } }
+
+  var icon = qs('r-icon'); icon.textContent = res.icon; icon.style.background = res.color + '22'; icon.style.border = '2px solid ' + res.color + '44';
+  var badge = qs('r-badge'); badge.textContent = res.range; badge.style.background = res.color + '22'; badge.style.color = res.color; badge.style.border = '1px solid ' + res.color + '44';
+  var scoreEl = qs('r-score'); scoreEl.textContent = score; scoreEl.style.color = res.color;
+  qs('r-title').textContent = res.title; qs('r-desc').textContent = res.desc;
+
+  var ctaBox = qs('r-cta');
+  ctaBox.innerHTML = '<div class="cta-em">🔑</div><p class="cta-txt">Ин рақам нишон медиҳад, ки ту дар 7 рӯз чӣ қадар худро шинохтӣ, эҳсосотатро дидӣ, мани кӯҳнаро фаҳмидӣ ва ба версияи нави худ наздик шудӣ.<br><br>Ин тест барои он нест, ки худро айбдор кунӣ. Ин оина аст.<br>Агар натиҷа паст бошад — ту бояд бештар амал кунӣ.<br>Агар натиҷа миёна бошад — бедорӣ сар шудааст.<br>Агар натиҷа баланд бошад — ту омодаӣ ба марҳилаи амиқтар гузарӣ.<br><br>7 рӯз туро бедор кард.<br>21 рӯз туро устувор мекунад.</p>';
+
+  var bd = qs('r-breakdown'); bd.innerHTML = '<div class="bd-head">Натиҷа аз ҳар қисм</div>';
+  var bars =[];
+  SECS.forEach(function(sec, i) {
+    var st = secTotal(i);
+    var bc = st <= 8 ? '#e05959' : st <= 13 ? '#e0a83d' : '#4aaf7c';
+    var row = document.createElement('div'); row.className = 'bd-row';
+    var wrap = document.createElement('div'); wrap.className = 'bd-bar-wrap';
+    var bar = document.createElement('div'); bar.className = 'bd-bar'; bar.style.width = '0%'; bar.style.background = bc;
+    wrap.appendChild(bar); bars.push({ el: bar, pct: (st / 20) * 100 });
+    row.innerHTML = '<div class="bd-label">' + sec.title + '</div>';
+    row.appendChild(wrap);
+    row.innerHTML += '<div class="bd-val">' + st + ' / 20</div>';
+    bd.appendChild(row);
+  });
+
+  showScreen('s-res');
+  setTimeout(function() { bars.forEach(function(b) { b.el.style.width = b.pct + '%'; }); }, 350);
+}
+
+// Кнопки шкал 0-10
+['sc1', 'sc2'].forEach(function(id) {
+  var container = qs(id);
+  for (var i = 0; i <= 10; i++) {
+    (function(n) {
+      var btn = document.createElement('button'); btn.className = 'sc10'; btn.textContent = n;
+      btn.onclick = function() {
+        container.querySelectorAll('.sc10').forEach(function(b) { b.classList.remove('sel'); });
+        btn.classList.add('sel');
+      };
+      container.appendChild(btn);
+    })(i);
+  }
+});
+
+// Навигация
+qs('btn-start').onclick = function() { curSec = 0; showScreen('s-q'); renderSec(); };
+qs('btn-back').onclick = function() { if (curSec > 0) { curSec--; renderSec(); } };
+qs('btn-next').onclick = function() {
+  if (curSec < SECS.length - 1) {
+    curSec++; qs('qbody').style.opacity = '0';
+    setTimeout(function() { renderSec(); qs('qbody').style.opacity = '1'; qs('qbody').style.transition = 'opacity .3s'; }, 140);
+  } else { showScreen('s-open'); }
+};
+qs('btn-open-back').onclick = function() { showScreen('s-q'); renderSec(); };
+qs('btn-open-next').onclick = function() { showScreen('s-short'); };
+qs('btn-short-back').onclick = function() { showScreen('s-open'); };
+qs('btn-result').onclick = function() { showResult(); };
+
+qs('btn-share').onclick = function() {
+  var sc = totalScore();
+  var res = RESULTS[0];
+  for (var i = 0; i < RESULTS.length; i++) { if (sc <= RESULTS[i].max) { res = RESULTS[i]; break; } }
+  var msg = 'Ман тести курс гузаштам: ' + sc + '/100 — ' + res.title;
+  if (navigator.share) { navigator.share({ title: 'Натиҷаи тест', text: msg }); } 
+  else if (navigator.clipboard) { navigator.clipboard.writeText(msg).then(function() { alert('Нусхабардорӣ шуд!'); }); } 
+  else { prompt('Нусха кун:', msg); }
+};
+
+</script>
+</body>
+</html>

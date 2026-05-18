@@ -3,6 +3,8 @@ const cors = require('cors');
 const path = require('path');
 const crypto = require('crypto');
 const db = require('./database');
+const fs = require('fs');
+const fetch = require('node-fetch');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
