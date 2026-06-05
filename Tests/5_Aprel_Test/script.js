@@ -547,112 +547,143 @@
         const userStatus = state.user.status;
         const dateStr = new Date().toLocaleString('ru-RU', { dateStyle: 'medium', timeStyle: 'short' });
 
-        // Build HTML content for PDF
+        // Build HTML content for PDF — NO emojis (html2canvas can't render them reliably)
         let questionsHTML = '';
         questions.forEach((q, idx) => {
             const chosenOptIdx = state.answers[idx];
             const chosenOpt = q.options[chosenOptIdx];
             questionsHTML += `
-            <div style="margin-bottom:14px; page-break-inside:avoid;">
-                <div style="font-size:12px; font-weight:700; color:#27243A; margin-bottom:4px;">${idx + 1}. ${q.text}</div>
-                <div style="background:#F3F1FA; border-left:3px solid #8B7EC8; padding:6px 10px; font-size:11px; color:#4A475A; border-radius:0 6px 6px 0;">
+            <div style="margin-bottom:16px; page-break-inside:avoid;">
+                <div style="font-size:12px; font-weight:700; color:#27243A; margin-bottom:5px;">${idx + 1}. ${q.text}</div>
+                <div style="background:#F3F1FA; border-left:4px solid #8B7EC8; padding:8px 12px; font-size:11px; color:#4A475A; border-radius:0 6px 6px 0;">
                     [${chosenOpt.letter}] — ${chosenOpt.text}
                 </div>
             </div>`;
         });
 
         const htmlContent = `
-        <div style="font-family: Arial, sans-serif; color:#27243A; padding:30px; line-height:1.6; background:#ffffff;">
+        <div style="font-family: Arial, Helvetica, sans-serif; color:#27243A; padding:32px; line-height:1.65; background:#ffffff; width:750px;">
 
-            <div style="text-align:center; margin-bottom:28px; border-bottom:2px solid #8B7EC8; padding-bottom:16px;">
-                <h1 style="font-size:20px; color:#5F57A0; margin:0 0 6px 0;">НАТИҶАҲОИ ТЕСТИ ПСИХОЛОГӢ</h1>
-                <p style="font-size:12px; color:#6C6882; margin:0;">"Чаро ҷолибияти ту барои мард кам мешавад?"</p>
+            <!-- HEADER -->
+            <div style="text-align:center; margin-bottom:28px; border-bottom:3px solid #8B7EC8; padding-bottom:18px;">
+                <div style="font-size:11px; font-weight:700; color:#8B7EC8; letter-spacing:3px; text-transform:uppercase; margin-bottom:8px;">TESTI PSIHOLOGI</div>
+                <h1 style="font-size:19px; color:#27243A; margin:0 0 6px 0; font-weight:800;">NATIJAHOI TEST</h1>
+                <p style="font-size:11px; color:#6C6882; margin:0; font-style:italic;">"Charo jolibiyati tu baroi mard kam meshavad?"</p>
             </div>
 
-            <div style="background:#F3F1FA; border-radius:12px; padding:16px 20px; margin-bottom:24px; border:1px solid rgba(139,126,200,0.2);">
+            <!-- PARTICIPANT INFO -->
+            <div style="background:#F3F1FA; border-radius:12px; padding:18px 22px; margin-bottom:22px; border:1px solid rgba(139,126,200,0.25);">
+                <div style="font-size:10px; font-weight:700; color:#8B7EC8; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px;">ISHTIROKCII TEST</div>
                 <table style="width:100%; border-collapse:collapse; font-size:12px;">
                     <tr>
-                        <td style="padding:5px 0; font-weight:700; width:40%; color:#6C6882;">👤 Иштирокчӣ:</td>
+                        <td style="padding:5px 0; font-weight:700; width:35%; color:#6C6882;">Nom va Nasab:</td>
                         <td style="padding:5px 0; font-weight:700; color:#27243A;">${userName}</td>
                     </tr>
                     <tr>
-                        <td style="padding:5px 0; font-weight:700; color:#6C6882;">📅 Синну сол:</td>
-                        <td style="padding:5px 0; color:#27243A;">${userAge} сол</td>
+                        <td style="padding:5px 0; font-weight:700; color:#6C6882;">Sinnu sol:</td>
+                        <td style="padding:5px 0; color:#27243A;">${userAge} sol</td>
                     </tr>
                     <tr>
-                        <td style="padding:5px 0; font-weight:700; color:#6C6882;">💍 Ҳолати оилавӣ:</td>
+                        <td style="padding:5px 0; font-weight:700; color:#6C6882;">Holati oilavii:</td>
                         <td style="padding:5px 0; color:#27243A;">${userStatus}</td>
                     </tr>
                     <tr>
-                        <td style="padding:5px 0; font-weight:700; color:#6C6882;">🏆 Захми асосӣ:</td>
-                        <td style="padding:5px 0; font-weight:700; color:#8B7EC8;">${dominantTitle} (${dominantLetter})</td>
+                        <td style="padding:5px 0; font-weight:700; color:#6C6882;">Zahmi asosin:</td>
+                        <td style="padding:5px 0; font-weight:800; color:#8B7EC8; font-size:13px;">${dominantTitle} (${dominantLetter})</td>
                     </tr>
                 </table>
             </div>
 
-            <div style="background:#ffffff; border-radius:10px; padding:14px 18px; margin-bottom:20px; border:1px solid rgba(139,126,200,0.15);">
-                <div style="font-size:11px; font-weight:700; color:#8B7EC8; letter-spacing:1px; text-transform:uppercase; margin-bottom:10px;">📊 Ҳисоби ҳарфҳо:</div>
-                <table style="width:100%; font-size:12px;">
+            <!-- SCORES -->
+            <div style="background:#ffffff; border-radius:10px; padding:16px 20px; margin-bottom:22px; border:1px solid rgba(139,126,200,0.2);">
+                <div style="font-size:10px; font-weight:700; color:#8B7EC8; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px;">HISOBI HARFHO</div>
+                <table style="width:100%; font-size:12px; border-collapse:collapse;">
                     <tr>
-                        <td style="padding:4px 8px; width:25%;"><strong style="color:#8B7EC8;">A</strong> — Духтарча: <strong>${counts.A}</strong></td>
-                        <td style="padding:4px 8px; width:25%;"><strong style="color:#8B7EC8;">B</strong> — Любовница: <strong>${counts.B}</strong></td>
-                        <td style="padding:4px 8px; width:25%;"><strong style="color:#8B7EC8;">C</strong> — Малика: <strong>${counts.C}</strong></td>
-                        <td style="padding:4px 8px; width:25%;"><strong style="color:#8B7EC8;">D</strong> — Хозяйка: <strong>${counts.D}</strong></td>
+                        <td style="padding:6px 10px; width:25%; background:#F3F1FA; border-radius:6px; text-align:center; font-weight:700;">A — Duhtarcha<br><span style="font-size:18px; color:#8B7EC8;">${counts.A}</span></td>
+                        <td style="width:4%;"></td>
+                        <td style="padding:6px 10px; width:25%; background:#F3F1FA; border-radius:6px; text-align:center; font-weight:700;">B — Liubovnitsa<br><span style="font-size:18px; color:#8B7EC8;">${counts.B}</span></td>
+                        <td style="width:4%;"></td>
+                        <td style="padding:6px 10px; width:25%; background:#F3F1FA; border-radius:6px; text-align:center; font-weight:700;">C — Malika<br><span style="font-size:18px; color:#8B7EC8;">${counts.C}</span></td>
+                        <td style="width:4%;"></td>
+                        <td style="padding:6px 10px; width:25%; background:#F3F1FA; border-radius:6px; text-align:center; font-weight:700;">D — Hoziajka<br><span style="font-size:18px; color:#8B7EC8;">${counts.D}</span></td>
                     </tr>
                 </table>
             </div>
 
-            <h3 style="font-size:13px; color:#5F57A0; margin:0 0 14px 0; border-bottom:1px dashed rgba(139,126,200,0.3); padding-bottom:6px;">📝 ҶАВОБҲОИ ПУРРА:</h3>
+            <!-- QUESTIONS DIVIDER -->
+            <div style="font-size:11px; font-weight:700; color:#5F57A0; border-bottom:1px dashed rgba(139,126,200,0.4); padding-bottom:8px; margin-bottom:18px; text-transform:uppercase; letter-spacing:1.5px;">
+                Javobhoi purra (15 savol)
+            </div>
 
+            <!-- QUESTIONS LIST -->
             ${questionsHTML}
 
-            <div style="margin-top:28px; border-top:1px solid rgba(139,126,200,0.2); padding-top:10px; text-align:center; font-size:10px; color:#ADAABF;">
-                Санаи супоридан: ${dateStr}
+            <!-- FOOTER -->
+            <div style="margin-top:30px; border-top:1px solid rgba(139,126,200,0.2); padding-top:12px; text-align:center; font-size:10px; color:#ADAABF;">
+                Sanai suporidan: ${dateStr} &nbsp;|&nbsp; Testi Psihologii Mizoj
             </div>
         </div>`;
 
-        // Create temp element for html2pdf
+        // *** FIX: element positioned off-screen (NOT hidden, NOT negative z-index) ***
+        // html2canvas requires the element to be visible and attached to DOM
         const tempEl = document.createElement('div');
-        tempEl.style.position = 'absolute';
-        tempEl.style.top = '0';
-        tempEl.style.left = '0';
-        tempEl.style.width = '750px'; // Render at standard layout width
-        tempEl.style.zIndex = '-1000'; // Keep behind main layout
-        tempEl.style.background = '#ffffff';
+        tempEl.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: -9999px;
+            width: 790px;
+            background: #ffffff;
+            z-index: 1;
+            overflow: visible;
+        `;
         tempEl.innerHTML = htmlContent;
         document.body.appendChild(tempEl);
 
+        console.log('PDF: element appended to DOM, starting html2pdf...');
 
         try {
-            const pdfOptions = {
-                margin: 10,
-                filename: `${state.user.name}_${state.user.surname}_натиҷа.pdf`,
-                image: { type: 'jpeg', quality: 0.97 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            const safeFileName = `${state.user.name}_${state.user.surname}_natija.pdf`
+                .replace(/[\\\/:\*\?"<>\| ]/g, '_');
 
-            const pdf = await html2pdf().set(pdfOptions).from(tempEl).toPdf().get('pdf');
-            const pdfBlob = pdf.output('blob');
+            const pdfBlob = await html2pdf()
+                .set({
+                    margin: [8, 8, 8, 8],
+                    filename: safeFileName,
+                    image: { type: 'jpeg', quality: 0.95 },
+                    html2canvas: {
+                        scale: 2,
+                        useCORS: true,
+                        allowTaint: true,
+                        logging: false,
+                        backgroundColor: '#ffffff'
+                    },
+                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                })
+                .from(tempEl)
+                .outputPdf('blob');
 
+            console.log('PDF: generated successfully, size:', pdfBlob.size);
             document.body.removeChild(tempEl);
 
-            // Send PDF to Telegram
-            const safeFileName = `${state.user.name}_${state.user.surname}_натиҷа.pdf`.replace(/[\\\/:\*\?"<>\|]/g, '');
+            // Send PDF to Telegram as document
             const pdfFormData = new FormData();
             pdfFormData.append('chat_id', TG_CHAT_ID);
             pdfFormData.append('document', pdfBlob, safeFileName);
+            pdfFormData.append('caption', `Natijahoi test: ${userName} | ${dominantTitle} (${dominantLetter})`);
 
-            await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendDocument`, {
+            const tgRes = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendDocument`, {
                 method: 'POST',
                 body: pdfFormData
             });
+            const tgJson = await tgRes.json();
+            console.log('PDF: Telegram sendDocument response:', tgJson.ok ? 'OK' : tgJson.description);
 
         } catch (pdfErr) {
             console.error('PDF generation/send error:', pdfErr);
             if (tempEl.parentNode) document.body.removeChild(tempEl);
         }
     }
+
 
     // ==================== EVENT BINDINGS ====================
     
