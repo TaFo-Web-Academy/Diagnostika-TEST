@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тести равоншиносӣ — Чаро ҷолибияти ту барои мард кам мешавад?</title>
+    <!-- Google Fonts for Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- html2pdf.js for PDF report generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Progress Indicator Bar -->
+    <div id="progBarWrap" class="progress-wrap">
+        <div class="progress-bar">
+            <div id="progFill" class="progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="ld" class="loader-overlay">
+        <div class="spinner"></div>
+        <p class="ldtxt">Фиристодани натиҷаҳо...</p>
+    </div>
+
+    <div class="container">
+        
+        <!-- SECTION 1: REGISTRATION FORM ("Қабл аз оғоз...") -->
+        <div class="screen active" id="sec-auth">
+            <div class="badge"><span class="dot"></span>Тести равоншиносӣ</div>
+            <h1 class="main-title">Қабл аз оғоз...</h1>
+            <p class="sub-title">Лутфан маълумоти худро ворид кунед, то натиҷаи шумо ба қайд гирифта шавад ва таҳлил дақиқтар гузарад.</p>
+            
+            <div class="form-card">
+                <div class="input-group">
+                    <label class="input-label" for="u-name">Ном</label>
+                    <input type="text" id="u-name" class="input-field" placeholder="Масалан: Моҳишабон" required autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="u-surname">Насаб</label>
+                    <input type="text" id="u-surname" class="input-field" placeholder="Масалан: Ҷумахон" required autocomplete="off">
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="u-age">Синну сол</label>
+                    <input type="number" id="u-age" class="input-field" placeholder="Масалан: 25" required min="12" max="100">
+                </div>
+                <div class="input-group">
+                    <label class="input-label" for="u-status">Ҳолати оилавӣ</label>
+                    <div class="select-wrapper">
+                        <select id="u-status" class="input-field select-field">
+                            <option value="Оиладор" selected>Оиладор</option>
+                            <option value="Муҷаррад">Муҷаррад</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <button class="btn btn-full" id="btn-start-test">
+                    Оғоз кардани тест
+                    <svg class="arrow-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- SECTION 2: TEST CONTAINER (15 Questions) -->
+        <div class="screen" id="sec-quiz">
+            <div class="quiz-nav">
+                <button class="btn-back" id="btn-back-q">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    Қафо
+                </button>
+                <span class="step-counter" id="stepCounter">Саволи 1 аз 15</span>
+            </div>
+
+            <div class="q-card" id="qCard">
+                <span class="q-badge" id="qBadge">САВОЛИ 1 АЗ 15</span>
+                <h2 class="q-text" id="qText">Вақте мард камтар менависад, ту чӣ ҳис мекунӣ?</h2>
+                
+                <div class="options-list" id="optionsList">
+                    <!-- Options buttons will be rendered here dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- SECTION 3: RESULTS & ANALYSIS -->
+        <div class="screen" id="sec-results">
+            <div class="res-card">
+                <div class="res-badge-wrap">
+                    <span class="res-badge" id="resWoundBadge">Духтарчаи захмӣ</span>
+                </div>
+                
+                <h1 class="res-title" id="resTitle">Духтарчаи захмӣ</h1>
+                
+                <div class="res-body-text" id="resBodyText">
+                    <!-- Long detail results go here -->
+                </div>
+
+                <div class="stats-breakdown" id="statsBreakdown">
+                    <!-- Scoring summary details (A: 5, B: 3...) -->
+                </div>
+
+                <!-- CTA COURSE PROMOTION -->
+                <div class="cta-box">
+                    <div class="cta-header">ҚАБЛ АЗ ОҒОЗ КАРДАНИ КУРС</div>
+                    <p class="cta-intro">
+                        Ҷолибияти зан танҳо аз зебоӣ нест.<br>
+                        Ҷолибият вақте кам мешавад, ки зан аз захм амал мекунад:
+                    </p>
+                    <ul class="cta-wounds-list">
+                        <li><strong>A</strong> — мечаспад;</li>
+                        <li><strong>B</strong> — худро исбот мекунад;</li>
+                        <li><strong>C</strong> — хунук мешавад;</li>
+                        <li><strong>D</strong> — назорат мекунад.</li>
+                    </ul>
+                    <p class="cta-full-woman">
+                        Зани пурра бошад:<br>
+                        <strong>Духтарча</strong> — муҳаббатро қабул мекунад.<br>
+                        <strong>Любовница</strong> — зинда ва ҷаззоб аст.<br>
+                        <strong>Малика</strong> — арзишашро медонад.<br>
+                        <strong>Хозяйка</strong> — ҳаёташро месозад.
+                    </p>
+                    <div class="cta-divider"></div>
+                    <p class="cta-offer">
+                        Агар мехоҳӣ фаҳмӣ, ки ин захм аз куҷо омадааст ва чӣ тавр онро барқарор кунӣ, ба дарси нав биё:
+                    </p>
+                    <h3 class="cta-course-title">«4 захме, ки ҷолибияти занро барои мард мекушад»</h3>
+                    <p class="cta-action-text">Барои гирифтани дарс нависед:</p>
+                    <div class="promo-word">ЯСНОСТЬ</div>
+                    
+                    <button class="btn btn-cta btn-full" id="btn-tg-admin">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.35-.49.97-.74 3.79-1.65 6.32-2.73 7.57-3.25 3.61-1.49 4.36-1.75 4.85-1.76.11 0 .35.03.51.16.13.12.17.28.19.39.02.13.02.26.01.37z"/></svg>
+                        Навиштани ЯСНОСТЬ ба Админ
+                    </button>
+                </div>
+
+                <button class="btn btn-restart" id="btn-restart">
+                    Тестро аз нав гузаштан
+                </button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
