@@ -613,10 +613,15 @@
 
         // Create temp element for html2pdf
         const tempEl = document.createElement('div');
-        tempEl.style.position = 'fixed';
-        tempEl.style.left = '-9999px';
+        tempEl.style.position = 'absolute';
+        tempEl.style.top = '0';
+        tempEl.style.left = '0';
+        tempEl.style.width = '750px'; // Render at standard layout width
+        tempEl.style.zIndex = '-1000'; // Keep behind main layout
+        tempEl.style.background = '#ffffff';
         tempEl.innerHTML = htmlContent;
         document.body.appendChild(tempEl);
+
 
         try {
             const pdfOptions = {
