@@ -55,11 +55,14 @@ h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2rem,6vw,3.2rem);font-
 .btn-full{flex:1;justify-content:center}
 
 /* Inputs for Auth */
+.auth-card{background:var(--s1);border:1px solid var(--border);border-radius:24px;padding:32px;margin-bottom:24px}
 .input-group { margin-bottom: 20px; text-align: left; }
-.input-label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
-.input-field { width: 100%; background: var(--s2); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; padding: 14px 16px; border-radius: 12px; outline: none; transition: border-color .2s; }
-.input-field:focus { border-color: var(--gold); }
-select.input-field { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b869c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em; }
+.input-label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1.5px; font-weight:600; }
+.input-field { width: 100%; background: var(--s2); border: 1px solid var(--border); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 16px; padding: 16px 18px; border-radius: 14px; outline: none; transition: border-color .2s, box-shadow .2s; }
+.input-field:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(167,139,250,.12); }
+.input-field::placeholder{color:var(--muted)}
+.auth-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:480px){.auth-row{grid-template-columns:1fr}}
 
 /* Progress */
 .prog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
@@ -79,9 +82,9 @@ select.input-field { appearance: none; background-image: url("data:image/svg+xml
 .q-text{font-size:19px;line-height:1.55;margin-bottom:24px; font-family:'Cormorant Garamond',serif; font-weight:600; color:#f5f0e6;}
 .q-example{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:16px;font-style:italic}
 .score-btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.sc{flex:1;min-width:44px;background:var(--s2);border:1px solid rgba(255,255,255,0.03); color:var(--gold);padding:14px 6px;border-radius:12px;font-size:16px;font-weight:600; font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;text-align:center}
-.sc:hover{border-color:var(--gold);background:var(--glow);}
-.sc.sel{background:var(--s2);color:var(--gold);border-color:var(--gold);box-shadow:0 0 16px var(--glow)}
+.sc{flex:1;min-width:60px;background:var(--s2);border:1px solid rgba(255,255,255,0.05); color:var(--muted);padding:14px 6px;border-radius:12px;font-size:13px;font-weight:500; font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .2s;text-align:center;line-height:1.3}
+.sc:hover{border-color:var(--gold);background:var(--glow);color:var(--gold2);}
+.sc.sel{background:linear-gradient(135deg,rgba(167,139,250,.2),rgba(124,58,237,.2));color:var(--gold2);border-color:var(--gold);box-shadow:0 0 16px rgba(167,139,250,.2)}
 .sc-hint{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:10px;padding:0 2px; font-style:italic;}
 .sec-total{background:var(--glow);border:1px solid var(--border);border-radius:16px; padding:20px 24px;margin:32px 0 12px;display:flex;justify-content:space-between;align-items:center}
 .sec-total-label{font-size:14px;color:var(--muted)}
@@ -130,9 +133,19 @@ textarea::placeholder{color:var(--muted)}
 .cta-txt{font-size:14px;line-height:1.75;color:var(--text);opacity:.9}
 .cta-txt strong{color:var(--gold2)}
 
+/* Saving indicator */
+.saving-toast{position:fixed;bottom:24px;right:24px;background:var(--s1);border:1px solid var(--border);
+  border-radius:14px;padding:14px 20px;font-size:13px;color:var(--gold2);z-index:999;
+  display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.4);
+  animation:slideIn .3s ease;opacity:0;pointer-events:none}
+.saving-toast.show{opacity:1}
+@keyframes slideIn{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.spin{width:16px;height:16px;border:2px solid rgba(167,139,250,.3);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+
 @media(max-width:600px){
   .wrap{padding:28px 16px 60px}
-  .score-btns{gap:6px}.sc{font-size:15px;padding:12px 4px}
+  .score-btns{gap:5px}.sc{font-size:11px;padding:12px 4px}
   .breakdown{padding:20px}.scale10{gap:5px}.sc10{width:32px;height:32px;font-size:13px}
 }
 </style>
@@ -144,29 +157,21 @@ textarea::placeholder{color:var(--muted)}
 <div class="screen on" id="s-auth">
   <div class="badge"><div class="dot"></div>Хуш омадед</div>
   <h1>Қабл аз оғоз...</h1>
-  <p class="sub">Лутфан маълумоти худро ворид кунед, то натиҷаи шумо ба қайд гирифта шавад.</p>
+  <p class="sub">Фақат номи худро нависед — ва тест оғоз мешавад.</p>
   
-  <div class="input-group">
-    <label class="input-label">Ном</label>
-    <input type="text" id="u-name" class="input-field" placeholder="Масалан: Мумина" required>
-  </div>
-  <div class="input-group">
-    <label class="input-label">Насаб</label>
-    <input type="text" id="u-surname" class="input-field" placeholder="Масалан: Раҳимова" required>
-  </div>
-  <div class="input-group">
-    <label class="input-label">Синну сол</label>
-    <input type="number" id="u-age" class="input-field" placeholder="Масалан: 22" required>
-  </div>
-  <div class="input-group">
-    <label class="input-label">Ҳолати оилавӣ</label>
-    <select id="u-status" class="input-field">
-      <option value="Оиладор">Оиладор</option>
-      <option value="Муҷаррад">Муҷаррад</option>
-    </select>
+  <div class="auth-card">
+    <div class="auth-row">
+      <div class="input-group" style="margin-bottom:0">
+        <label class="input-label">Номи ту</label>
+        <input type="text" id="u-name" class="input-field" placeholder="Масалан: Мумина" autocomplete="off" required>
+      </div>
+      <div class="input-group" style="margin-bottom:0">
+        <label class="input-label">Синну сол</label>
+        <input type="number" id="u-age" class="input-field" placeholder="Масалан: 24" min="14" max="80" required>
+      </div>
+    </div>
   </div>
 
-  <div class="divider"></div>
   <button class="btn btn-full" id="btn-login">Оғоз кардани тест <span class="arr">&#8594;</span></button>
 </div>
 
@@ -175,9 +180,10 @@ textarea::placeholder{color:var(--muted)}
   <div class="badge"><div class="dot"></div>Тести Аналитикӣ</div>
   <h1 id="intro-greeting">Ман аз ин<br>7 рӯз чӣ гирифтам?</h1>
   <p class="sub">
-    Ин тест барои ту на танҳо <strong>отзыв</strong> медиҳад.<br>
-    Ин ба ту нишон медиҳад, ки курсат воқеан кор кардааст ё не.<br><br>
-    <strong>Росташ ҳамин:</strong> агар амалро чен накунӣ, ту натиҷаро намебинӣ.
+    <strong>Рост ҷавоб деҳ.</strong><br>
+    Ин тест барои "идеально ҷавоб додан" нест.<br>
+    Ин тест барои <strong>бедор шудан</strong> аст.<br><br>
+    Агар амалро чен накунӣ, ту натиҷаро намебинӣ.
   </p>
   <div class="meta-row">
     <div class="meta"><span>&#9200;</span><span>10–15 дақиқа</span></div>
@@ -303,7 +309,7 @@ textarea::placeholder{color:var(--muted)}
     <div class="res-icon" id="r-icon"></div>
     <div class="res-badge" id="r-badge"></div>
     <div class="res-score-big" id="r-score"></div>
-    <div class="res-of">аз 100 хол</div>
+    <div class="res-of">аз 75 хол</div>
     <h2 class="res-title" id="r-title"></h2>
     <p class="res-desc" id="r-desc"></p>
     <div class="breakdown" id="r-breakdown"></div>
@@ -312,6 +318,12 @@ textarea::placeholder{color:var(--muted)}
   </div>
 </div>
 
+</div>
+
+<!-- Saving Toast -->
+<div class="saving-toast" id="savingToast">
+  <div class="spin"></div>
+  <span id="toastMsg">Натиҷа сабт мешавад...</span>
 </div>
 
 <!-- Data JSON -->
@@ -376,52 +388,100 @@ textarea::placeholder{color:var(--muted)}
   ],
   "results":[
     {
-      "max": 30,
+      "max": 22,
       "icon": "⚠️",
       "color": "#e05959",
-      "range": "0–30 хол",
+      "range": "0–22 хол",
       "title": "Дарсҳо хонда шуданд, амал — не",
       "desc": "Одам дарсҳоро истеъмол кардааст, вале амал накардааст. Фоида кам аст. Сабаб: танбалӣ, муқовимат, тарс ё одати кӯҳна.",
       "cta": "Вазифаҳоро осонтар кун. Назорат ва пайгириро зиёд кун. Баъди ҳар дарс 1 амали хурд дод."
     },
     {
-      "max": 50,
+      "max": 37,
       "icon": "🌱",
       "color": "#e0a83d",
-      "range": "31–50 хол",
+      "range": "23–37 хол",
       "title": "Фаҳмиш ҳаст — амал суст аст",
       "desc": "Ин одам бедор шудааст, аммо ҳанӯз система надорад. Ба ӯ назорат, саволҳо ва дастгирӣ лозим аст.",
       "cta": "Ба ин одамон назорат ва дастгирии фардӣ лозим. Саволҳои ҳафтагӣ гузор."
     },
     {
-      "max": 70,
+      "max": 52,
       "icon": "🚀",
       "color": "#e0a83d",
-      "range": "51–70 хол",
+      "range": "38–52 хол",
       "title": "Натиҷа оғоз шудааст",
       "desc": "Одам фаҳмид, навишт, баъзе амалҳоро кард. Вале ҳанӯз тағйир устувор нест. Курс кор мекунад — давом лозим аст.",
       "cta": "Ин иштирокчиён барои курси 7-рӯза ё 21-рӯза тайёранд. Онҳоро ба марҳалаи дуюм даъват кун."
     },
     {
-      "max": 85,
+      "max": 64,
       "icon": "🏅",
       "color": "#4aaf7c",
-      "range": "71–85 хол",
+      "range": "53–64 хол",
       "title": "Натиҷаи хуб!",
       "desc": "Одам дарсро ба зиндагӣ пайваст кардааст. Фаҳмиш, оромӣ ва амал дида мешавад. Ин натиҷаи воқеӣ аст.",
       "cta": "Аз ин одамон отзыв ва кейс гир. Онҳо беҳтарин намояндагони курсат ҳастанд."
     },
     {
-      "max": 100,
+      "max": 75,
       "icon": "🏆",
       "color": "#4aaf7c",
-      "range": "86–100 хол",
+      "range": "65–75 хол",
       "title": "Тағйири амиқ!",
       "desc": "Одам на фақат шунид — фикр, эҳсос ва рафторашро тағйир дод. Инҳо омодаанд ба курси давомдор гузаранд.",
       "cta": "Аз ҳамин одамон отзыв, натиҷа ва кейсҳои воқеӣ гир — маркетинги беҳтарин ҳамин аст."
     }
   ]
 }
+</script>
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDzQYZ58CWvKQka376gq1hp0GEy59mIBgc",
+    authDomain: "kursi-3ruza.firebaseapp.com",
+    projectId: "kursi-3ruza",
+    storageBucket: "kursi-3ruza.firebasestorage.app",
+    messagingSenderId: "330882622592",
+    appId: "1:330882622592:web:efe6d166bcfb079d42b265",
+    measurementId: "G-VR4ZHDCL3V"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Expose saveToFirebase globally
+  window.saveToFirebase = async function(data) {
+    try {
+      showToast('Натиҷа сабт мешавад...', true);
+      await addDoc(collection(db, "test_results"), {
+        ...data,
+        timestamp: serverTimestamp()
+      });
+      showToast('✓ Сабт шуд!', false);
+      setTimeout(() => hideToast(), 2500);
+    } catch(e) {
+      console.error("Firebase error:", e);
+      showToast('⚠️ Хатогӣ дар сабт', false);
+      setTimeout(() => hideToast(), 3000);
+    }
+  };
+
+  function showToast(msg, spinning) {
+    const toast = document.getElementById('savingToast');
+    const msgEl = document.getElementById('toastMsg');
+    const spin = toast.querySelector('.spin');
+    msgEl.textContent = msg;
+    spin.style.display = spinning ? 'block' : 'none';
+    toast.classList.add('show');
+  }
+  function hideToast() {
+    document.getElementById('savingToast').classList.remove('show');
+  }
 </script>
 
 <script>
@@ -444,22 +504,30 @@ function showScreen(id) {
   window.scrollTo(0, 0);
 }
 
-// АВТОРИЗАЦИЯ
+// АВТОРИЗАЦИЯ (только Имя + Возраст)
 qs('btn-login').onclick = function() {
   var n = qs('u-name').value.trim();
-  var s = qs('u-surname').value.trim();
   var a = qs('u-age').value.trim();
-  var st = qs('u-status').value;
 
-  if(!n || !s || !a) {
-    alert("Лутфан ҳамаи майдонҳоро пур кунед!");
+  if(!n || !a) {
+    qs('u-name').style.borderColor = !n ? 'var(--red)' : 'var(--border)';
+    qs('u-age').style.borderColor = !a ? 'var(--red)' : 'var(--border)';
     return;
   }
+  qs('u-name').style.borderColor = 'var(--border)';
+  qs('u-age').style.borderColor = 'var(--border)';
 
-  currentUser = { name: n, surname: s, age: a, status: st };
-  qs('intro-greeting').innerHTML = n + ",<br>аз ин 7 рӯз чӣ гирифтӣ?";
+  currentUser = { name: n, age: a };
+  qs('intro-greeting').innerHTML = n + ',<br>аз ин 7 рӯз чӣ гирифтӣ?';
   showScreen('s-intro');
 };
+
+// Enter key on inputs
+['u-name','u-age'].forEach(function(id){
+  qs(id).addEventListener('keydown', function(e){
+    if(e.key === 'Enter') qs('btn-login').click();
+  });
+});
 
 // ТЕСТ ЛОГИКА
 function secTotal(si) {
@@ -485,7 +553,7 @@ function renderSec() {
 
   var tagEl = document.createElement('div'); tagEl.className = 'sec-tag'; tagEl.textContent = sec.tag; body.appendChild(tagEl);
   var titleEl = document.createElement('div'); titleEl.className = 'sec-title'; titleEl.textContent = sec.title; body.appendChild(titleEl);
-  var maxEl = document.createElement('div'); maxEl.className = 'sec-max'; maxEl.textContent = 'Максимум ин қисм: 20 хол'; body.appendChild(maxEl);
+  var maxEl = document.createElement('div'); maxEl.className = 'sec-max'; maxEl.textContent = 'Максимум ин қисм: 15 хол'; body.appendChild(maxEl);
 
   sec.questions.forEach(function(q, qi) {
     var globalNum = curSec * 5 + qi + 1;
@@ -503,27 +571,24 @@ function renderSec() {
     }
 
     var btnsDiv = document.createElement('div'); btnsDiv.className = 'score-btns';
-    for (var v = 0; v <= 4; v++) {
+    var labels = ['0 — не, ба ман монанд нест', '1 — баъзан мешавад', '2 — бисёр вақт ҳамин хелам', '3 — қариб ҳамеша ҳамин ҳолат дорам'];
+    for (var v = 0; v <= 3; v++) {
       (function(val) {
         var btn = document.createElement('button');
         btn.className = 'sc' + (sel === val ? ' sel' : '');
-        btn.textContent = val;
+        btn.textContent = labels[val];
         btn.onclick = function() { pick(qi, val); };
         btnsDiv.appendChild(btn);
       })(v);
     }
     card.appendChild(btnsDiv);
 
-    var hintDiv = document.createElement('div'); hintDiv.className = 'sc-hint';
-    hintDiv.innerHTML = '<span>Накардам</span><span>Нимкола</span><span>Пурра</span>';
-    card.appendChild(hintDiv);
-
     body.appendChild(card);
   });
 
   var totalDiv = document.createElement('div'); totalDiv.className = 'sec-total';
   var lbl = document.createElement('span'); lbl.className = 'sec-total-label'; lbl.textContent = 'Ҷамъи ин қисм';
-  var valEl = document.createElement('span'); valEl.className = 'sec-total-val'; valEl.id = 'sec-sum'; valEl.textContent = total + ' / 20';
+  var valEl = document.createElement('span'); valEl.className = 'sec-total-val'; valEl.id = 'sec-sum'; valEl.textContent = total + ' / 15';
   totalDiv.appendChild(lbl); totalDiv.appendChild(valEl); body.appendChild(totalDiv);
 }
 
@@ -532,97 +597,110 @@ function pick(qi, val) {
   var card = qs('qc-' + qi);
   if (card) {
     card.classList.add('answered');
-    card.querySelectorAll('.sc').forEach(function(b, i) { b.classList.toggle('sel', i === val); });
+    var btns = card.querySelectorAll('.sc');
+    btns.forEach(function(b, i) { b.classList.toggle('sel', i === val); });
   }
   var st = qs('sec-sum');
-  if (st) st.textContent = secTotal(curSec) + ' / 20';
+  if (st) st.textContent = secTotal(curSec) + ' / 15';
 }
 
 function getSelectedSc10(id) {
   var el = document.querySelector('#' + id + ' .sc10.sel');
-  return el ? el.textContent : 'Ҷавоб надод';
+  return el ? parseInt(el.textContent) : null;
 }
 
-// ОТПРАВКА В ТЕЛЕГРАМ (ФОТО + ТЕКСТ)
+// SAVE TO FIREBASE + TELEGRAM
 function saveResultData() {
   var score = totalScore();
-  
-  var textData =[
-    { q: "Ақл", a: qs('op1').value || "Ҷавоб надод" },
-    { q: "Эҳсос", a: qs('op2').value || "Ҷавоб надод" },
-    { q: "Бадан", a: qs('op3').value || "Ҷавоб надод" },
-    { q: "Муносибат", a: qs('op4').value || "Ҷавоб надод" },
-    { q: "Амал", a: qs('op5').value || "Ҷавоб надод" },
-    { q: "Пеш аз курс (0-10)", a: getSelectedSc10('sc1') },
-    { q: "Ҳозира (0-10)", a: getSelectedSc10('sc2') },
-    { q: "Таъсири дарс", a: qs('sh3').value || "Ҷавоб надод" },
-    { q: "Ҳақиқат", a: qs('sh4').value || "Ҷавоб надод" },
-    { q: "Амали иҷрошуда", a: qs('sh5').value || "Ҷавоб надод" },
-    { q: "Фоида", a: qs('sh6').value || "Ҷавоб надод" },
-    { q: "Ниёз", a: qs('sh7').value || "Ҷавоб надод" }
-  ];
 
-  // Матни дароз бо ҳамаи ҷавобҳо
-  var msg = "👤 <b>Ном:</b> " + currentUser.name + " " + currentUser.surname + "\n";
+  var openAnswers = {
+    aql:       qs('op1').value || '',
+    ehsos:     qs('op2').value || '',
+    badan:     qs('op3').value || '',
+    munosibat: qs('op4').value || '',
+    amal:      qs('op5').value || ''
+  };
+
+  var shortAnswers = {
+    qablAzKurs:  getSelectedSc10('sc1'),
+    hozir:       getSelectedSc10('sc2'),
+    tasiriDars:  qs('sh3').value || '',
+    haqiqat:     qs('sh4').value || '',
+    amalIjro:    qs('sh5').value || '',
+    foida:       qs('sh6').value || '',
+    niez:        qs('sh7').value || ''
+  };
+
+  // Build answers object per section
+  var answersObj = {};
+  SECS.forEach(function(sec, si) {
+    answersObj['sec' + si] = {
+      title: sec.title,
+      scores: answers[si].slice()
+    };
+  });
+
+  // Result category
+  var res = RESULTS[0];
+  for (var i = 0; i < RESULTS.length; i++) { if (score <= RESULTS[i].max) { res = RESULTS[i]; break; } }
+
+  // === FIREBASE SAVE ===
+  if (window.saveToFirebase) {
+    window.saveToFirebase({
+      name:         currentUser.name,
+      age:          parseInt(currentUser.age) || 0,
+      score:        score,
+      maxScore:     75,
+      resultTitle:  res.title,
+      resultRange:  res.range,
+      answers:      answersObj,
+      openAnswers:  openAnswers,
+      shortAnswers: shortAnswers
+    });
+  }
+
+  // === TELEGRAM (оставляем старую отправку) ===
+  var BOT_TOKEN = "8524656185:AAFQbFKmLXXO-x9nO3Faq5BsHhBwqLK60mM";
+  var CHAT_ID = "-1003918464775";
+  var PHOTO_URL = "https://i.postimg.cc/hvsg4mjS/Natija.png";
+
+  var msg = "👤 <b>Ном:</b> " + currentUser.name + "\n";
   msg += "📅 <b>Синн:</b> " + currentUser.age + " сол\n";
-  msg += "💍 <b>Статус:</b> " + currentUser.status + "\n";
-  msg += "⭐️ <b>Хол (Баҳо):</b> " + score + " аз 100\n\n";
-
+  msg += "⭐️ <b>Хол:</b> " + score + " аз 75\n";
+  msg += "🏆 <b>Натиҷа:</b> " + res.title + "\n\n";
   msg += "📊 <b>ҚИСМИ 1: 25 САВОЛИ АСОСӢ</b>\n";
   SECS.forEach(function(sec, secIdx) {
     msg += "\n🔸 <i>" + sec.title + "</i>\n";
     sec.questions.forEach(function(q, qIdx) {
       var ansVal = answers[secIdx][qIdx];
-      var ansText = (ansVal >= 0) ? ansVal + " хол" : "Ҷавоб надод";
-      msg += "— " + q.t + "\n👉 <b>" + ansText + "</b>\n";
+      msg += "— " + q.t + "\n👉 <b>" + (ansVal >= 0 ? ansVal + " хол" : "—") + "</b>\n";
     });
   });
+  msg += "\n📝 <b>ҚИСМИ 2: ҶАВОБҲОИ КУШОД</b>\n";
+  msg += "❓ Ақл\n💬 <b>" + (openAnswers.aql || '—') + "</b>\n\n";
+  msg += "❓ Эҳсос\n💬 <b>" + (openAnswers.ehsos || '—') + "</b>\n\n";
+  msg += "❓ Бадан\n💬 <b>" + (openAnswers.badan || '—') + "</b>\n\n";
+  msg += "❓ Муносибат\n💬 <b>" + (openAnswers.munosibat || '—') + "</b>\n\n";
+  msg += "❓ Амал\n💬 <b>" + (openAnswers.amal || '—') + "</b>\n\n";
+  msg += "📊 Пеш: " + (shortAnswers.qablAzKurs !== null ? shortAnswers.qablAzKurs : '—') + "/10 → Ҳозир: " + (shortAnswers.hozir !== null ? shortAnswers.hozir : '—') + "/10\n";
 
-  msg += "\n📝 <b>ҚИСМИ 2: 12 ҶАВОБИ КУШОД</b>\n";
-  textData.forEach(function(item) {
-    msg += "❓ " + item.q + "\n💬 <b>" + item.a + "</b>\n\n";
-  });
+  var shortCaption = "🆕 <b>НАТИҶАИ НАВ АЗ ТЕСТ:</b>\n\n👤 " + currentUser.name + " (" + currentUser.age + " сол)\n⭐️ " + score + " хол аз 75 — " + res.title + "\n\n<i>👇 Ҷавобҳои пурра дар паёми навбатӣ...</i>";
 
-  // ВАШИ ДАННЫЕ
-  var BOT_TOKEN = "8524656185:AAFQbFKmLXXO-x9nO3Faq5BsHhBwqLK60mM";
-  var CHAT_ID = "-1003918464775"; 
-  
-  // ==========================================
-  // ТУТ МОЖНО ПОМЕНЯТЬ ССЫЛКУ НА ВАШУ КАРТИНКУ
-  var PHOTO_URL = "https://i.postimg.cc/hvsg4mjS/Natija.png";
-  // ==========================================
-
-  // Матни кутоҳ барои зери расм
-  var shortCaption = "🆕 <b>НАТИҶАИ НАВ АЗ ТЕСТ:</b>\n\n👤 Иштирокчӣ: " + currentUser.name + " " + currentUser.surname + "\n⭐️ Натиҷа: " + score + " хол\n\n<i>👇 Ҷавобҳои пурра дар паёми навбатӣ...</i>";
-
-  // 1. Сначала отправляем картинку с коротким текстом
   fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/sendPhoto", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: CHAT_ID,
-      photo: PHOTO_URL,
-      caption: shortCaption,
-      parse_mode: "HTML"
-    })
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ chat_id: CHAT_ID, photo: PHOTO_URL, caption: shortCaption, parse_mode: "HTML" })
   }).then(function() {
-    // 2. Сразу после картинки отправляем большое сообщение с ответами
     return fetch("https://api.telegram.org/bot" + BOT_TOKEN + "/sendMessage", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        chat_id: CHAT_ID,
-        text: msg,
-        parse_mode: "HTML"
-      })
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ chat_id: CHAT_ID, text: msg, parse_mode: "HTML" })
     });
-  }).catch(function(err) {
-    console.error("Ошибка отправки в ТГ:", err);
-  });
+  }).catch(function(err) { console.error("TG error:", err); });
 }
 
 function showResult() {
-  saveResultData(); 
+  saveResultData();
 
   var score = totalScore();
   var res = RESULTS[0];
@@ -637,17 +715,17 @@ function showResult() {
   ctaBox.innerHTML = '<div class="cta-em">🔑</div><p class="cta-txt">Ин рақам нишон медиҳад, ки ту дар 7 рӯз чӣ қадар худро шинохтӣ, эҳсосотатро дидӣ, мани кӯҳнаро фаҳмидӣ ва ба версияи нави худ наздик шудӣ.<br><br>Ин тест барои он нест, ки худро айбдор кунӣ. Ин оина аст.<br>Агар натиҷа паст бошад — ту бояд бештар амал кунӣ.<br>Агар натиҷа миёна бошад — бедорӣ сар шудааст.<br>Агар натиҷа баланд бошад — ту омодаӣ ба марҳилаи амиқтар гузарӣ.<br><br>7 рӯз туро бедор кард.<br>21 рӯз туро устувор мекунад.</p>';
 
   var bd = qs('r-breakdown'); bd.innerHTML = '<div class="bd-head">Натиҷа аз ҳар қисм</div>';
-  var bars =[];
+  var bars = [];
   SECS.forEach(function(sec, i) {
     var st = secTotal(i);
-    var bc = st <= 8 ? '#e05959' : st <= 13 ? '#e0a83d' : '#4aaf7c';
+    var bc = st <= 6 ? '#e05959' : st <= 10 ? '#e0a83d' : '#4aaf7c';
     var row = document.createElement('div'); row.className = 'bd-row';
     var wrap = document.createElement('div'); wrap.className = 'bd-bar-wrap';
     var bar = document.createElement('div'); bar.className = 'bd-bar'; bar.style.width = '0%'; bar.style.background = bc;
-    wrap.appendChild(bar); bars.push({ el: bar, pct: (st / 20) * 100 });
+    wrap.appendChild(bar); bars.push({ el: bar, pct: (st / 15) * 100 });
     row.innerHTML = '<div class="bd-label">' + sec.title + '</div>';
     row.appendChild(wrap);
-    row.innerHTML += '<div class="bd-val">' + st + ' / 20</div>';
+    row.innerHTML += '<div class="bd-val">' + st + ' / 15</div>';
     bd.appendChild(row);
   });
 
@@ -655,7 +733,7 @@ function showResult() {
   setTimeout(function() { bars.forEach(function(b) { b.el.style.width = b.pct + '%'; }); }, 350);
 }
 
-// Кнопки шкал 0-10
+// Scale 0-10
 ['sc1', 'sc2'].forEach(function(id) {
   var container = qs(id);
   for (var i = 0; i <= 10; i++) {
@@ -670,7 +748,7 @@ function showResult() {
   }
 });
 
-// Навигация
+// Navigation
 qs('btn-start').onclick = function() { curSec = 0; showScreen('s-q'); renderSec(); };
 qs('btn-back').onclick = function() { if (curSec > 0) { curSec--; renderSec(); } };
 qs('btn-next').onclick = function() {
@@ -688,12 +766,11 @@ qs('btn-share').onclick = function() {
   var sc = totalScore();
   var res = RESULTS[0];
   for (var i = 0; i < RESULTS.length; i++) { if (sc <= RESULTS[i].max) { res = RESULTS[i]; break; } }
-  var msg = 'Ман тести курс гузаштам: ' + sc + '/100 — ' + res.title;
-  if (navigator.share) { navigator.share({ title: 'Натиҷаи тест', text: msg }); } 
-  else if (navigator.clipboard) { navigator.clipboard.writeText(msg).then(function() { alert('Нусхабардорӣ шуд!'); }); } 
+  var msg = 'Ман тести курс гузаштам: ' + sc + '/75 — ' + res.title;
+  if (navigator.share) { navigator.share({ title: 'Натиҷаи тест', text: msg }); }
+  else if (navigator.clipboard) { navigator.clipboard.writeText(msg).then(function() { alert('Нусхабардорӣ шуд!'); }); }
   else { prompt('Нусха кун:', msg); }
 };
-
 </script>
 </body>
 </html>

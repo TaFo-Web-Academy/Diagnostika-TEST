@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — Курси 3 Рӯза</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#060411;--s1:#0f0d1a;--s2:#181525;--s3:#221f32;
+  --gold:#a78bfa;--gold2:#c4b5fd;--glow:rgba(167,139,250,.1);
+  --border:rgba(167,139,250,.15);--text:#f0ebff;--muted:#7c7898;
+  --green:#34d399;--red:#f87171;--yellow:#fbbf24;--blue:#60a5fa;
+  --card-shadow:0 4px 24px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh}
+
+/* ===== LOGIN SCREEN ===== */
+#loginScreen{
+  position:fixed;inset:0;background:var(--bg);z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+  animation:fadein .4s ease;
+}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.login-box{
+  background:var(--s1);border:1px solid var(--border);border-radius:24px;
+  padding:48px 40px;width:100%;max-width:420px;text-align:center;
+  box-shadow:0 32px 64px rgba(0,0,0,.6);
+}
+.login-logo{font-size:40px;margin-bottom:20px}
+.login-title{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:700;
+  background:linear-gradient(135deg,#f0ebff,var(--gold2));-webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.login-sub{font-size:13px;color:var(--muted);margin-bottom:32px}
+.login-input{width:100%;background:var(--s2);border:1px solid var(--border);color:var(--text);
+  font-family:'Inter',sans-serif;font-size:15px;padding:14px 18px;border-radius:12px;
+  outline:none;transition:border-color .2s,box-shadow .2s;text-align:center;letter-spacing:4px}
+.login-input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(167,139,250,.15)}
+.login-btn{width:100%;margin-top:16px;background:linear-gradient(135deg,var(--gold),#7c3aed);
+  color:#fff;border:none;padding:15px;border-radius:12px;font-size:14px;font-weight:600;
+  font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s;letter-spacing:.5px}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(167,139,250,.3)}
+.login-err{color:var(--red);font-size:12px;margin-top:10px;opacity:0;transition:opacity .2s}
+.login-err.show{opacity:1}
+
+/* ===== MAIN LAYOUT ===== */
+#adminApp{display:none}
+.topbar{
+  background:var(--s1);border-bottom:1px solid var(--border);
+  padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);
+}
+.topbar-brand{display:flex;align-items:center;gap:12px}
+.topbar-dot{width:8px;height:8px;background:var(--gold);border-radius:50%;box-shadow:0 0 8px var(--gold);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.topbar-title{font-family:'Cormorant Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--gold2)}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.refresh-btn{background:var(--glow);border:1px solid var(--border);color:var(--gold);
+  padding:8px 16px;border-radius:8px;font-size:12px;font-family:'Inter',sans-serif;
+  cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.refresh-btn:hover{border-color:var(--gold);background:rgba(167,139,250,.15)}
+.logout-btn{background:transparent;border:1px solid rgba(248,113,113,.3);color:var(--red);
+  padding:8px 14px;border-radius:8px;font-size:12px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s}
+.logout-btn:hover{background:rgba(248,113,113,.1)}
+.last-updated{font-size:11px;color:var(--muted)}
+
+.main{padding:32px;max-width:1400px;margin:0 auto}
+
+/* ===== STATS GRID ===== */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{
+  background:var(--s1);border:1px solid var(--border);border-radius:18px;
+  padding:24px;position:relative;overflow:hidden;transition:border-color .2s,transform .2s;
+  box-shadow:var(--card-shadow);
+}
+.stat-card:hover{border-color:rgba(167,139,250,.35);transform:translateY(-2px)}
+.stat-card::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;
+  border-radius:50%;background:radial-gradient(circle,var(--glow),transparent 70%)}
+.stat-icon{font-size:28px;margin-bottom:16px}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:700;color:var(--gold2);line-height:1;margin-bottom:6px}
+.stat-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:6px;opacity:.7}
+
+/* ===== SEARCH + FILTER ===== */
+.toolbar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.search-wrap{position:relative;flex:1;min-width:220px}
+.search-wrap svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted)}
+#searchInput{width:100%;background:var(--s1);border:1px solid var(--border);color:var(--text);
+  font-family:'Inter',sans-serif;font-size:14px;padding:12px 16px 12px 42px;
+  border-radius:12px;outline:none;transition:border-color .2s}
+#searchInput:focus{border-color:var(--gold)}
+#searchInput::placeholder{color:var(--muted)}
+.filter-select{background:var(--s1);border:1px solid var(--border);color:var(--text);
+  font-family:'Inter',sans-serif;font-size:13px;padding:12px 16px;border-radius:12px;
+  outline:none;cursor:pointer;transition:border-color .2s}
+.filter-select:focus{border-color:var(--gold)}
+.export-btn{background:linear-gradient(135deg,var(--gold),#7c3aed);color:#fff;border:none;
+  padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;
+  cursor:pointer;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:6px}
+.export-btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(167,139,250,.3)}
+
+/* ===== CHARTS ROW ===== */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:28px}
+@media(max-width:900px){.charts-row{grid-template-columns:1fr}}
+.chart-card{background:var(--s1);border:1px solid var(--border);border-radius:18px;padding:28px;box-shadow:var(--card-shadow)}
+.chart-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
+.chart-title{font-size:14px;font-weight:600;color:var(--text)}
+.chart-sub{font-size:11px;color:var(--muted)}
+.chart-wrap{position:relative;height:240px}
+
+/* ===== TABLE ===== */
+.table-card{background:var(--s1);border:1px solid var(--border);border-radius:18px;overflow:hidden;box-shadow:var(--card-shadow)}
+.table-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.table-head-title{font-size:14px;font-weight:600}
+.count-badge{background:var(--glow);border:1px solid var(--border);color:var(--gold);
+  font-size:11px;padding:4px 12px;border-radius:100px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead th{padding:12px 20px;text-align:left;font-size:11px;text-transform:uppercase;
+  letter-spacing:1.2px;color:var(--muted);font-weight:600;background:var(--s2);
+  border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr{border-bottom:1px solid rgba(167,139,250,.06);transition:background .15s;cursor:pointer}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--glow)}
+tbody td{padding:14px 20px;font-size:13px;color:var(--text);vertical-align:middle}
+.td-name{font-weight:600;color:var(--gold2)}
+.td-age{color:var(--muted)}
+.score-pill{display:inline-flex;align-items:center;padding:5px 12px;border-radius:100px;font-size:12px;font-weight:700}
+.score-pill.low{background:rgba(248,113,113,.15);color:var(--red);border:1px solid rgba(248,113,113,.3)}
+.score-pill.mid{background:rgba(251,191,36,.12);color:var(--yellow);border:1px solid rgba(251,191,36,.25)}
+.score-pill.high{background:rgba(52,211,153,.12);color:var(--green);border:1px solid rgba(52,211,153,.25)}
+.td-result{font-size:12px;color:var(--muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.td-date{font-size:12px;color:var(--muted)}
+.view-btn{background:var(--glow);border:1px solid var(--border);color:var(--gold);
+  padding:6px 12px;border-radius:8px;font-size:11px;font-family:'Inter',sans-serif;cursor:pointer;transition:all .2s}
+.view-btn:hover{border-color:var(--gold);color:var(--gold2)}
+
+/* Empty state */
+.empty-state{padding:60px 20px;text-align:center;color:var(--muted)}
+.empty-icon{font-size:48px;margin-bottom:16px;opacity:.4}
+.empty-txt{font-size:14px}
+
+/* Loading state */
+.loading-row td{text-align:center;padding:40px;color:var(--muted);font-size:13px}
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid rgba(167,139,250,.2);
+  border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== MODAL ===== */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9000;
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(4px)
+}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{
+  background:var(--s1);border:1px solid var(--border);border-radius:24px;
+  width:100%;max-width:680px;max-height:85vh;overflow-y:auto;
+  box-shadow:0 40px 80px rgba(0,0,0,.7);
+  transform:translateY(20px);transition:transform .25s;
+}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-header{padding:28px 28px 20px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--s1);z-index:1}
+.modal-name{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--gold2)}
+.modal-meta{font-size:13px;color:var(--muted);margin-top:4px}
+.modal-close{background:var(--s2);border:1px solid var(--border);color:var(--muted);
+  width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:16px;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.modal-close:hover{border-color:var(--red);color:var(--red)}
+.modal-body{padding:24px 28px}
+.modal-score-row{display:flex;align-items:center;gap:16px;background:var(--s2);
+  border-radius:14px;padding:20px 24px;margin-bottom:24px}
+.modal-score-big{font-family:'Cormorant Garamond',serif;font-size:3.5rem;font-weight:700;color:var(--gold2);line-height:1}
+.modal-score-info{flex:1}
+.modal-score-title{font-size:15px;font-weight:600;margin-bottom:4px}
+.modal-score-range{font-size:12px;color:var(--muted)}
+.modal-section{margin-bottom:20px}
+.modal-sec-head{font-size:11px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);
+  font-weight:600;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.modal-q-row{display:flex;justify-content:space-between;align-items:flex-start;
+  gap:12px;padding:8px 0;border-bottom:1px solid rgba(167,139,250,.05)}
+.modal-q-row:last-child{border-bottom:none}
+.modal-q-text{font-size:12px;color:var(--muted);flex:1;line-height:1.5}
+.modal-q-score{font-size:14px;font-weight:700;color:var(--gold);flex-shrink:0}
+.modal-open-card{background:var(--s2);border-radius:10px;padding:14px 16px;margin-bottom:8px}
+.modal-open-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;margin-bottom:6px}
+.modal-open-text{font-size:13px;color:var(--text);line-height:1.6}
+
+/* Pagination */
+.pagination{display:flex;align-items:center;gap:8px;padding:16px 24px;border-top:1px solid var(--border);justify-content:center}
+.page-btn{width:34px;height:34px;background:var(--s2);border:1px solid var(--border);color:var(--muted);
+  border-radius:8px;cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;
+  transition:all .2s;display:flex;align-items:center;justify-content:center}
+.page-btn:hover,.page-btn.active{border-color:var(--gold);color:var(--gold);background:var(--glow)}
+.page-info{font-size:12px;color:var(--muted);padding:0 8px}
+
+@media(max-width:768px){
+  .topbar{padding:0 16px}
+  .main{padding:16px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .toolbar{flex-direction:column}
+  .search-wrap{width:100%}
+  .modal-body{padding:16px 20px}
+}
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">🔐</div>
+    <div class="login-title">Панели Администратор</div>
+    <div class="login-sub">Курси 3 Рӯза — Аналитика</div>
+    <input type="password" class="login-input" id="pwdInput" placeholder="••••••••" autocomplete="off">
+    <button class="login-btn" id="loginBtn">Вход</button>
+    <div class="login-err" id="loginErr">Пароль нодуруст аст</div>
+  </div>
+</div>
+
+<!-- ADMIN APP -->
+<div id="adminApp">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-dot"></div>
+      <div class="topbar-title">Admin — Курси 3 Рӯза</div>
+    </div>
+    <div class="topbar-right">
+      <div class="last-updated" id="lastUpdated">—</div>
+      <button class="refresh-btn" id="refreshBtn">
+        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M4 4v5h5M20 20v-5h-5M4 9A16 16 0 0120 9M20 15A16 16 0 014 15"/></svg>
+        Янгилаш
+      </button>
+      <button class="logout-btn" id="logoutBtn">Чиқиш</button>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- Stats -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-val" id="statTotal">—</div><div class="stat-label">Иштирокчиён</div><div class="stat-sub" id="statToday"></div></div>
+      <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-val" id="statAvg">—</div><div class="stat-label">Миёнаи хол</div><div class="stat-sub">аз 75</div></div>
+      <div class="stat-card"><div class="stat-icon">🏆</div><div class="stat-val" id="statMax">—</div><div class="stat-label">Беҳтарин хол</div><div class="stat-sub" id="statMaxName"></div></div>
+      <div class="stat-card"><div class="stat-icon">📈</div><div class="stat-val" id="statPassRate">—</div><div class="stat-label">Иштирок баланд</div><div class="stat-sub">≥53 хол</div></div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-head">
+          <div>
+            <div class="chart-title">Тақсими Холҳо</div>
+            <div class="chart-sub">гистограмм аз 0 то 75</div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="histChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-head">
+          <div>
+            <div class="chart-title">Категорияҳои Натиҷа</div>
+            <div class="chart-sub">% иштирокчиён</div>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="pieChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="search-wrap">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="Ҷустуҷӯ аз рӯи ном...">
+      </div>
+      <select class="filter-select" id="filterSelect">
+        <option value="all">Ҳама натиҷаҳо</option>
+        <option value="low">⚠️ 0–22 хол</option>
+        <option value="midlow">🌱 23–37 хол</option>
+        <option value="mid">🚀 38–52 хол</option>
+        <option value="high">🏅 53–64 хол</option>
+        <option value="top">🏆 65–75 хол</option>
+      </select>
+      <button class="export-btn" id="exportBtn">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        CSV экспорт
+      </button>
+    </div>
+
+    <!-- Table -->
+    <div class="table-card">
+      <div class="table-head">
+        <div class="table-head-title">Иштирокчиён</div>
+        <div class="count-badge" id="countBadge">0 нафар</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Ном</th>
+              <th>Синн</th>
+              <th>Хол</th>
+              <th>Натиҷа</th>
+              <th>Сана</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr class="loading-row"><td colspan="7"><span class="spinner"></span>Маълумот бор мешавад...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" id="pagination"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <div>
+        <div class="modal-name" id="modalName"></div>
+        <div class="modal-meta" id="modalMeta"></div>
+      </div>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const ADMIN_PASSWORD = "admin123";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDzQYZ58CWvKQka376gq1hp0GEy59mIBgc",
+    authDomain: "kursi-3ruza.firebaseapp.com",
+    projectId: "kursi-3ruza",
+    storageBucket: "kursi-3ruza.firebasestorage.app",
+    messagingSenderId: "330882622592",
+    appId: "1:330882622592:web:efe6d166bcfb079d42b265"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // ===== STATE =====
+  let allData = [];
+  let filteredData = [];
+  let currentPage = 1;
+  const PER_PAGE = 20;
+  let histChartInst = null;
+  let pieChartInst = null;
+
+  // ===== LOGIN =====
+  const loginScreen = document.getElementById('loginScreen');
+  const adminApp = document.getElementById('adminApp');
+  const pwdInput = document.getElementById('pwdInput');
+  const loginBtn = document.getElementById('loginBtn');
+  const loginErr = document.getElementById('loginErr');
+
+  function doLogin() {
+    if (pwdInput.value === ADMIN_PASSWORD) {
+      loginScreen.style.display = 'none';
+      adminApp.style.display = 'block';
+      loadData();
+    } else {
+      loginErr.classList.add('show');
+      pwdInput.style.borderColor = 'var(--red)';
+      setTimeout(() => { loginErr.classList.remove('show'); pwdInput.style.borderColor = 'var(--border)'; pwdInput.value = ''; }, 2000);
+    }
+  }
+
+  loginBtn.addEventListener('click', doLogin);
+  pwdInput.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+  document.getElementById('logoutBtn').addEventListener('click', () => {
+    adminApp.style.display = 'none';
+    loginScreen.style.display = 'flex';
+    pwdInput.value = '';
+  });
+
+  // ===== LOAD DATA =====
+  async function loadData() {
+    try {
+      const q = query(collection(db, "test_results"), orderBy("timestamp", "desc"));
+      const snap = await getDocs(q);
+      allData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      updateLastUpdated();
+      applyFilter();
+      renderStats();
+      renderCharts();
+    } catch(e) {
+      console.error(e);
+      document.getElementById('tableBody').innerHTML = '<tr class="loading-row"><td colspan="7" style="color:var(--red)">⚠️ Хатогӣ дар бор кардан. Firebase Firestore-ро санҷед.</td></tr>';
+    }
+  }
+
+  document.getElementById('refreshBtn').addEventListener('click', loadData);
+
+  function updateLastUpdated() {
+    document.getElementById('lastUpdated').textContent = 'Янгиланд: ' + new Date().toLocaleTimeString('ru-RU');
+  }
+
+  // ===== STATS =====
+  function renderStats() {
+    const total = allData.length;
+    const scores = allData.map(d => d.score || 0);
+    const avg = total ? Math.round(scores.reduce((a,b) => a+b, 0) / total) : 0;
+    const max = total ? Math.max(...scores) : 0;
+    const maxEntry = allData.find(d => d.score === max);
+    const passRate = total ? Math.round(allData.filter(d => (d.score||0) >= 53).length / total * 100) : 0;
+
+    // Today count
+    const today = new Date();
+    const todayCount = allData.filter(d => {
+      if (!d.timestamp) return false;
+      const ts = d.timestamp.toDate ? d.timestamp.toDate() : new Date(d.timestamp);
+      return ts.toDateString() === today.toDateString();
+    }).length;
+
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statToday').textContent = todayCount > 0 ? '+' + todayCount + ' имрӯз' : 'Имрӯз нест';
+    document.getElementById('statAvg').textContent = avg;
+    document.getElementById('statMax').textContent = max;
+    document.getElementById('statMaxName').textContent = maxEntry ? maxEntry.name : '';
+    document.getElementById('statPassRate').textContent = passRate + '%';
+  }
+
+  // ===== CHARTS =====
+  function renderCharts() {
+    // Histogram — buckets by 5
+    const buckets = {};
+    for (let i = 0; i <= 75; i += 5) buckets[i] = 0;
+    allData.forEach(d => {
+      const s = d.score || 0;
+      const bucket = Math.floor(s / 5) * 5;
+      if (buckets[bucket] !== undefined) buckets[bucket]++;
+    });
+
+    const histLabels = Object.keys(buckets).map(k => k + '–' + (parseInt(k)+4));
+    const histVals = Object.values(buckets);
+
+    if (histChartInst) histChartInst.destroy();
+    histChartInst = new Chart(document.getElementById('histChart'), {
+      type: 'bar',
+      data: {
+        labels: histLabels,
+        datasets: [{
+          label: 'Нафар',
+          data: histVals,
+          backgroundColor: histVals.map((_, i) => {
+            const mid = i * 5;
+            if (mid <= 22) return 'rgba(248,113,113,.6)';
+            if (mid <= 37) return 'rgba(251,191,36,.6)';
+            if (mid <= 52) return 'rgba(96,165,250,.6)';
+            return 'rgba(52,211,153,.6)';
+          }),
+          borderRadius: 6,
+          borderSkipped: false,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#7c7898', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,.04)' } },
+          y: { ticks: { color: '#7c7898', font: { size: 10 }, stepSize: 1 }, grid: { color: 'rgba(255,255,255,.04)' }, beginAtZero: true }
+        }
+      }
+    });
+
+    // Pie chart — 5 categories
+    const cats = [0, 0, 0, 0, 0];
+    allData.forEach(d => {
+      const s = d.score || 0;
+      if (s <= 22) cats[0]++;
+      else if (s <= 37) cats[1]++;
+      else if (s <= 52) cats[2]++;
+      else if (s <= 64) cats[3]++;
+      else cats[4]++;
+    });
+
+    if (pieChartInst) pieChartInst.destroy();
+    pieChartInst = new Chart(document.getElementById('pieChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['0–22 (⚠️)', '23–37 (🌱)', '38–52 (🚀)', '53–64 (🏅)', '65–75 (🏆)'],
+        datasets: [{
+          data: cats,
+          backgroundColor: ['rgba(248,113,113,.7)', 'rgba(251,191,36,.7)', 'rgba(96,165,250,.7)', 'rgba(52,211,153,.7)', 'rgba(167,139,250,.8)'],
+          borderColor: 'transparent',
+          hoverOffset: 8
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'right', labels: { color: '#7c7898', font: { size: 11 }, boxWidth: 12, padding: 12 } }
+        },
+        cutout: '60%'
+      }
+    });
+  }
+
+  // ===== FILTER & SEARCH =====
+  function applyFilter() {
+    const search = document.getElementById('searchInput').value.toLowerCase().trim();
+    const filter = document.getElementById('filterSelect').value;
+
+    filteredData = allData.filter(d => {
+      const name = (d.name || '').toLowerCase();
+      if (search && !name.includes(search)) return false;
+      const s = d.score || 0;
+      if (filter === 'low' && s > 22) return false;
+      if (filter === 'midlow' && (s < 23 || s > 37)) return false;
+      if (filter === 'mid' && (s < 38 || s > 52)) return false;
+      if (filter === 'high' && (s < 53 || s > 64)) return false;
+      if (filter === 'top' && s < 65) return false;
+      return true;
+    });
+
+    currentPage = 1;
+    renderTable();
+  }
+
+  document.getElementById('searchInput').addEventListener('input', applyFilter);
+  document.getElementById('filterSelect').addEventListener('change', applyFilter);
+
+  // ===== TABLE =====
+  function renderTable() {
+    const tbody = document.getElementById('tableBody');
+    document.getElementById('countBadge').textContent = filteredData.length + ' нафар';
+
+    if (filteredData.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-txt">Натиҷа ёфт нашуд</div></div></td></tr>';
+      document.getElementById('pagination').innerHTML = '';
+      return;
+    }
+
+    const start = (currentPage - 1) * PER_PAGE;
+    const page = filteredData.slice(start, start + PER_PAGE);
+
+    tbody.innerHTML = page.map((d, i) => {
+      const score = d.score || 0;
+      const pillClass = score <= 22 ? 'low' : score <= 52 ? 'mid' : 'high';
+      const ts = d.timestamp ? (d.timestamp.toDate ? d.timestamp.toDate() : new Date(d.timestamp)) : null;
+      const dateStr = ts ? ts.toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit', year:'2-digit', hour:'2-digit', minute:'2-digit' }) : '—';
+      return `<tr onclick="window.openModal('${d.id}')">
+        <td style="color:var(--muted);font-size:12px">${start + i + 1}</td>
+        <td class="td-name">${escHtml(d.name || '—')}</td>
+        <td class="td-age">${d.age ? d.age + ' сол' : '—'}</td>
+        <td><span class="score-pill ${pillClass}">${score} / 75</span></td>
+        <td class="td-result">${escHtml(d.resultTitle || '—')}</td>
+        <td class="td-date">${dateStr}</td>
+        <td><button class="view-btn" onclick="event.stopPropagation();window.openModal('${d.id}')">Дидан</button></td>
+      </tr>`;
+    }).join('');
+
+    renderPagination();
+  }
+
+  function renderPagination() {
+    const total = Math.ceil(filteredData.length / PER_PAGE);
+    if (total <= 1) { document.getElementById('pagination').innerHTML = ''; return; }
+    let html = '';
+    if (currentPage > 1) html += `<button class="page-btn" onclick="window.goPage(${currentPage-1})">‹</button>`;
+    for (let p = Math.max(1, currentPage-2); p <= Math.min(total, currentPage+2); p++) {
+      html += `<button class="page-btn ${p === currentPage ? 'active' : ''}" onclick="window.goPage(${p})">${p}</button>`;
+    }
+    if (currentPage < total) html += `<button class="page-btn" onclick="window.goPage(${currentPage+1})">›</button>`;
+    html += `<span class="page-info">${currentPage}/${total}</span>`;
+    document.getElementById('pagination').innerHTML = html;
+  }
+
+  window.goPage = function(p) { currentPage = p; renderTable(); window.scrollTo(0, 0); };
+
+  // ===== MODAL =====
+  window.openModal = function(id) {
+    const d = allData.find(x => x.id === id);
+    if (!d) return;
+
+    document.getElementById('modalName').textContent = d.name || '—';
+    const ts = d.timestamp ? (d.timestamp.toDate ? d.timestamp.toDate() : new Date(d.timestamp)) : null;
+    const dateStr = ts ? ts.toLocaleString('ru-RU') : '—';
+    document.getElementById('modalMeta').textContent = (d.age ? d.age + ' сол  •  ' : '') + dateStr;
+
+    const score = d.score || 0;
+    const scoreColor = score <= 22 ? 'var(--red)' : score <= 52 ? 'var(--yellow)' : 'var(--green)';
+
+    let html = `
+      <div class="modal-score-row">
+        <div class="modal-score-big" style="color:${scoreColor}">${score}</div>
+        <div class="modal-score-info">
+          <div class="modal-score-title">${escHtml(d.resultTitle || '—')}</div>
+          <div class="modal-score-range" style="color:${scoreColor}">${escHtml(d.resultRange || '')}</div>
+        </div>
+      </div>`;
+
+    // Section scores
+    if (d.answers) {
+      const secTitles = ['Иҷрои Дарсҳо', 'Фаҳмиш ва Ба Хотир Гирифтан', 'Ҳолати Рӯҳӣ ва Эҳсос', 'Амал дар Зиндагӣ', 'Фоидаҳое, ки Ман Гирифтам'];
+      html += `<div class="modal-section"><div class="modal-sec-head">25 Саволи Асосӣ</div>`;
+      Object.keys(d.answers).forEach((key, idx) => {
+        const sec = d.answers[key];
+        const secScore = (sec.scores || []).reduce((a,b) => a + (b||0), 0);
+        html += `<div class="modal-q-row">
+          <div class="modal-q-text">${escHtml(sec.title || secTitles[idx] || key)}</div>
+          <div class="modal-q-score">${secScore}/15</div>
+        </div>`;
+      });
+      html += '</div>';
+    }
+
+    // Open answers
+    if (d.openAnswers) {
+      const labels = { aql: '🧠 Ақл', ehsos: '💜 Эҳсос', badan: '🌿 Бадан', munosibat: '🤝 Муносибат', amal: '⚡ Амал' };
+      html += `<div class="modal-section"><div class="modal-sec-head">5 Сфераи Фоидаҳо</div>`;
+      Object.entries(d.openAnswers).forEach(([k, v]) => {
+        if (v) html += `<div class="modal-open-card">
+          <div class="modal-open-label">${labels[k] || k}</div>
+          <div class="modal-open-text">${escHtml(v)}</div>
+        </div>`;
+      });
+      html += '</div>';
+    }
+
+    // Short answers
+    if (d.shortAnswers) {
+      html += `<div class="modal-section"><div class="modal-sec-head">7 Саволи Кӯтоҳ</div>`;
+      if (d.shortAnswers.qablAzKurs !== null && d.shortAnswers.qablAzKurs !== undefined) {
+        html += `<div class="modal-q-row"><div class="modal-q-text">Пеш аз курс (0–10)</div><div class="modal-q-score">${d.shortAnswers.qablAzKurs}/10</div></div>`;
+      }
+      if (d.shortAnswers.hozir !== null && d.shortAnswers.hozir !== undefined) {
+        html += `<div class="modal-q-row"><div class="modal-q-text">Ҳозир (0–10)</div><div class="modal-q-score">${d.shortAnswers.hozir}/10</div></div>`;
+      }
+      const shortLabels = { tasiriDars: '📚 Таъсири дарс', haqiqat: '🔍 Ҳақиқат', amalIjro: '✅ Амали иҷрошуда', foida: '💎 Фоида', niez: '🎯 Ниёз' };
+      Object.entries(shortLabels).forEach(([k, label]) => {
+        if (d.shortAnswers[k]) html += `<div class="modal-open-card">
+          <div class="modal-open-label">${label}</div>
+          <div class="modal-open-text">${escHtml(d.shortAnswers[k])}</div>
+        </div>`;
+      });
+      html += '</div>';
+    }
+
+    document.getElementById('modalBody').innerHTML = html;
+    document.getElementById('modalOverlay').classList.add('open');
+  };
+
+  document.getElementById('modalClose').addEventListener('click', () => {
+    document.getElementById('modalOverlay').classList.remove('open');
+  });
+  document.getElementById('modalOverlay').addEventListener('click', e => {
+    if (e.target === document.getElementById('modalOverlay'))
+      document.getElementById('modalOverlay').classList.remove('open');
+  });
+
+  // ===== CSV EXPORT =====
+  document.getElementById('exportBtn').addEventListener('click', () => {
+    const rows = [['Ном', 'Синн', 'Хол', 'Натиҷа', 'Сана']];
+    filteredData.forEach(d => {
+      const ts = d.timestamp ? (d.timestamp.toDate ? d.timestamp.toDate() : new Date(d.timestamp)) : null;
+      rows.push([
+        d.name || '',
+        d.age || '',
+        d.score || 0,
+        d.resultTitle || '',
+        ts ? ts.toLocaleString('ru-RU') : ''
+      ]);
+    });
+    const csv = rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\n');
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = 'kursi_3ruza_natijaho_' + new Date().toISOString().slice(0,10) + '.csv';
+    a.click();
+  });
+
+  // ===== AUTO REFRESH =====
+  setInterval(() => {
+    if (adminApp.style.display !== 'none') loadData();
+  }, 60000);
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+</script>
+</body>
+</html>
