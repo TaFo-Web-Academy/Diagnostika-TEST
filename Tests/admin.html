@@ -342,7 +342,7 @@ tbody td{padding:14px 20px;font-size:13px;color:var(--text);vertical-align:middl
 <!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   const ADMIN_PASSWORD = "admin123";
 
@@ -396,7 +396,7 @@ tbody td{padding:14px 20px;font-size:13px;color:var(--text);vertical-align:middl
   // ===== LOAD DATA =====
   async function loadData() {
     try {
-      const q = query(collection(db, "test_results"), orderBy("timestamp", "desc"));
+      const q = query(collection(db, "test_results"), orderBy("timestamp", "desc"), limit(2000));
       const snap = await getDocs(q);
       allData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
       updateLastUpdated();

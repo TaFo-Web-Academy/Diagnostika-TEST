@@ -483,6 +483,30 @@ h1, h2, h3, .main-title, .res-title {
     gap: 12px;
 }
 
+.answer-textarea {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    border: 1.5px solid rgba(139, 126, 200, 0.18);
+    color: var(--text-color);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.98rem;
+    font-weight: 500;
+    padding: 16px 20px;
+    border-radius: var(--radius-sm);
+    outline: none;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    resize: vertical;
+    min-height: 120px;
+    margin-bottom: 8px;
+}
+
+.answer-textarea:focus {
+    border-color: var(--primary-color);
+    background-color: #ffffff;
+    box-shadow: 0 8px 20px rgba(139, 126, 200, 0.12), 0 0 0 4px rgba(139, 126, 200, 0.18);
+}
+
+
 /* ==================== ANSWER OPTIONS (PILLS) ==================== */
 .btn-option {
     width: 100%;

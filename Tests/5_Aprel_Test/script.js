@@ -2,269 +2,58 @@
     // ==================== TELEGRAM BOT CREDENTIALS ====================
     const TG_TOKEN = '8524656185:AAFQbFKmLXXO-x9nO3Faq5BsHhBwqLK60mM';
     const TG_CHAT_ID = '-5146416208';
-    const TG_ADMIN_URL = 'https://t.me/Jannat_Abdullaeva_Admin';
+    const TG_ADMIN_URL = 'https://t.me/+wHJobpqzszxmZDUy';
+    const TG_ANALYTICS_CHAT_ID = '-5146416208';
 
     // ==================== APP STATE ====================
     const state = {
         user: {
+            id: '',
             name: '',
             surname: '',
             age: '',
-            status: ''
+            status: '',
+            dominantTitle: 'Pre-Course Survey'
         },
         currentQuestionIndex: 0,
-        answers: new Array(15).fill(null), // Will contain indices 0, 1, 2, 3 corresponding to A, B, C, D
+        answers: new Array(20).fill(null), // Holds string responses typed by user
         transitioning: false
     };
 
     // ==================== QUESTIONS DATA ====================
     const questions = [
-        {
-            id: 1,
-            text: 'Вақте мард камтар менависад, ту чӣ ҳис мекунӣ?',
-            options: [
-                { letter: 'A', text: 'Метарсам, ки дигар маро намехоҳад.' },
-                { letter: 'B', text: 'Фикр мекунам, ки шояд ман дигар ҷаззоб нестам.' },
-                { letter: 'C', text: 'Сард мешавам ва нишон медиҳам, ки ба ман фарқ надорад.' },
-                { letter: 'D', text: 'Мехоҳам фаҳмам чӣ шуд, назорат кунам, савол диҳам.' }
-            ]
-        },
-        {
-            id: 2,
-            text: 'Дар муносибат ту бештар чӣ кор мекунӣ?',
-            options: [
-                { letter: 'A', text: 'Муҳаббат ва диққат мепурсам.' },
-                { letter: 'B', text: 'Мехоҳам ҳамеша ҷолиб ва дилхоҳ бошам.' },
-                { letter: 'C', text: 'Худро қавӣ, дастнорас ва арзишманд нишон медиҳам.' },
-                { letter: 'D', text: 'Масъулият, кор, тартиб ва мушкилҳоро худам мекашам.' }
-            ]
-        },
-        {
-            id: 3,
-            text: 'Вақте мард хунук мешавад, аввалин реаксияи ту чист?',
-            options: [
-                { letter: 'A', text: 'Мечаспам, зиёд менависам, ҷавоб мехоҳам.' },
-                { letter: 'B', text: 'Кӯшиш мекунам зеботар, ҷаззобтар, дигархелтар шавам.' },
-                { letter: 'C', text: 'Ман ҳам хунук мешавам, то ӯ фаҳмад ман арзиш дорам.' },
-                { letter: 'D', text: 'Мехоҳам ӯро ислоҳ кунам: “ту бояд ин хел кунӣ.”' }
-            ]
-        },
-        {
-            id: 4,
-            text: 'Ту аз чӣ бештар метарсӣ?',
-            options: [
-                { letter: 'A', text: 'Маро тарк мекунанд.' },
-                { letter: 'B', text: 'Маро дигар намехоҳанд.' },
-                { letter: 'C', text: 'Маро паст мезананд ё беқадр мекунанд.' },
-                { letter: 'D', text: 'Ман бе амният, бе пул, бе пуштибон мемонам.' }
-            ]
-        },
-        {
-            id: 5,
-            text: 'Дар назди мард ту чӣ гуна мешавӣ?',
-            options: [
-                { letter: 'A', text: 'Бисёр эҳсосӣ, ҳассос, нозук.' },
-                { letter: 'B', text: 'Бисёр ҷаззоб, бозӣкунанда, мехоҳам писанд оям.' },
-                { letter: 'C', text: 'Назоратшуда, боақл, кам эҳсос нишон медиҳам.' },
-                { letter: 'D', text: 'Масъул, ҷиддӣ, мисли касе ки ҳама чизро медонад.' }
-            ]
-        },
-        {
-            id: 6,
-            text: 'Кадом ҷумла ба ту бештар рост меояд?',
-            options: [
-                { letter: 'A', text: '“Ман мехоҳам мард маро интихоб кунад.”' },
-                { letter: 'B', text: '“Ман мехоҳам мард маро сахт хоҳиш кунад.”' },
-                { letter: 'C', text: '“Ман мехоҳам мард арзиши маро фаҳмад.”' },
-                { letter: 'D', text: '“Ман мехоҳам мард масъул бошад, вале охир ҳама чизро худам мекунам.”' }
-            ]
-        },
-        {
-            id: 7,
-            text: 'Вақте ту ранҷида мешавӣ, чӣ мекунӣ?',
-            options: [
-                { letter: 'A', text: 'Гиря мекунам, хафа мешавам, интизор мешавам ӯ маро ором кунад.' },
-                { letter: 'B', text: 'Мехоҳам ӯ рашк кунад ё бубинад, ки ман барои дигарон ҳам ҷолибам.' },
-                { letter: 'C', text: 'Хомӯш мешавам, дур мешавам, девор месозам.' },
-                { letter: 'D', text: 'Сар мекунам фаҳмондан, таълим додан, “duwust” кардан.' } // Note: "дуруст"
-            ]
-        },
-        {
-            id: 8,
-            text: 'Дар муносибат ту чӣ чизро зиёд медиҳӣ?',
-            options: [
-                { letter: 'A', text: 'Эҳсос, муҳаббат, интизорӣ.' },
-                { letter: 'B', text: 'Ҷаззобият, наздикӣ, энергия.' },
-                { letter: 'C', text: 'Маслиҳат, фикр, сатҳ, талабот.' },
-                { letter: 'D', text: 'Ғамхорӣ, хизмат, пул, вақт, назорат.' }
-            ]
-        },
-        {
-            id: 9,
-            text: 'Мард назди ту худро чӣ гуна ҳис мекунад?',
-            options: [
-                { letter: 'A', text: 'Гӯё бояд ҳамеша туро ором кунад.' },
-                { letter: 'B', text: 'Гӯё бояд ҳамеша туро хоҳиш кунад, то ту худро арзишманд ҳис кунӣ.' },
-                { letter: 'C', text: 'Гӯё бояд ба сатҳи ту расад, вагарна рад мешавад.' },
-                { letter: 'D', text: 'Гӯё ту модар ё роҳбари ӯ ҳастӣ.' }
-            ]
-        },
-        {
-            id: 10,
-            text: 'Кадом ҳолат ҷолибияти туро бештар мекушад?',
-            options: [
-                { letter: 'A', text: 'Тарс ва часпидан.' },
-                { letter: 'B', text: 'Шарм аз бадан ё исботи ҷаззобият.' },
-                { letter: 'C', text: 'Хунукӣ ва дастнорасӣ.' },
-                { letter: 'D', text: 'Назорат ва модаршавӣ.' }
-            ]
-        },
-        {
-            id: 11,
-            text: 'Вақте мард тӯҳфа ё кӯмак медиҳад, ту чӣ мекунӣ?',
-            options: [
-                { letter: 'A', text: 'Мехоҳам, вале дарун метарсам, ки баъд ӯ меравад.' },
-                { letter: 'B', text: 'Қабул мекунам, вале мехоҳам ӯ бештар хоҳиш кунад.' },
-                { letter: 'C', text: 'Гӯё ба ман лозим нест, ман худам метавонам.' },
-                { letter: 'D', text: 'Мегӯям: “мон, худам мекунам.”' }
-            ]
-        },
-        {
-            id: 12,
-            text: 'Дар кӯдакӣ ту бештар чӣ ҳис мекардӣ?',
-            options: [
-                { letter: 'A', text: 'Маро кам диданд, кам шуниданд, кам оғӯш гирифтанд.' },
-                { letter: 'B', text: 'Аз бадан, зебоӣ ё хоҳишҳои ман шарм медоданд.' },
-                { letter: 'C', text: 'Маро муқоиса мекарданд, паст мезаданд ё маҷбур мекарданд исбот кунам.' },
-                { letter: 'D', text: 'Ман барвақт калон шудам, масъулият зиёд буд.' }
-            ]
-        },
-        {
-            id: 13,
-            text: 'Ту дар назди мард чӣ чизро пинҳон мекунӣ?',
-            options: [
-                { letter: 'A', text: 'Эҳтиёҷи сахтам ба муҳаббат.' },
-                { letter: 'B', text: 'Шарм ё тарси рад шудани баданам.' },
-                { letter: 'C', text: 'Тарси беарзиш буданам.' },
-                { letter: 'D', text: 'Хастагӣ аз ҳама чизро худ кашидан.' }
-            ]
-        },
-        {
-            id: 14,
-            text: 'Агар мард қавӣ набошад, ту чӣ мекунӣ?',
-            options: [
-                { letter: 'A', text: 'Боз ҳам мечаспам, шояд дигар шавад.' },
-                { letter: 'B', text: 'Кӯшиш мекунам бо ҷаззобият ӯро нигоҳ дорам.' },
-                { letter: 'C', text: 'Ӯро дар дил паст мебинам ва сард мешавам.' },
-                { letter: 'D', text: 'Худам ҷойи ӯ қарор мегирам ва ҳама чизро мекашам.' }
-            ]
-        },
-        {
-            id: 15,
-            text: 'Сабаби асосии кам шудани ҷолибияти ту барои мард чист?',
-            options: [
-                { letter: 'A', text: 'Ту аз тарси тарк шудан мечаспӣ.' },
-                { letter: 'B', text: 'Ту муҳаббатро бо ҷаззобият исбот кардан омехта мекунӣ.' },
-                { letter: 'C', text: 'Ту аз тарси паст шудан хунук ва дастнорас мешавӣ.' },
-                { letter: 'D', text: 'Ту ба мард модар, роҳбар ё наҷотдиҳанда мешавӣ.' }
-            ]
-        }
+        { id: 1, text: 'Ҳозир дар муносибат ё никоҳ бештар чӣ шуморо дард медиҳад?' },
+        { id: 2, text: 'Агар як ҷумла гӯед, мушкили асосии шумо бо шавҳар/мард чист?' },
+        { id: 3, text: 'Шумо бештар аз чӣ метарсед: хиёнат, тарк шудан, рад шудан, танҳо мондан ё беқадр шудан?' },
+        { id: 4, text: 'Вақте шавҳар/мард сард мешавад, дар даруни шумо чӣ ҳис бедор мешавад?' },
+        { id: 5, text: 'Дар чунин ҳолат шумо одатан чӣ кор мекунед?' },
+        { id: 6, text: 'Кадом фикр дар саратон бештар такрор мешавад?' },
+        { id: 7, text: 'Шумо аз шавҳар/мард бештар чӣ мехоҳед?' },
+        { id: 8, text: 'Шумо мехоҳед ӯ дар рафтораш чӣ чизро дигар кунад?' },
+        { id: 9, text: 'Дар асл шумо дар муносибат чӣ ҳис кардан мехоҳед?' },
+        { id: 10, text: 'Шумо аз чӣ халос шудан мехоҳед?' },
+        { id: 11, text: 'Кадом ҳолат шуморо бештар мешиканад?' },
+        { id: 12, text: 'Шумо кай худро беарзиш ҳис мекунед?' },
+        { id: 13, text: 'Дар кӯдакӣ чӣ чиз ба шумо намерасид: меҳр, диққат, муҳофизат, қабул, падар, амният ё сухани хуб?' },
+        { id: 14, text: 'Ба фикри шумо, решаи дарди имрӯзаатон аз куҷост?' },
+        { id: 15, text: 'Шумо пештар барои ҳал кардани ин дард чӣ кор кардед?' },
+        { id: 16, text: 'Чӣ чиз ба шумо каме кӯмак кард?' },
+        { id: 17, text: 'Чӣ чиз умуман кӯмак накард?' },
+        { id: 18, text: 'Агар шумо ба курс ё дарс дохил шавед, аз он чӣ натиҷа гирифтан мехоҳед?' },
+        { id: 19, text: 'Шумо мехоҳед баъди 7 ё 21 рӯз худро чӣ гуна бинед?' },
+        { id: 20, text: 'Агар ман барои шумо як дарси амиқ созам, кадом мавзӯъро ҳатман мехоҳед, ки дар он бошад?' }
     ];
-
-    // ==================== RESULTS DETAILS DATA ====================
-    const resultsDetails = {
-        'A': {
-            badgeName: 'Духтарчаи захмӣ',
-            title: 'Духтарчаи захмӣ',
-            text: `Ту муҳаббат мехоҳӣ, вале бисёр вақт аз тарси тарк шудан амал мекунӣ.
-
-Ту метавонӣ:
-- зуд вобаста шавӣ;
-- паём ва занги мардро санҷӣ;
-- аз хунукии ӯ вайрон шавӣ;
-- арзиши худро аз рафтори мард гирӣ.
-
-**Чаро ҷолибият кам мешавад?**
-Чун мард дар назди ту на озодӣ, балки фишори эҳсосӣ ҳис мекунад. Ӯ ҳис мекунад, ки бояд ҳамеша туро наҷот диҳад, ором кунад, исбот кунад.
-
-**Дарди асосӣ:**
-“Ман метарсам, ки маро тарк мекунанд.”
-
-**Ба ту чӣ лозим аст?**
-Қабул кардани муҳаббат бе часпидан. Омӯхтани оромӣ, хударзиш ва амнияти дохилӣ.`
-        },
-        'B': {
-            badgeName: 'Любовницаи захмӣ',
-            title: 'Любовницаи захмӣ',
-            text: `Ту мехоҳӣ ҷаззоб, дилхоҳ ва зинда бошӣ, вале дар дарун шояд шарм, тарси радшавӣ ё таҷрибаи истифода шудан дорӣ.
-
-Ту метавонӣ:
-- худро бо бадан исбот кунӣ;
-- фикр кунӣ, ки агар мард туро нахоҳад, пас ту арзиш надорӣ;
-- рашк кунӣ;
-- ё баръакс, аз бадан ва наздикӣ хунук шавӣ.
-
-**Чаро ҷолибият кам мешавад?**
-Чун ҷаззобият вақте аз тарс меояд, мард онро ҳамчун норасоӣ ҳис мекунад, на ҳамчун пурӣ. Ин дигар лаззат нест — ин исбот аст.
-
-**Дарди асосӣ:**
-“Ман метарсам, ки маро дигар намехоҳанд.”
-
-**Ба ту чӣ лозим аст?**
-Бозгашт ба бадан, лаззат, зебоӣ ва ҷаззобият бе исбот кардан.`
-        },
-        'C': {
-            badgeName: 'Маликаи захмӣ',
-            title: 'Маликаи захмӣ',
-            text: `Ту арзиш мехоҳӣ, эҳтиром мехоҳӣ, сатҳ мехоҳӣ. Лекин баъзан барои муҳофизати худ сард, мағрур ё дастнорас мешавӣ.
-
-Ту метавонӣ:
-- эҳсос нишон надиҳӣ;
-- “ба ман ҳеҷ кас лозим нест” гӯӣ;
-- мардро санҷӣ;
-- девор созӣ;
-- аз наздикӣ гурезӣ.
-
-**Чаро ҷолибият кам мешавад?**
-Чун мард назди ту худро доим дар имтиҳон ҳис мекунад. Ӯ эҳсос мекунад, ки ҳар қадамаш баҳогузорӣ мешавад. Ин шавқро мекушад.
-
-**Дарди асосӣ:**
-“Ман метарсам, ки маро паст мезананд.”
-
-**Ба ту чӣ лозим аст?**
-Арзиш бе хунукӣ. Ҳудуд бе девор. Интихоб бе таҳқир. Қувват бо нармӣ.`
-        },
-        'D': {
-            badgeName: 'Хозяйкаи захмӣ',
-            title: 'Хозяйкаи захмӣ',
-            text: `Ту амният, тартиб, масъулият ва натиҷа мехоҳӣ. Лекин вақте захмӣ ҳастӣ, ҳама чизро худат мекашӣ ва мардро ба писар табдил медиҳӣ.
-
-Ту метавонӣ:
-- мардро назорат кунӣ;
-- ӯро тарбия кунӣ;
-- мушкилҳои ӯро ҳал кунӣ;
-- пул, хона, қарор, масъулиятро худат бардорӣ;
-- баъд хаста ва хафа шавӣ.
-
-**Чаро ҷолибият кам мешавад?**
-Чун мард дар назди ту худро на ҳамчун мард, балки ҳамчун кӯдак ҳис мекунад. Ва бо “модар” ҷозибаи марду зан кам мешавад.
-
-**Дарди асосӣ:**
-“Ман метарсам, ки агар ман назорат накунам, ҳама чиз вайрон мешавад.”
-
-**Ба ту чӣ лозим аст?**
-Тартиб бе назорат. Ғамхорӣ бе модаршавӣ. Амният бе ҳама чизро худ кашидан.`
-        }
-    };
 
     // ==================== DOM ELEMENTS ====================
     const progBarWrap = document.getElementById('progBarWrap');
     const progFill = document.getElementById('progFill');
     const loaderOverlay = document.getElementById('ld');
     
+    const secIntro = document.getElementById('sec-intro');
     const secAuth = document.getElementById('sec-auth');
     const secQuiz = document.getElementById('sec-quiz');
     const secResults = document.getElementById('sec-results');
+    const btnGoRegister = document.getElementById('btn-go-register');
 
     // Registration inputs & action
     const inputName = document.getElementById('u-name');
@@ -287,9 +76,8 @@
     const resBodyText = document.getElementById('resBodyText');
     const statsBreakdown = document.getElementById('statsBreakdown');
     const btnTgAdmin = document.getElementById('btn-tg-admin');
-    const btnRestart = document.getElementById('btn-restart');
 
-    // ==================== HELPER: SHOW SCREEN ====================
+    // ==================== NAVIGATION / SCREEN SWITCHING ====================
     function showScreen(targetScreen) {
         // Hide all screens
         document.querySelectorAll('.screen').forEach(scr => {
@@ -306,28 +94,47 @@
         state.currentQuestionIndex = index;
         const q = questions[index];
         const qNum = index + 1;
+        const totalQs = questions.length;
 
         // Update progress bar
         progBarWrap.classList.add('visible');
-        const progressPct = Math.round((index / 15) * 100);
+        const progressPct = Math.round((index / totalQs) * 100);
         progFill.style.width = progressPct + '%';
 
         // Update step descriptions
-        stepCounter.textContent = `Саволи ${qNum} аз 15`;
-        qBadge.textContent = `САВОЛИ ${qNum} АЗ 15`;
+        stepCounter.textContent = `Саволи ${qNum} аз ${totalQs}`;
+        qBadge.textContent = `САВОЛИ ${qNum} АЗ ${totalQs}`;
         qText.textContent = q.text;
 
-        // Render options list
-        optionsList.innerHTML = '';
-        q.options.forEach((opt, optIdx) => {
-            const btn = document.createElement('button');
-            btn.className = 'btn-option';
-            if (state.answers[index] === optIdx) {
-                btn.classList.add('selected');
+        // Render textarea and Next button dynamically inside optionsList
+        const savedValue = state.answers[index] || '';
+        optionsList.innerHTML = `
+            <textarea id="answerTextarea" class="answer-textarea" placeholder="Ҷавоби худро ин ҷо нависед..." rows="4">${savedValue}</textarea>
+            <button class="btn btn-primary btn-full btn-next-q" id="btnNextQ" style="margin-top: 15px;">
+                Давом додан
+                <svg class="arrow-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </button>
+        `;
+
+        const textarea = document.getElementById('answerTextarea');
+        const btnNext = document.getElementById('btnNextQ');
+
+        textarea.focus();
+
+        // Check initial state
+        btnNext.disabled = (textarea.value.trim().length === 0);
+
+        // Track text changes
+        textarea.addEventListener('input', () => {
+            btnNext.disabled = (textarea.value.trim().length === 0);
+        });
+
+        // Next button click listener
+        btnNext.addEventListener('click', () => {
+            const val = textarea.value.trim();
+            if (val.length > 0) {
+                handleAnswerSubmit(val);
             }
-            btn.innerHTML = `<strong>${opt.letter}</strong> — ${opt.text}`;
-            btn.addEventListener('click', () => handleOptionClick(optIdx));
-            optionsList.appendChild(btn);
         });
 
         // Toggle back button visibility
@@ -340,23 +147,17 @@
         }
     }
 
-    // ==================== OPTION SELECTION ====================
-    function handleOptionClick(optIdx) {
+    // ==================== SUBMIT ANSWER ====================
+    function handleAnswerSubmit(answerText) {
         if (state.transitioning) return;
         state.transitioning = true;
 
         const qIndex = state.currentQuestionIndex;
-        state.answers[qIndex] = optIdx;
-
-        // Highlight selected
-        const buttons = optionsList.querySelectorAll('.btn-option');
-        buttons.forEach((btn, idx) => {
-            btn.classList.toggle('selected', idx === optIdx);
-        });
+        state.answers[qIndex] = answerText;
 
         // Proceed to next question with a tiny smooth delay
         setTimeout(() => {
-            if (qIndex < 14) {
+            if (qIndex < questions.length - 1) {
                 // Fade out question card temporarily
                 qCard.style.opacity = '0';
                 qCard.style.transform = 'translateY(10px)';
@@ -374,7 +175,7 @@
                 state.transitioning = false;
                 processResults();
             }
-        }, 280);
+        }, 200);
     }
 
     // ==================== BACK BUTTON ====================
@@ -383,6 +184,13 @@
         const qIndex = state.currentQuestionIndex;
         if (qIndex > 0) {
             state.transitioning = true;
+
+            // Save current value if any before going back
+            const textarea = document.getElementById('answerTextarea');
+            if (textarea) {
+                state.answers[qIndex] = textarea.value.trim() || null;
+            }
+
             qCard.style.opacity = '0';
             qCard.style.transform = 'translateY(10px)';
             qCard.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
@@ -400,96 +208,36 @@
     function processResults() {
         loaderOverlay.classList.add('on');
 
-        // Calculate scores
-        const counts = { A: 0, B: 0, C: 0, D: 0 };
-        state.answers.forEach(ansIdx => {
-            if (ansIdx === 0) counts.A++;
-            else if (ansIdx === 1) counts.B++;
-            else if (ansIdx === 2) counts.C++;
-            else if (ansIdx === 3) counts.D++;
-        });
-
-        // Determine dominant wound
-        let dominantWoundLetter = 'A';
-        let maxCount = counts.A;
-
-        // In case of ties, prioritize in order: A, B, C, D
-        if (counts.B > maxCount) { dominantWoundLetter = 'B'; maxCount = counts.B; }
-        if (counts.C > maxCount) { dominantWoundLetter = 'C'; maxCount = counts.C; }
-        if (counts.D > maxCount) { dominantWoundLetter = 'D'; maxCount = counts.D; }
-
-        const result = resultsDetails[dominantWoundLetter];
-
-        // Format result text markdown to HTML
-        let formattedText = result.text;
-        // Replace markdown bold
-        formattedText = formattedText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-
         // Populate results fields
-        resWoundBadge.textContent = result.badgeName;
-        resTitle.textContent = result.title;
-        resBodyText.innerHTML = formattedText;
-
-        // Populate breakdown stats
-        statsBreakdown.innerHTML = `
-            <div class="stats-title">ҶАМЪИ ҲИСОБИ ҲАРФҲО:</div>
-            <div class="stats-grid">
-                <div class="stat-item">Ҳарфи <strong>A</strong> (Духтарча): <strong>${counts.A}</strong> то</div>
-                <div class="stat-item">Ҳарфи <strong>B</strong> (Любовница): <strong>${counts.B}</strong> то</div>
-                <div class="stat-item">Ҳарфи <strong>C</strong> (Малика): <strong>${counts.C}</strong> то</div>
-                <div class="stat-item">Ҳарфи <strong>D</strong> (Хозяйка): <strong>${counts.D}</strong> то</div>
-            </div>
+        resWoundBadge.textContent = 'Қабул шуд';
+        resTitle.textContent = 'Анкета бо муваффақият қабул шуд!';
+        resBodyText.innerHTML = `
+            Ташаккур барои ҷавобҳои самимии шумо!<br><br>
+            Ҷавобҳои шумо бо муваффақият ба қайд гирифта шуданд ва барои таҳлили инфиродӣ фиристода шуданд. Ин ба мо кӯмак мекунад, ки курси равоншиносиро маҳз барои ҳалли мушкилоти воқеии шумо омода кунем.<br><br>
+            Барои гирифтани видео-дарси ҳадия ва маълумоти бештар, лутфан ба канали Telegram-и мо ҳамроҳ шавед.
         `;
 
+        if (statsBreakdown) {
+            statsBreakdown.style.display = 'none';
+        }
+
         // Send data to Telegram
-        sendTelegramData(counts, dominantWoundLetter, result.title);
+        sendTelegramData();
     }
 
     // ==================== SEND TELEGRAM DATA ====================
-    async function sendTelegramData(counts, dominantLetter, dominantTitle) {
+    async function sendTelegramData() {
         const userName = `${state.user.name} ${state.user.surname}`;
         const userAge = state.user.age;
         const userStatus = state.user.status;
 
-        // 1. Text caption for the photo
-        const caption = `🆕 <b>НАТИҶАИ НАВ АЗ ТЕСТ:</b>\n\n` +
+        // 1. Text caption for the photo/message
+        const caption = `🆕 <b>ҶАВОБҲОИ АНКЕТАИ НАВ (КУРСИ ПУЛӢ):</b>\n\n` +
                         `👤 <b>Иштирокчӣ:</b> ${userName}\n` +
                         `📅 <b>Синн:</b> ${userAge} сол\n` +
                         `💍 <b>Статус:</b> ${userStatus}\n` +
-                        `🏆 <b>Захми асосӣ:</b> ${dominantTitle} (${dominantLetter})\n\n` +
-                        `📊 <b>Холҳо:</b> A: ${counts.A} | B: ${counts.B} | C: ${counts.C} | D: ${counts.D}\n\n` +
-                        `<i>👇 Ҷавобҳои пурра дар файли навбатӣ...</i>`;
-
-        // 2. Comprehensive log for the text file (.txt)
-        let txtLog = `============================================================\n`;
-        txtLog += `           НАТИҶАҲОИ ТЕСТИ ПСИХОЛОГИИ МИЗОЧ\n`;
-        txtLog += `     "ЧАРО ҶОЛИБИЯТИ ТУ БАРОИ МАРД КАМ МЕШАВАД?"\n`;
-        txtLog += `============================================================\n\n`;
-        txtLog += `👤 ИШТИРОКЧӢ:\n`;
-        txtLog += `------------------------------------------------------------\n`;
-        txtLog += `Ном ва Насаб:    ${userName}\n`;
-        txtLog += `Синну сол:       ${userAge} сол\n`;
-        txtLog += `Ҳолати оилавӣ:   ${userStatus}\n`;
-        txtLog += `Захми асосӣ:     ${dominantTitle} (${dominantLetter})\n\n`;
-        txtLog += `Ҳисоби ҳарфҳо:\n`;
-        txtLog += `— A (Духтарчаи захмӣ): ${counts.A} то\n`;
-        txtLog += `— B (Любовницаи захмӣ): ${counts.B} то\n`;
-        txtLog += `— C (Маликаи захмӣ):   ${counts.C} то\n`;
-        txtLog += `— D (Хозяйкаи захмӣ):  ${counts.D} то\n\n`;
-        txtLog += `============================================================\n`;
-        txtLog += `📝 ҶАВОБҲОИ МУФАССАЛИ САВОЛҲО:\n`;
-        txtLog += `============================================================\n\n`;
-
-        questions.forEach((q, qIdx) => {
-            const chosenOptIdx = state.answers[qIdx];
-            const chosenOpt = q.options[chosenOptIdx];
-            txtLog += `Саволи ${qIdx + 1}: ${q.text}\n`;
-            txtLog += `👉 Ҷавоб: [${chosenOpt.letter}] — ${chosenOpt.text}\n\n`;
-        });
-
-        txtLog += `------------------------------------------------------------\n`;
-        txtLog += `Санаи супоридан: ${new Date().toLocaleString('tg-TJ')}\n`;
-        txtLog += `============================================================\n`;
+                        `🆔 <b>ID:</b> ${state.user.id}\n\n` +
+                        `<i>👇 Матни пурраи ҷавобҳои корбар дар файли CSV-и зерин замима шудааст:</i>`;
 
         try {
             // First: Send photo with details in caption by uploading local enigma_.png
@@ -527,8 +275,8 @@
                 });
             }
 
-            // Second: Generate beautiful PDF and send as document
-            await sendPDFReport(counts, dominantLetter, dominantTitle);
+            // Second: Generate beautiful CSV and send as document
+            await sendCSVReport();
 
         } catch (err) {
             console.error('Ошибка отправки результатов в Телеграм:', err);
@@ -540,155 +288,97 @@
         }
     }
 
-    // ==================== GENERATE & SEND PDF REPORT ====================
-    async function sendPDFReport(counts, dominantLetter, dominantTitle) {
+    // ==================== GENERATE & SEND CSV REPORT ====================
+    async function sendCSVReport() {
         const userName = `${state.user.name} ${state.user.surname}`;
         const userAge = state.user.age;
         const userStatus = state.user.status;
-        const dateStr = new Date().toLocaleString('ru-RU', { dateStyle: 'medium', timeStyle: 'short' });
 
-        // Build HTML content for PDF — NO emojis (html2canvas can't render them reliably)
-        let questionsHTML = '';
+        // Create CSV Content with UTF-8 BOM (\uFEFF) so Excel reads Cyrillic characters correctly
+        const BOM = '\uFEFF';
+        let csvContent = `МАЪЛУМОТИ ИШТИРОКЧӢ (ANKETAI KURS)\n`;
+        csvContent += `Ном ва Насаб;"${userName.replace(/"/g, '""')}"\n`;
+        csvContent += `Синну сол;${userAge} сол\n`;
+        csvContent += `Ҳолати оилавӣ;"${userStatus.replace(/"/g, '""')}"\n`;
+        csvContent += `ID;${state.user.id}\n`;
+        csvContent += `Сана;"${new Date().toLocaleString('tg-TJ').replace(/"/g, '""')}"\n\n`;
+
+        csvContent += `ҶАВОБҲОИ АНКЕТА\n`;
+        csvContent += `№;Савол;Ҷавоби корбар\n`;
+
         questions.forEach((q, idx) => {
-            const chosenOptIdx = state.answers[idx];
-            const chosenOpt = q.options[chosenOptIdx];
-            questionsHTML += `
-            <div style="margin-bottom:16px; page-break-inside:avoid;">
-                <div style="font-size:12px; font-weight:700; color:#27243A; margin-bottom:5px;">${idx + 1}. ${q.text}</div>
-                <div style="background:#F3F1FA; border-left:4px solid #8B7EC8; padding:8px 12px; font-size:11px; color:#4A475A; border-radius:0 6px 6px 0;">
-                    [${chosenOpt.letter}] — ${chosenOpt.text}
-                </div>
-            </div>`;
+            const userAnsText = state.answers[idx] || 'Ҷавоб дода нашудааст';
+            const escapedQuestion = q.text.replace(/"/g, '""');
+            const escapedAnswer = userAnsText.replace(/"/g, '""');
+            csvContent += `${idx + 1};"${escapedQuestion}";"${escapedAnswer}"\n`;
         });
 
-        const htmlContent = `
-        <div style="font-family: Arial, Helvetica, sans-serif; color:#27243A; padding:32px; line-height:1.65; background:#ffffff; width:750px;">
-
-            <!-- HEADER -->
-            <div style="text-align:center; margin-bottom:28px; border-bottom:3px solid #8B7EC8; padding-bottom:18px;">
-                <div style="font-size:11px; font-weight:700; color:#8B7EC8; letter-spacing:3px; text-transform:uppercase; margin-bottom:8px;">TESTI PSIHOLOGI</div>
-                <h1 style="font-size:19px; color:#27243A; margin:0 0 6px 0; font-weight:800;">NATIJAHOI TEST</h1>
-                <p style="font-size:11px; color:#6C6882; margin:0; font-style:italic;">"Charo jolibiyati tu baroi mard kam meshavad?"</p>
-            </div>
-
-            <!-- PARTICIPANT INFO -->
-            <div style="background:#F3F1FA; border-radius:12px; padding:18px 22px; margin-bottom:22px; border:1px solid rgba(139,126,200,0.25);">
-                <div style="font-size:10px; font-weight:700; color:#8B7EC8; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px;">ISHTIROKCII TEST</div>
-                <table style="width:100%; border-collapse:collapse; font-size:12px;">
-                    <tr>
-                        <td style="padding:5px 0; font-weight:700; width:35%; color:#6C6882;">Nom va Nasab:</td>
-                        <td style="padding:5px 0; font-weight:700; color:#27243A;">${userName}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding:5px 0; font-weight:700; color:#6C6882;">Sinnu sol:</td>
-                        <td style="padding:5px 0; color:#27243A;">${userAge} sol</td>
-                    </tr>
-                    <tr>
-                        <td style="padding:5px 0; font-weight:700; color:#6C6882;">Holati oilavii:</td>
-                        <td style="padding:5px 0; color:#27243A;">${userStatus}</td>
-                    </tr>
-                    <tr>
-                        <td style="padding:5px 0; font-weight:700; color:#6C6882;">Zahmi asosin:</td>
-                        <td style="padding:5px 0; font-weight:800; color:#8B7EC8; font-size:13px;">${dominantTitle} (${dominantLetter})</td>
-                    </tr>
-                </table>
-            </div>
-
-            <!-- SCORES -->
-            <div style="background:#ffffff; border-radius:10px; padding:16px 20px; margin-bottom:22px; border:1px solid rgba(139,126,200,0.2);">
-                <div style="font-size:10px; font-weight:700; color:#8B7EC8; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px;">HISOBI HARFHO</div>
-                <table style="width:100%; font-size:12px; border-collapse:collapse;">
-                    <tr>
-                        <td style="padding:6px 10px; width:25%; background:#F3F1FA; border-radius:6px; text-align:center; font-weight:700;">A — Duhtarcha<br><span style="font-size:18px; color:#8B7EC8;">${counts.A}</span></td>
-                        <td style="width:4%;"></td>
-                        <td style="padding:6px 10px; width:25%; background:#F3F1FA; border-radius:6px; text-align:center; font-weight:700;">B — Liubovnitsa<br><span style="font-size:18px; color:#8B7EC8;">${counts.B}</span></td>
-                        <td style="width:4%;"></td>
-                        <td style="padding:6px 10px; width:25%; background:#F3F1FA; border-radius:6px; text-align:center; font-weight:700;">C — Malika<br><span style="font-size:18px; color:#8B7EC8;">${counts.C}</span></td>
-                        <td style="width:4%;"></td>
-                        <td style="padding:6px 10px; width:25%; background:#F3F1FA; border-radius:6px; text-align:center; font-weight:700;">D — Hoziajka<br><span style="font-size:18px; color:#8B7EC8;">${counts.D}</span></td>
-                    </tr>
-                </table>
-            </div>
-
-            <!-- QUESTIONS DIVIDER -->
-            <div style="font-size:11px; font-weight:700; color:#5F57A0; border-bottom:1px dashed rgba(139,126,200,0.4); padding-bottom:8px; margin-bottom:18px; text-transform:uppercase; letter-spacing:1.5px;">
-                Javobhoi purra (15 savol)
-            </div>
-
-            <!-- QUESTIONS LIST -->
-            ${questionsHTML}
-
-            <!-- FOOTER -->
-            <div style="margin-top:30px; border-top:1px solid rgba(139,126,200,0.2); padding-top:12px; text-align:center; font-size:10px; color:#ADAABF;">
-                Sanai suporidan: ${dateStr} &nbsp;|&nbsp; Testi Psihologii Mizoj
-            </div>
-        </div>`;
-
-        // *** FIX: element positioned off-screen (NOT hidden, NOT negative z-index) ***
-        // html2canvas requires the element to be visible and attached to DOM
-        const tempEl = document.createElement('div');
-        tempEl.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: -9999px;
-            width: 790px;
-            background: #ffffff;
-            z-index: 1;
-            overflow: visible;
-        `;
-        tempEl.innerHTML = htmlContent;
-        document.body.appendChild(tempEl);
-
-        console.log('PDF: element appended to DOM, starting html2pdf...');
+        const csvBlob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+        const safeFileName = `${state.user.name}_${state.user.surname}_anketa.csv`
+            .replace(/[\\\/:\*\?"<>\| ]/g, '_');
 
         try {
-            const safeFileName = `${state.user.name}_${state.user.surname}_natija.pdf`
-                .replace(/[\\\/:\*\?"<>\| ]/g, '_');
-
-            const pdfBlob = await html2pdf()
-                .set({
-                    margin: [8, 8, 8, 8],
-                    filename: safeFileName,
-                    image: { type: 'jpeg', quality: 0.95 },
-                    html2canvas: {
-                        scale: 2,
-                        useCORS: true,
-                        allowTaint: true,
-                        logging: false,
-                        backgroundColor: '#ffffff'
-                    },
-                    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-                })
-                .from(tempEl)
-                .outputPdf('blob');
-
-            console.log('PDF: generated successfully, size:', pdfBlob.size);
-            document.body.removeChild(tempEl);
-
-            // Send PDF to Telegram as document
-            const pdfFormData = new FormData();
-            pdfFormData.append('chat_id', TG_CHAT_ID);
-            pdfFormData.append('document', pdfBlob, safeFileName);
-            pdfFormData.append('caption', `Natijahoi test: ${userName} | ${dominantTitle} (${dominantLetter})`);
+            const csvFormData = new FormData();
+            csvFormData.append('chat_id', TG_CHAT_ID);
+            csvFormData.append('document', csvBlob, safeFileName);
+            csvFormData.append('caption', `Natijahoi anketa (CSV): ${userName} | ID: ${state.user.id}`);
 
             const tgRes = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendDocument`, {
                 method: 'POST',
-                body: pdfFormData
+                body: csvFormData
             });
             const tgJson = await tgRes.json();
-            console.log('PDF: Telegram sendDocument response:', tgJson.ok ? 'OK' : tgJson.description);
-
-        } catch (pdfErr) {
-            console.error('PDF generation/send error:', pdfErr);
-            if (tempEl.parentNode) document.body.removeChild(tempEl);
+            if (!tgJson.ok) {
+                console.error('Telegram CSV send failed:', tgJson.description);
+            } else {
+                console.log('CSV sent to Telegram successfully!');
+            }
+        } catch (csvErr) {
+            console.error('CSV generation/send error:', csvErr);
         }
     }
 
+    // ==================== ANALYTICS (silent Telegram events) ====================
+    async function sendAnalytics(eventName, extra) {
+        try {
+            const now = new Date().toLocaleString('ru-RU', { dateStyle: 'short', timeStyle: 'short' });
+            let messageText = '';
+            if (eventName === 'visit') {
+                messageText = `👀 <b>АНАЛИТИКА: Корбар сайтро кушод</b> | ${now}`;
+            } else if (eventName === 'test_start') {
+                messageText = `▶️ <b>АНАЛИТИКА: Оғози анкета</b> | ${now}\n\n` +
+                              `👤 <b>Иштирокчӣ:</b> ${state.user.name} ${state.user.surname}\n` +
+                              `📅 <b>Синн:</b> ${state.user.age} сол\n` +
+                              `💍 <b>Статус:</b> ${state.user.status}\n` +
+                              `🆔 <b>ID:</b> ${state.user.id}`;
+            } else if (eventName === 'channel_click') {
+                messageText = `📢 <b>АНАЛИТИКА: Гузариш ба канал</b> | ${now}\n\n` +
+                              `👤 <b>Иштирокчӣ:</b> ${state.user.name} ${state.user.surname}\n` +
+                              `📅 <b>Синн:</b> ${state.user.age} сол\n` +
+                              `💍 <b>Статус:</b> ${state.user.status}\n` +
+                              `🏆 <b>ID:</b> ${state.user.id}`;
+            }
+            await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendMessage`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    chat_id: TG_ANALYTICS_CHAT_ID,
+                    text: messageText,
+                    parse_mode: 'HTML'
+                })
+            });
+        } catch(e) { /* silent */ }
+    }
 
     // ==================== EVENT BINDINGS ====================
-    
+
+    // Intro -> Registration screen
+    btnGoRegister.addEventListener('click', () => {
+        showScreen(secAuth);
+    });
+
     // Auth Form Submit
-    btnStartTest.addEventListener('click', () => {
+    btnStartTest.addEventListener('click', async () => {
         const nameVal = inputName.value.trim();
         const surnameVal = inputSurname.value.trim();
         const ageVal = inputAge.value.trim();
@@ -699,7 +389,17 @@
             return;
         }
 
+        btnStartTest.disabled = true;
+        const originalText = btnStartTest.textContent;
+        btnStartTest.textContent = 'Лутфан мунтазир шавед...';
+
+        // Sequential ID from localStorage: 1, 2, 3, 4, 5...
+        const storedId = parseInt(localStorage.getItem('anketa_kurs_user_id') || '0', 10);
+        const nextId = storedId + 1;
+        localStorage.setItem('anketa_kurs_user_id', nextId);
+
         // Save states
+        state.user.id = nextId;
         state.user.name = nameVal;
         state.user.surname = surnameVal;
         state.user.age = ageVal;
@@ -707,30 +407,29 @@
 
         // Reset quiz answers & current question index
         state.currentQuestionIndex = 0;
-        state.answers = new Array(15).fill(null);
+        state.answers = new Array(20).fill(null);
+
+        // Track test start
+        sendAnalytics('test_start', `${nameVal} ${surnameVal}`);
 
         // Transition to Quiz Screen
         showScreen(secQuiz);
         renderQuestion(0);
+
+        btnStartTest.disabled = false;
+        btnStartTest.textContent = originalText;
     });
 
-    // Telegram Admin Button Redirect
+    // Channel Button Click + Analytics
     btnTgAdmin.addEventListener('click', () => {
+        const userName = `${state.user.name} ${state.user.surname}`.trim() || 'Номаълум';
+        sendAnalytics('channel_click', userName);
         window.open(TG_ADMIN_URL, '_blank');
     });
 
-    // Restart Test Button
-    btnRestart.addEventListener('click', () => {
-        // Clear registration form inputs
-        inputName.value = '';
-        inputSurname.value = '';
-        inputAge.value = '';
-        selectStatus.selectedIndex = 0;
-
-        // Switch to registration screen
-        showScreen(secAuth);
-    });
+    // Track page visit on load
+    sendAnalytics('visit');
 
     // Initial log message
-    console.log('✨ Тест бо муваффақият омода шуд.');
+    console.log('✨ Анкета бо муваффақият омода шуд.');
 })();
